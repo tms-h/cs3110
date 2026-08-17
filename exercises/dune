@@ -1,0 +1,49 @@
+(executables
+ (names
+  e01_semantics_sprint
+  e02_recursion_under_pressure
+  e03_lists_and_library
+  e04_tail_recursion_and_shape
+  e05_records_options_and_dates
+  e06_variants_and_patterns
+  e07_trees_invariants_and_errors
+  e08_function_composition
+  e09_folds_pipelines_and_refactors
+  e10_matrix_pipeline
+  e11_signatures_and_fractions
+  e12_queues_and_cost_models
+  e13_maps_and_bst_abstraction
+  e14_ordered_collections
+  e15_functors_and_include
+  e16_interface_boundaries
+  e17_algebra_refactor
+  e18_refs_aliasing_and_state
+  e19_arrays_and_mutation
+  e20_promises_from_scratch
+  e22_monads_by_type
+  e23_specification_game
+  e24_abstraction_functions
+  e25_testing_from_contracts
+  e26_property_driven_debugging
+  e27_induction_on_programs
+  e28_structural_proofs
+  e29_equational_specifications
+  e30_hash_tables_and_invariants
+  e31_linear_probing
+  e32_ordered_trees_and_traversal
+  e33_productive_sequences
+  e34_numerical_streams
+  e35_laziness_boundaries
+  e36_parser_orientation
+  e37_substitution_and_small_step
+  e38_extending_a_language
+  e39_environments_and_recursion
+  e40_unification_and_inference
+  e41_programs_as_proofs)
+ (libraries unix)
+ (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+
+(executable
+ (name e21_lwt_scheduling)
+ (libraries lwt.unix)
+ (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
