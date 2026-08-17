@@ -1,121 +1,66 @@
-(** E22 — Monads by following the types (40-50 min)
+(** E22 — Monads from their types (85-115 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e22_monads_by_type.exe] Run:
+    [opam exec -- dune exec exercises/e22_monads_by_type.exe] Inspect:
+    [opam exec -- ocamlc -i exercises/e22_monads_by_type.ml] *)
 
-    - Derive [fmap], [join], and [bind] from one another.
-    - Work through abstract Maybe and list representations without casts.
+(* Task 1 — Define the extended monad interface.
+   Define module type [EXT_MONAD] with type constructor ['a t] and operations:
+   [return : 'a -> 'a t], [bind : 'a t -> ('a -> 'b t) -> 'b t],
+   [fmap : 'a t -> ('a -> 'b) -> 'b t], and [join : 'a t t -> 'a t].
 
-    STEP 1 — COMPLETE MAYBE DIRECTLY
+   Run interface inspection and verify each type variable occurs in the intended
+   positions.
+   Build and run before continuing. *)
 
-    - Implement [Maybe.bind], [Maybe.fmap], and [Maybe.join] by matching.
-    - Outside the module, implement [add] with only [return] and [bind].
-    - Do not use [Some] or [None] in [add].
+(* Task 2 — Implement the maybe monad directly.
+   Define unsealed [Maybe_impl] with ['a t = 'a option], identity [of_option] and
+   [to_option], [return x = Some x], and direct pattern-matching implementations
+   of [bind], [fmap], and [join]. None must propagate without calling a supplied
+   function.
 
-    STEP 2 — REMOVE REPRESENTATION KNOWLEDGE
+   Test every operation with [Some] and [None], including [join (Some None)].
+   Build and run before continuing. *)
 
-    - Implement [Derived.fmap] and [Derived.join].
-    - Use only the supplied [bind] and [return].
-    - Do not pattern-match on an unknown representation.
+(* Task 3 — Seal [Maybe] and add optional integers.
+   Seal [Maybe_impl] as [Maybe], exposing [EXT_MONAD] plus [of_option] and
+   [to_option]. Define [add a b] using only [Maybe.bind] and [Maybe.return], with
+   no direct [Some] or [None] match.
 
-    STEP 3 — DERIVE BIND THE OTHER WAY
+   Test 2 + 3 produces [Some 5], and either missing operand produces [None].
+   Build and run before continuing. *)
 
-    - Implement [Make_bind.bind] from [fmap] and [join].
-    - Let type errors guide expression shape.
-    - Do not add casts or inspect [M.t].
+(* Task 4 — Derive [fmap] and [join] from bind.
+   Define functor [Derived] taking a module with ['a t], [return], and [bind]. Its
+   result defines [fmap m f = bind m (fun x -> return (f x))] and
+   [join mm = bind mm (fun m -> m)].
 
-    STEP 4 — IMPLEMENT THE LIST MONAD
+   Instantiate it for [Maybe]. Test derived map on [Some 3] and [None], and
+   derived join on [Some (Some 4)] and [Some None].
+   Build and run before continuing. *)
 
-    - Predict result ordering for the supplied [x -> [x; -x]] example.
-    - Implement [return], [fmap], [join], and [bind].
-    - Check the observed ordering against the prediction.
+(* Task 5 — Derive bind from [fmap] and [join].
+   Define module type [FMAP_JOIN] with ['a t], [return], [fmap], and [join].
+   Define functor [Make_bind] with [bind m f = join (fmap m f)].
 
-    STEP 5 — TEST THE LAWS
+   Instantiate it for [Maybe]. Test binding [Some 3] to [Some 4] and binding
+   [None] without calling the function.
+   Build and run before continuing. *)
 
-    - Add executable left-identity, right-identity, and associativity checks.
-    - Cover [Trivial] and representative finite Maybe and List inputs.
-    - Explain what those tests establish and what still requires proof.
+(* Task 6 — Implement the list monad.
+   Define [List_monad : EXT_MONAD with type 'a t = 'a list]. [return x] is [x],
+   [fmap] preserves list order, [join] concatenates nested lists in order, and
+   [bind] maps then concatenates.
 
-    FINISH
+   Test empty inputs and test binding [1; 2; 3] with
+   [fun x -> [x; -x]] produces [1; -1; 2; -2; 3; -3].
+   Build and run before continuing. *)
 
-    - Run [opam exec -- dune exec exercises/e22_monads_by_type.exe].
+(* Task 7 — Check monad laws on a trivial monad.
+   Define [Trivial] with ['a t = Wrap of 'a], [return x = Wrap x], and
+   [bind (Wrap x) f = f x]. Write runtime assertions for left identity, right
+   identity, and associativity using integer functions.
 
-    Source coverage: add opt; fmap and join; fmap and join again; bind from fmap+join;
-    list monad; trivial monad laws. *)
-
-module type EXT_MONAD = sig
-  type 'a t
-
-  val return : 'a -> 'a t
-  val bind : 'a t -> ('a -> 'b t) -> 'b t
-  val fmap : 'a t -> ('a -> 'b) -> 'b t
-  val join : 'a t t -> 'a t
-end
-
-module Maybe : sig
-  include EXT_MONAD
-
-  val of_option : 'a option -> 'a t
-  val to_option : 'a t -> 'a option
-end = struct
-  type 'a t = 'a option
-
-  let return x = Some x
-  let bind (_m : 'a t) (_f : 'a -> 'b t) : 'b t = failwith "TODO"
-  let fmap (_m : 'a t) (_f : 'a -> 'b) : 'b t = failwith "TODO: direct match"
-  let join (_m : 'a t t) : 'a t = failwith "TODO: direct match"
-  let of_option x = x
-  let to_option x = x
-end
-
-let add (_a : int Maybe.t) (_b : int Maybe.t) : int Maybe.t =
-  failwith "TODO: no Some/None"
-
-module Derived (M : sig
-  type 'a t
-
-  val return : 'a -> 'a t
-  val bind : 'a t -> ('a -> 'b t) -> 'b t
-end) =
-struct
-  let fmap (_m : 'a M.t) (_f : 'a -> 'b) : 'b M.t = failwith "TODO"
-  let join (_m : 'a M.t M.t) : 'a M.t = failwith "TODO"
-end
-
-module type FMAP_JOIN = sig
-  type 'a t
-
-  val return : 'a -> 'a t
-  val fmap : 'a t -> ('a -> 'b) -> 'b t
-  val join : 'a t t -> 'a t
-end
-
-module Make_bind (M : FMAP_JOIN) = struct
-  let bind (_m : 'a M.t) (_f : 'a -> 'b M.t) : 'b M.t = failwith "TODO"
-end
-
-module List_monad : EXT_MONAD with type 'a t = 'a list = struct
-  type 'a t = 'a list
-
-  let return (_x : 'a) : 'a t = failwith "TODO"
-  let fmap (_m : 'a t) (_f : 'a -> 'b) : 'b t = failwith "TODO"
-  let join (_m : 'a t t) : 'a t = failwith "TODO"
-  let bind (_m : 'a t) (_f : 'a -> 'b t) : 'b t = failwith "TODO"
-end
-
-module Trivial = struct
-  type 'a t = Wrap of 'a
-
-  let return x = Wrap x
-  let bind (Wrap x) f = f x
-end
-
-(* LAW TESTS / PROOF SKETCHES: ... *)
-
-let () =
-  assert (
-    Maybe.to_option (add (Maybe.of_option (Some 2)) (Maybe.of_option (Some 3))) = Some 5);
-  assert (Maybe.to_option (add (Maybe.of_option None) (Maybe.of_option (Some 3))) = None);
-  assert (List_monad.bind [ 1; 2; 3 ] (fun x -> [ x; -x ]) = [ 1; -1; 2; -2; 3; -3 ]);
-  let open Trivial in
-  assert (bind (return 3) (fun x -> Wrap (x + 1)) = Wrap 4);
-  print_endline "E22 complete"
+   Add a comment explaining why these examples illustrate but do not prove the
+   polymorphic laws.
+   Build and run before continuing. *)

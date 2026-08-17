@@ -1,107 +1,61 @@
-(** E30 — Hash tables and coupled invariants (40-50 min)
+(** E30 — Hash-table invariants (85-115 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e30_hash_tables_and_invariants.exe] Run:
+    [opam exec -- dune exec exercises/e30_hash_tables_and_invariants.exe] Reading:
+    https://ocaml.org/manual/5.4/api/Hashtbl.html *)
 
-    Inspect hash-table distribution, distinguish [add] from [replace], and keep a
-    specialized table's equality and hash functions coherent.
+(* Task 1 — Model chained buckets.
+   Define [bucket_index key = key mod 7]. In comments, place keys
+   4, 8, 15, 16, 23, and 42 into seven buckets and state the invariant that each
+   binding is in its hash-selected bucket.
 
-    STEP 1 — DRAW THE BUCKETS BEFORE CODING
+   Define [bucket_counts keys] to return a seven-element count list. Test the six
+   keys produce counts [1; 2; 2; 0; 1; 0; 0]. Describe how allowing duplicate
+   keys or sorting each bucket changes behavior and costs.
+   Build and run before continuing. *)
 
-    - Draw seven chained buckets numbered 0 through 6.
-    - Insert 4, 8, 15, 16, 23, and 42 using [k mod 7].
-    - Write the representation invariant for this table.
-    - Now analyze two alternative designs: buckets may contain duplicate keys; buckets
-      are kept sorted. For each design, state what changes in the invariant, observable
-      behavior, and operation costs.
+(* Task 2 — Compare [add] and [replace].
+   Define [table : (int, string) Hashtbl.t] and [populate ()] to replace keys 1
+   through 32 with their decimal strings. Test key 31 and table length 32.
 
-    STEP 2 — PREDICT THE STDLIB TABLE'S BEHAVIOR
+   In a separate small table, use [add] twice on one key and test [find_all]
+   returns both values. Then use [replace] and test only the replacement remains.
+   Build and run before continuing. *)
 
-    - Read the required Hashtbl documentation:
-      https://ocaml.org/manual/5.4/api/Hashtbl.html
-    - Call [populate] to insert keys 1 through 32 into [table].
-    - Before inspecting statistics, predict when the table will resize.
-    - Check the prediction with [Hashtbl.stats] and a computed load factor.
-    - Explain, with a duplicate-key example, how [Hashtbl.add] differs from
-      [Hashtbl.replace].
+(* Task 3 — Observe bindings and load factor.
+   Define [bindings table] with [Hashtbl.fold]; result order is unspecified.
+   Define [load_factor table] as
+   [float num_bindings /. float num_buckets] from [Hashtbl.stats], returning 0.0
+   if the implementation reports zero buckets.
 
-    STEP 3 — IMPLEMENT THE OBSERVATION HELPERS
+   Test sorted bindings of a three-entry table and test the populated table has
+   positive load. Print full statistics without asserting resize thresholds.
+   Build and run before continuing. *)
 
-    - Implement [bindings] with [Hashtbl.fold].
-    - Implement [load_factor] from [Hashtbl.stats].
-    - Run the file and fix any type or API-usage errors before continuing.
+(* Task 4 — Find an actual hash collision.
+   Define polymorphic tree [hash_tree = HLeaf | HNode of hash_tree * int * hash_tree].
+   Define [find_tree_collision limit] to enumerate trees whose node values are
+   between 0 and [limit] and return two structurally distinct trees with equal
+   [Hashtbl.hash], or [None] if your bounded enumeration finds none.
 
-    STEP 4 — EXPLORE HASH VALUES AND COLLISIONS
+   Increase the limit until a collision is found, then assert the trees differ
+   structurally and have equal hashes. Do not assert a particular pair.
+   Build and run before continuing. *)
 
-    - Hash several values of algebraic types.
-    - Enumerate bounded binary trees and find two distinct trees with the same hash.
-    - Explain why collision resistance does not mean collision freedom.
+(* Task 5 — Couple equality and hashing.
+   Define [Case_insensitive_key] with [type t = string], equality after
+   [String.lowercase_ascii], and hash of the same normalized string. Define
+   [Ci_table = Hashtbl.Make (Case_insensitive_key)].
 
-    STEP 5 — COUPLE EQUALITY WITH HASHING
+   Test inserting ["OCaml"] and finding or replacing it through ["ocAML"]. In a
+   comment, prove equal keys receive equal hashes.
+   Build and run before continuing. *)
 
-    - Complete [Case_insensitive_key.equal] and [Case_insensitive_key.hash].
-    - In [EQUAL/HASH PROOF], show that [equal a b] implies [hash a = hash b].
-    - Deliberately violate that implication, run the lookup, and record the symptom.
-    - Restore the coherent implementation before moving on.
+(* Task 6 — Degrade distribution deliberately.
+   Define [Constant_hash_key] for integers with [Int.equal] and constant hash 0.
+   Define [Bad_table = Hashtbl.Make (Constant_hash_key)]. Insert keys 1 through
+   20 and test all values remain findable.
 
-    STEP 6 — DEGRADE DISTRIBUTION DELIBERATELY
-
-    - Populate [Bad_table], whose hash is constant.
-    - Inspect its statistics and identify the resulting bucket distribution.
-    - Relate that distribution to worst-case operation costs. Make clear that the bad
-      hash function, not hash tables in general, caused the degradation.
-
-    FINISH
-
-    Run: [opam exec -- dune exec exercises/e30_hash_tables_and_invariants.exe]
-
-    Source coverage: hash insert; relax bucket RI; strengthen bucket RI; hash values;
-    hashtbl usage; hashtbl stats; hashtbl bindings; hashtbl load factor; functorial
-    interface; equals and hash; bad hash. *)
-
-let table : (int, string) Hashtbl.t = Hashtbl.create 16
-
-let populate () =
-  for key = 1 to 32 do
-    Hashtbl.replace table key (string_of_int key)
-  done
-
-let bindings (_table : ('k, 'v) Hashtbl.t) : ('k * 'v) list = failwith "TODO"
-let load_factor (_table : ('k, 'v) Hashtbl.t) : float = failwith "TODO: stats"
-
-module Case_insensitive_key = struct
-  type t = string
-
-  let equal (_a : t) (_b : t) : bool = failwith "TODO"
-  let hash (_s : t) : int = failwith "TODO: must follow equal"
-end
-
-module Ci_table = Hashtbl.Make (Case_insensitive_key)
-
-module Constant_hash_key = struct
-  type t = int
-
-  let equal = Int.equal
-  let hash _ = 0
-end
-
-module Bad_table = Hashtbl.Make (Constant_hash_key)
-
-(* BUCKET DRAWING: ...
-   RELAXED RI ANALYSIS: ...
-   SORTED RI ANALYSIS: ...
-   EQUAL/HASH PROOF: ... *)
-
-let () =
-  populate ();
-  assert (Hashtbl.find table 31 = "31");
-  assert (List.length (bindings table) = 32);
-  assert (load_factor table > 0.);
-  let ci = Ci_table.create 8 in
-  Ci_table.replace ci "OCaml" 3110;
-  assert (Ci_table.find ci "ocAML" = 3110);
-  let bad = Bad_table.create 8 in
-  for i = 1 to 20 do
-    Bad_table.replace bad i i
-  done;
-  assert ((Bad_table.stats bad).Hashtbl.max_bucket_length = 20);
-  print_endline "E30 complete"
+   Test [max_bucket_length = 20] from [Bad_table.stats] and explain why operations
+   now have linear worst-case cost even though correctness is unchanged.
+   Build and run before continuing. *)

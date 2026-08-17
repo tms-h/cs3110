@@ -1,70 +1,55 @@
-(** E04 — Tail recursion and list shape (35-50 min)
+(** E04 — Tail recursion and list shape (75-105 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e04_tail_recursion_and_shape.exe] Run:
+    [opam exec -- dune exec exercises/e04_tail_recursion_and_shape.exe] *)
 
-    - Derive accumulator invariants instead of adding an [acc] mechanically.
-    - Recognize when a one-pass algorithm needs an explicit state machine.
+(* Task 1 — Define [take] and [drop].
+   Define recursive [take n xs] to return the first [n] elements, or all of [xs]
+   when it is shorter. Define recursive [drop n xs] to remove the first [n]
+   elements, or return [] when [xs] is shorter. Both functions must raise
+   [Invalid_argument] when [n < 0].
 
-    CONTRACT
+   Test negative, zero, shorter, exact-length, and longer counts.
+   Build and run before continuing. *)
 
-    - A negative count is invalid. Raise [Invalid_argument].
+(* Task 2 — Make [take] and [drop] tail-recursive.
+   Define [take_tr n xs] and [drop_tr n xs] with the same contracts as Task 1.
+   Write each accumulator invariant in a comment.
 
-    STEP 1 — BUILD THE SIMPLE VERSIONS
+   Test equality with [take] and [drop] on representative inputs, then test both
+   tail-recursive functions on a list of one million integers.
+   Build and run before continuing. *)
 
-    - Implement [take] and [drop] directly recursively.
-    - Check empty, short, exact-length, and overlong inputs.
+(* Task 3 — Recognize unimodal lists.
+   Define [is_unimodal xs] to return true exactly when the list is first
+   nondecreasing and then nonincreasing. Either phase may be empty, and equal
+   adjacent values are allowed. Use one traversal and constant auxiliary space.
 
-    STEP 2 — MAKE THEM CONSTANT-STACK
+   Test [], a rising list, a falling list, [1; 3; 3; 2], and [1; 3; 2; 4].
+   Build and run before continuing. *)
 
-    - Write the accumulator invariant in the marked block before writing code.
-    - Implement [take_tr] and [drop_tr] with explicit helpers.
-    - Test with a list of one million elements.
+(* Task 4 — Generate a powerset.
+   Define [powerset xs] to return every sublist obtained by choosing or omitting
+   each input element, with no duplicate recursive call for the tail. The result
+   for [] is [[]].
 
-    STEP 3 — SCAN A LIST AS A STATE MACHINE
+   Test [] and [1; 2]. For [1; 2; 3], test that the result has length 8 and
+   contains [] and [1; 2; 3]; do not require a particular subset order.
+   Build and run before continuing. *)
 
-    - Implement [is_unimodal] in one pass and O(1) auxiliary space.
-    - Allow equal adjacent values before or after the peak.
-    - Debug with [1; 3; 2; 4], which changes direction twice.
+(* Task 5 — Print with two traversal styles.
+   Define [print_int_list xs] recursively and [print_int_list_iter xs] with
+   [List.iter]. Each must print the integers in order, one per line, and print
+   nothing for [].
 
-    STEP 4 — FOLLOW THE RECURSIVE SHAPE
+   Factor [render_int x] to return the line text without a newline. Test
+   [render_int 0] and [render_int (-3)], then call both printers on [1; 2].
+   Build and run before continuing. *)
 
-    - Derive [powerset] from P(S) and P(x union S).
-    - Avoid duplicate recursive calls.
-    - Explain why the output size is unavoidable.
+(* Task 6 — Split into chunks.
+   Define tail-recursive [chunks_of width xs]. Preserve element order, make each
+   chunk length [width] except possibly the final chunk, return [] for [], and
+   raise [Invalid_argument] when [width <= 0]. Do not call [take] or [drop].
 
-    STEP 5 — COMPARE ITERATION STYLES
-
-    - Implement [print_int_list] directly recursively.
-    - Implement [print_int_list_iter] with [List.iter].
-    - Keep formatting separate from traversal.
-
-    STEP 6 — TRANSFER
-
-    - Implement [chunks_of] tail-recursively without [take] or [drop].
-    - Permit a short final chunk.
-    - Run [opam exec -- dune exec exercises/e04_tail_recursion_and_shape.exe].
-
-    Source coverage: take drop; take drop tail; unimodal; powerset; print int list rec;
-    print int list iter. *)
-
-let rec take (_n : int) (_xs : 'a list) : 'a list = failwith "TODO"
-let rec drop (_n : int) (_xs : 'a list) : 'a list = failwith "TODO"
-
-(* ACCUMULATOR INVARIANT for [take_tr]: ... *)
-let take_tr (_n : int) (_xs : 'a list) : 'a list = failwith "TODO"
-let drop_tr (_n : int) (_xs : 'a list) : 'a list = failwith "TODO"
-let is_unimodal (_xs : int list) : bool = failwith "TODO: one-pass state machine"
-let rec powerset (_xs : 'a list) : 'a list list = failwith "TODO"
-let rec print_int_list (_xs : int list) : unit = failwith "TODO"
-let print_int_list_iter (_xs : int list) : unit = failwith "TODO: List.iter"
-let chunks_of (_width : int) (_xs : 'a list) : 'a list list = failwith "TODO: transfer"
-
-let () =
-  assert (take 3 [ 1; 2; 3; 4; 5 ] = [ 1; 2; 3 ]);
-  assert (drop 3 [ 1; 2; 3; 4; 5 ] = [ 4; 5 ]);
-  assert (take_tr 99 [ 1; 2 ] = [ 1; 2 ] && drop_tr 99 [ 1; 2 ] = []);
-  assert (is_unimodal [] && is_unimodal [ 1; 2; 2; 5; 4; 4; -1 ]);
-  assert (not (is_unimodal [ 1; 3; 2; 4 ]));
-  assert (List.length (powerset [ 1; 2; 3; 4 ]) = 16);
-  assert (chunks_of 3 [ 1; 2; 3; 4; 5; 6; 7 ] = [ [ 1; 2; 3 ]; [ 4; 5; 6 ]; [ 7 ] ]);
-  print_endline "E04 complete"
+   Test width 2 on [1; 2; 3; 4; 5], width larger than the list, [], and width 0.
+   Build and run before continuing. *)

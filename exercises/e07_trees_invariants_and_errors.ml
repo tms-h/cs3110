@@ -1,76 +1,52 @@
-(** E07 — Trees, invariants, and error channels (40-50 min)
+(** E07 — Trees, invariants, and errors (70-95 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e07_trees_invariants_and_errors.exe] Run:
+    [opam exec -- dune exec exercises/e07_trees_invariants_and_errors.exe] *)
 
-    - Recurse over tree shape and check a global invariant in one traversal.
-    - Distinguish an exception-based API from one that returns ordinary data.
+(* Task 1 — Define binary-tree depth.
+   Define polymorphic type ['a tree] with [Leaf] and
+   [Node of 'a tree * 'a * 'a tree]. Define [depth tree] with [depth Leaf = 0]
+   and [depth (Node (l, _, r)) = 1 + max (depth l) (depth r)].
 
-    STEP 1 — RECURSE OVER SHAPE
+   Test a leaf, a one-node tree, and an unbalanced tree of depth 3.
+   Build and run before continuing. *)
 
-    - Implement [depth]. Check [Leaf], a chain, and a balanced tree.
-    - Implement [same_shape]. Notice that the two element types need not agree.
+(* Task 2 — Compare tree shapes.
+   Define [same_shape a b] to return true exactly when leaves and nodes occur in
+   the same positions. The element types may differ and values are ignored.
 
-    STEP 2 — EXERCISE THE ERROR CHANNEL
+   Test equal shapes with different values and types, and two trees that first
+   differ below the root.
+   Build and run before continuing. *)
 
-    - Implement [list_max_exn].
-    - Test a normal result and the exact empty-list exception separately.
-    - Implement [list_max_string] as a client of [list_max_exn].
-    - Catch only the exception promised by that API.
+(* Task 3 — Report maximum through an exception.
+   Define recursive [list_max_exn xs]. Return the greatest integer for a nonempty
+   list and raise [Failure "empty"] for []. Test a singleton, an all-negative
+   list, and the exact exception for [].
+   Build and run before continuing. *)
 
-    STEP 3 — PREDICT THE BST BUG
+(* Task 4 — Consume the exception API.
+   Define [list_max_string xs] by calling [list_max_exn]. Return the decimal
+   string for a nonempty list and ["empty"] only when [Failure "empty"] is
+   raised. Do not catch other exceptions.
 
-    - Draw a tree whose parent-child comparisons pass but whose global BST invariant
-      fails.
-    - Explain why a local check cannot be repaired with one more child comparison.
+   Test [] and [3; 9; 4].
+   Build and run before continuing. *)
 
-    STEP 4 — CHECK THE GLOBAL INVARIANT ONCE
+(* Task 5 — Check the global BST invariant.
+   Treat each node value as a [(key, value)] pair. Define [is_bst tree] to return
+   true exactly when every key in a left subtree is strictly smaller than the
+   node key and every key in a right subtree is strictly greater. Use one
+   traversal and polymorphic key comparison; duplicates are invalid.
 
-    - Make a helper return [Empty], [Bounds (minimum, maximum)], or [Invalid].
-    - Implement [is_bst] in O(n), visiting each node at most once.
-    - Explain why a production API would receive a comparator explicitly.
+   Test an empty tree, a valid three-node tree, a duplicate key, and a tree whose
+   left subtree contains a key greater than the root.
+   Build and run before continuing. *)
 
-    STEP 5 — TRANSFER AND FINISH
+(* Task 6 — Locate a BST violation.
+   Define [first_bst_violation tree] using propagated lower and upper bounds.
+   Return [None] for a valid tree; otherwise return [Some key] for the first key
+   encountered in a root-left-right traversal that violates a bound.
 
-    - Implement [first_bst_violation] using propagated lower and upper bounds.
-    - Run [opam exec -- dune exec exercises/e07_trees_invariants_and_errors.exe].
-
-    Source coverage: depth; shape; list max exn; list max exn string; list max exn
-    ounit; is_bst. *)
-
-type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
-
-let rec depth (_t : 'a tree) : int = failwith "TODO"
-let rec same_shape (_a : 'a tree) (_b : 'b tree) : bool = failwith "TODO"
-let rec list_max_exn (_xs : int list) : int = failwith "TODO"
-let list_max_string (_xs : int list) : string = failwith "TODO: client of list_max_exn"
-
-type 'k bounds = Empty | Bounds of 'k * 'k | Invalid
-
-let is_bst (_t : ('k * 'v) tree) : bool = failwith "TODO: one traversal"
-
-let first_bst_violation (_t : ('k * 'v) tree) : 'k option =
-  failwith "TODO: transfer with lower/upper bounds"
-
-let () =
-  let t = Node (Node (Leaf, 1, Leaf), 2, Node (Leaf, 3, Leaf)) in
-  assert (
-    depth t = 2
-    && same_shape t (Node (Node (Leaf, "x", Leaf), "y", Node (Leaf, "z", Leaf))));
-  assert (list_max_exn [ -7; -3; -10 ] = -3);
-  assert (
-    try
-      ignore (list_max_exn []);
-      false
-    with
-    | Failure "empty" -> true
-    | _ -> false);
-  assert (list_max_string [] = "empty" && list_max_string [ 3; 9; 4 ] = "9");
-  let good =
-    Node (Node (Leaf, (1, "a"), Leaf), (2, "b"), Node (Leaf, (3, "c"), Leaf))
-  in
-  let bad =
-    Node (Node (Leaf, (1, "a"), Node (Leaf, (4, "oops"), Leaf)), (3, "root"), Leaf)
-  in
-  assert (is_bst good && not (is_bst bad));
-  assert (first_bst_violation good = None && first_bst_violation bad <> None);
-  print_endline "E07 complete"
+   Test the valid tree and deep violation from Task 5.
+   Build and run before continuing. *)

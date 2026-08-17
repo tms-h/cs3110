@@ -1,85 +1,69 @@
-(** E34 — Numerical streams and convergence (40-50 min)
+(** E34 — Numerical streams and convergence (100-140 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e34_numerical_streams.exe] Run:
+    [opam exec -- dune exec exercises/e34_numerical_streams.exe] *)
 
-    Build primes and numerical approximations as streams, then refactor an unstable
-    Taylor-term generator into a recurrent one.
+(* Task 1 — Define a minimal stream toolkit.
+   Define ['a sequence = Cons of 'a * (unit -> 'a sequence)], [head], [tail],
+   [naturals_from n], and [take n sequence], with [take] returning [] for
+   [n <= 0].
 
-    STEP 1 — BUILD THE PRIME STREAM
+   Test the first five naturals from 3 and test [take 0].
+   Build and run before continuing. *)
 
-    - Implement [filter] and [sift].
-    - Use them to implement [primes] as a productive stream.
-    - Check the first ten primes.
-    - Explain why retaining references to old stream heads or thunks can cause a space
-      leak even when computation is lazy.
+(* Task 2 — Generate primes by sifting.
+   Define [filter], then [sift prime sequence] to remove values divisible by
+   [prime]. Define [primes] starting at 2: emit the current head, then sift its
+   multiples from the remaining candidates recursively.
 
-    STEP 2 — IMPLEMENT THE NAIVE EXPONENTIAL APPROXIMATION
+   Test the first ten primes are [2;3;5;7;11;13;17;19;23;29]. Explain how keeping
+   references to old stream heads can retain already processed data.
+   Build and run before continuing. *)
 
-    - Implement [e_terms_naive] using numerator and factorial-style computation.
-    - Implement [running_total].
-    - Implement [within_absolute] with the precondition [epsilon > 0].
-    - Check the approximation for a small value of [x].
+(* Task 3 — Generate naive exponential terms.
+   Define [e_terms_naive x] whose zero-based term n is [x^n / n!], calculating
+   numerator and factorial separately. Define [running_total sequence] whose
+   term n is the sum of source terms 0 through n.
 
-    STEP 3 — LOOK FOR NUMERICAL DEGRADATION
+   Test the first five terms for x=1 are [1; 1; 1/2; 1/6; 1/24] approximately,
+   and test the corresponding running totals.
+   Build and run before continuing. *)
 
-    - Before testing, predict how the naive generator behaves for large [abs x].
-    - Compare its approximations with [Float.exp] for small and large [abs x].
-    - Record one input where numerator/factorial-style computation degrades and explain
-      the intermediate values that cause it.
+(* Task 4 — Stop on absolute convergence.
+   Define [within_absolute epsilon sequence] to return the second of the first
+   adjacent pair [a,b] satisfying [abs (a-b) < epsilon]. Raise
+   [Invalid_argument "epsilon"] when [epsilon <= 0].
 
-    STEP 4 — REFACTOR TERMS INTO A RECURRENCE
+   Apply it to running totals of [e_terms_naive 1.0] with epsilon 1e-8 and test
+   the result is within 1e-7 of [Float.exp 1.0]. Test invalid epsilon.
+   Build and run before continuing. *)
 
-    - Derive the next Taylor term from the previous one using one multiplication and one
-      division.
-    - Implement that derivation in [e_terms_recurrent].
-    - Repeat the comparison from Step 3.
+(* Task 5 — Generate exponential terms recurrently.
+   Define [e_terms_recurrent x] with first term 1.0 and recurrence
+   [term_(n+1) = term_n * x / (n+1)]. Do not compute a power or factorial.
 
-    STEP 5 — MAKE THE STOPPING TEST ROBUST
+   Test its first ten terms approximately match [e_terms_naive] for x=2. Compare
+   both running-total approximations for a large positive and negative x, and
+   record one input where the naive intermediate values degrade.
+   Build and run before continuing. *)
 
-    - Implement [close_mixed] using a mixed absolute/relative criterion.
-    - Handle values near zero explicitly; do not divide blindly by [min a b].
-    - Test equal values, near-zero values, and values of different signs.
+(* Task 6 — Define mixed closeness.
+   Define [close_mixed ~epsilon a b] as
+   [abs (a-b) <= epsilon * max 1.0 (max (abs a) (abs b))]. Return false when
+   [epsilon < 0].
 
-    STEP 6 — REPORT NONCONVERGENCE
+   Test equal values, values near zero, large nearby values, opposite signs, and
+   negative epsilon.
+   Build and run before continuing. *)
 
-    - Implement [approximate_exp] with an iteration cap.
-    - Return [Invalid_epsilon] for an invalid tolerance.
-    - Return [Did_not_converge] with a useful diagnostic value when the cap is reached.
+(* Task 7 — Bound exponential approximation.
+   Define [convergence_error = Invalid_epsilon | Did_not_converge of float].
+   Define [approximate_exp ~max_iterations ~epsilon x] using recurrent terms,
+   running totals, and [close_mixed]. Return [Error Invalid_epsilon] when
+   [epsilon <= 0]. Check at most [max_iterations] adjacent pairs; if none is
+   close, return [Error (Did_not_converge last_total)].
 
-    FINISH
-
-    Run: [opam exec -- dune exec exercises/e34_numerical_streams.exe]
-
-    Source coverage: sift; primes; approximately e; better e. *)
-
-type 'a sequence = Cons of 'a * (unit -> 'a sequence)
-
-let head (Cons (x, _)) = x
-let tail (Cons (_, next)) = next ()
-let rec naturals_from n = Cons (n, fun () -> naturals_from (n + 1))
-let rec filter (_p : 'a -> bool) (_s : 'a sequence) : 'a sequence = failwith "TODO"
-let sift (_prime : int) (_s : int sequence) : int sequence = failwith "TODO"
-let primes : int sequence = failwith "TODO"
-let e_terms_naive (_x : float) : float sequence = failwith "TODO"
-let e_terms_recurrent (_x : float) : float sequence = failwith "TODO"
-let running_total (_s : float sequence) : float sequence = failwith "TODO"
-let within_absolute (_epsilon : float) (_s : float sequence) : float = failwith "TODO"
-let close_mixed ~epsilon:_ (_a : float) (_b : float) : bool = failwith "TODO"
-
-type convergence_error = Invalid_epsilon | Did_not_converge of float
-
-let approximate_exp ~max_iterations:_ ~epsilon:_ (_x : float) :
-    (float, convergence_error) result =
-  failwith "TODO: recurrent terms, mixed tolerance"
-
-let rec take n (Cons (x, next)) = if n <= 0 then [] else x :: take (n - 1) (next ())
-
-let () =
-  assert (take 10 primes = [ 2; 3; 5; 7; 11; 13; 17; 19; 23; 29 ]);
-  let approximation = within_absolute 1e-8 (running_total (e_terms_recurrent 1.)) in
-  assert (Float.abs (approximation -. Float.exp 1.) < 1e-7);
-  match approximate_exp ~max_iterations:1000 ~epsilon:1e-10 2. with
-  | Ok value ->
-      assert (Float.abs (value -. Float.exp 2.) < 1e-8);
-      print_endline "E34 complete"
-  | Error _ -> assert false
+   Test x=2, epsilon 1e-10, and 1,000 iterations succeeds within 1e-8 of
+   [Float.exp 2.0]. Test invalid epsilon, and test zero iterations returns
+   [Error (Did_not_converge 1.0)].
+   Build and run before continuing. *)

@@ -1,91 +1,52 @@
-(** E26 — Property-driven debugging (35-50 min)
+(** E26 — Property-driven debugging (85-120 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e26_property_driven_debugging.exe] Run:
+    [opam exec -- dune exec exercises/e26_property_driven_debugging.exe] *)
 
-    - Turn prose into executable properties and minimal counterexamples.
-    - Debug optimized code against a deliberately obvious oracle.
+(* Task 1 — Reproduce a factor bug.
+   Define [least_odd_factor_buggy n] exactly as follows: return 1 for [n <= 2];
+   otherwise search candidates 3, 5, 7, ...; return [candidate] when
+   [candidate * candidate >= n], return it when it divides [n], and otherwise
+   continue.
 
-    IMPORTANT
+   For [n >= 1], the intended result is the least odd divisor at least 3, or 1
+   when no such divisor exists. Define [smallest_bad_factor_input ()] by exhaustive
+   search. Test that it returns 4 and that the buggy result for 4 violates the
+   intended contract.
+   Build and run before continuing. *)
 
-    - Both implementations below are intentionally buggy.
-    - Do not inspect their bodies until you have written the properties.
+(* Task 2 — Repair least odd factor.
+   Define [least_odd_factor n] with the intended contract from Task 1 and raise
+   [Invalid_argument "factor"] for [n < 1]. Stop with 1 only after proving no
+   candidate up to the square root divides [n].
 
-    STEP 1 — SPECIFY THE FACTOR RESULT
+   Test 1, 2, 3, 4, 9, 25, and 49. For every n from 1 through 500, test the result
+   is 1 or an odd divisor, and no smaller odd integer at least 3 divides n.
+   Build and run before continuing. *)
 
-    - Require a positive, odd result that divides [n].
-    - Require no smaller odd factor at least 3, except where result 1 is allowed.
-    - Exhaustively find the smallest failing [n >= 1].
+(* Task 3 — Define a mean oracle.
+   Define [mean_reference xs] as floating-point sum divided by length, using a
+   fold and [List.length]. Raise [Invalid_argument "mean"] for []. Define
+   [close a b] as absolute difference less than [1e-12].
 
-    STEP 2 — LOCALIZE AND REPAIR
+   Test [1], [-2; 0; 2], [1; 2; 3; 4], and [].
+   Build and run before continuing. *)
 
-    - Record which property isolates the fault most clearly.
-    - Inspect [least_odd_factor_buggy] only now.
-    - Implement [least_odd_factor] and retain the counterexample as a regression.
+(* Task 4 — Reproduce and shrink a mean bug.
+   Define [mean_fast_buggy xs] with a tail-recursive pair scan. For equal adjacent
+   [a] and [b], add only [a] and increase count by 1; otherwise add both and
+   increase count by 2; handle a final singleton normally.
 
-    STEP 3 — BUILD A MEAN ORACLE
+   Define [smallest_bad_mean_input ()] by enumerating nonempty lists in increasing
+   length and lexicographic element order over -2 through 2. After the first
+   disagreement, repeatedly delete the leftmost element whose removal preserves
+   disagreement. Test the returned list disagrees with [mean_reference] and no
+   single-element deletion still disagrees.
+   Build and run before continuing. *)
 
-    - Implement an obviously correct mean with fold and length.
-    - Choose and justify a float tolerance; do not use [(=)].
-    - Enumerate short lists whose values range from -2 through 2.
-
-    STEP 4 — SHRINK BEFORE FIXING
-
-    - Find a disagreement with [mean_fast_buggy].
-    - Delete elements while the failure persists.
-    - Record the smallest counterexample in the marked block.
-
-    STEP 5 — REPAIR AND STRESS
-
-    - Implement [mean_repaired].
-    - Run 10,000 deterministic cases against the oracle.
-    - Run [opam exec -- dune exec exercises/e26_property_driven_debugging.exe].
-    - QCheck reference for later projects: https://github.com/c-cube/qcheck
-
-    Source coverage: qcheck odd divisor; qcheck avg. *)
-
-let least_odd_factor_buggy n =
-  if n <= 2 then 1
-  else
-    let rec search candidate =
-      if candidate * candidate >= n then candidate
-      else if n mod candidate = 0 then candidate
-      else search (candidate + 2)
-    in
-    search 3
-
-let least_odd_factor (_n : int) : int = failwith "TODO: repaired"
-
-let mean_fast_buggy xs =
-  let rec pairs sum count = function
-    | a :: b :: rest when a = b -> pairs (sum + a) (count + 1) rest
-    | a :: b :: rest -> pairs (sum + a + b) (count + 2) rest
-    | [ x ] -> (sum + x, count + 1)
-    | [] -> (sum, count)
-  in
-  let sum, count = pairs 0 0 xs in
-  float_of_int sum /. float_of_int count
-
-let mean_reference (_xs : int list) : float = failwith "TODO: obvious oracle"
-let mean_repaired (_xs : int list) : float = failwith "TODO"
-let smallest_bad_factor_input () : int = failwith "TODO: exhaustive search"
-let smallest_bad_mean_input () : int list = failwith "TODO: enumerate and shrink"
-
-(* FAILURE EXPLANATIONS:
-   factor:
-   mean:
-*)
-
-let () =
-  let n = smallest_bad_factor_input () in
-  assert (n >= 1);
-  assert (
-    List.for_all
-      (fun x ->
-        let d = least_odd_factor x in
-        d mod 2 = 1 && x mod d = 0)
-      (List.init 500 (fun i -> i + 1)));
-  let bad = smallest_bad_mean_input () in
-  assert (bad <> []);
-  assert (Float.abs (mean_fast_buggy bad -. mean_reference bad) > 1e-12);
-  assert (Float.abs (mean_repaired bad -. mean_reference bad) < 1e-12);
-  print_endline "E26 complete"
+(* Task 5 — Repair and stress the mean.
+   Define [mean_repaired xs] with the same contract as [mean_reference]. Test the
+   minimized counterexample from Task 4. Then generate 10,000 deterministic
+   nonempty lists of length 1 through 20 and values -100 through 100; assert the
+   repaired result is [close] to the oracle for every list.
+   Build and run before continuing. *)

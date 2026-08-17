@@ -1,73 +1,54 @@
-(** E05 — Records, options, and comparison (30-45 min)
+(** E05 — Records, options, and comparison (60-85 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e05_records_options_and_dates.exe] Run:
+    [opam exec -- dune exec exercises/e05_records_options_and_dates.exe] Reading:
+    https://ocaml.org/manual/5.4/api/Option.html *)
 
-    - Model structured data explicitly and make absence visible in types.
-    - Centralize comparison logic so selection functions cannot drift.
+(* Task 1 — Define a student record.
+   Define type [student] with fields [first_name : string], [last_name : string],
+   and [gpa : float]. Define [make_student first last gpa] and [name student],
+   where [name] returns [(first_name, last_name)].
 
-    STEP 1 — COMPLETE THE SMALL DATA APIS
+   Test a student named Ada Lovelace with GPA 4.0.
+   Build and run before continuing. *)
 
-    - Implement [make_student] and [name].
-    - Implement [safe_head] and [safe_tail] by matching.
-    - Do not catch exceptions from [List.hd] or [List.tl].
+(* Task 2 — Return options for list access.
+   Define [safe_head xs] to return [Some first] or [None] for []. Define
+   [safe_tail xs] to return [Some tail] or [None] for []. Do not catch exceptions
+   from [List.hd] or [List.tl].
 
-    STEP 2 — SELECT WITHOUT LOSING THE EMPTY CASE
+   Test both functions on [] and on [1].
+   Build and run before continuing. *)
 
-    - Implement [highest_impact].
-    - Return the leftmost ticket when impacts tie.
-    - Use the return type to force callers to handle an empty list.
+(* Task 3 — Select the highest-impact ticket.
+   Define variant [priority] with constructors [Low], [Normal], and [High]. Define
+   record type [ticket] with [title : string], [impact : int], and
+   [priority : priority].
 
-    STEP 3 — DEFINE DATE ORDER ONCE
+   Define [highest_impact tickets] to return [None] for [] and otherwise the
+   ticket with greatest [impact]. On ties, return the leftmost ticket; priority
+   does not break ties. Test [], one ticket, a unique maximum, and a two-way tie.
+   Build and run before continuing. *)
 
-    - Implement lexicographic [is_before] for valid dates.
-    - Do not approximate a date as a count of days.
-    - Implement [earliest] using [is_before]; do not sort the whole list.
-    - Record the time and auxiliary-space complexity.
+(* Task 4 — Order dates.
+   Define [date] as a triple [(year, month, day)]. Define [is_before a b] to
+   return true exactly when [a] is chronologically earlier than [b], using year,
+   then month, then day. Equal dates are not before each other.
 
-    STEP 4 — BUILD A SHADOWING ENVIRONMENT
+   Test dates differing by year, month, and day, plus equal dates.
+   Build and run before continuing. *)
 
-    - Read https://ocaml.org/manual/5.4/api/Option.html if needed.
-    - Implement [lookup] so the newest binding is visible.
-    - Preserve older bindings as history.
-    - State the invariant a unique-key representation would need instead.
+(* Task 5 — Find the earliest date.
+   Define [earliest dates] to return [None] for [] and otherwise the leftmost
+   earliest date without sorting. Test [], a singleton, an unsorted list spanning
+   two years, and a tie for the earliest date.
+   Build and run before continuing. *)
 
-    FINISH
+(* Task 6 — Implement a shadowing association list.
+   Define [insert key value bindings] to prepend the binding. Define recursive
+   [lookup key bindings] to return the value from the first matching pair, or
+   [None] when absent.
 
-    - Run [opam exec -- dune exec exercises/e05_records_options_and_dates.exe].
-
-    Source coverage: student; pokerecord; safe hd and tl; pokefun; date before; earliest
-    date; assoc list. *)
-
-type student = { first_name : string; last_name : string; gpa : float }
-
-let make_student (_first : string) (_last : string) (_gpa : float) : student =
-  failwith "TODO"
-
-let name (_s : student) : string * string = failwith "TODO"
-
-type priority = Low | Normal | High
-type ticket = { title : string; impact : int; priority : priority }
-
-let safe_head (_xs : 'a list) : 'a option = failwith "TODO"
-let safe_tail (_xs : 'a list) : 'a list option = failwith "TODO"
-let highest_impact (_tickets : ticket list) : ticket option = failwith "TODO"
-
-type date = int * int * int
-
-let is_before (_a : date) (_b : date) : bool = failwith "TODO"
-let earliest (_dates : date list) : date option = failwith "TODO"
-let insert key value bindings = (key, value) :: bindings
-let rec lookup (_key : 'k) (_bindings : ('k * 'v) list) : 'v option = failwith "TODO"
-
-let () =
-  let ada = make_student "Ada" "Lovelace" 4.0 in
-  assert (name ada = ("Ada", "Lovelace"));
-  assert (safe_head [] = None && safe_tail [ 1 ] = Some []);
-  let a = { title = "a"; impact = 7; priority = Low } in
-  let b = { title = "b"; impact = 7; priority = High } in
-  assert (highest_impact [ a; b ] = Some a);
-  assert (is_before (2025, 12, 31) (2026, 1, 1));
-  assert (earliest [ (2026, 3, 2); (2025, 12, 31); (2026, 1, 1) ] = Some (2025, 12, 31));
-  let env = [] |> insert "x" 1 |> insert "y" 2 |> insert "x" 3 in
-  assert (lookup "x" env = Some 3 && lookup "z" env = None);
-  print_endline "E05 complete"
+   Insert x=1, then y=2, then x=3. Test that lookup returns 3 for x, 2 for y,
+   and [None] for z.
+   Build and run before continuing. *)

@@ -1,93 +1,62 @@
-(** E24 — Abstraction functions and representation invariants (40-50 min)
+(** E24 — Abstraction functions and invariants (85-115 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e24_abstraction_functions.exe] Run:
+    [opam exec -- dune exec exercises/e24_abstraction_functions.exe] *)
 
-    - Write an abstraction function, RI, and [rep_ok] before implementation.
-    - Contrast constrained data with a representation that is executable code.
+(* Task 1 — Construct closed intervals.
+   Begin module [Interval]. Use record representation
+   [{ lo : float; hi : float }] with invariant [lo <= hi]. Define [rep_ok x] to
+   return [x] when the invariant holds and raise [Invalid_argument "interval"]
+   otherwise. Define [make a b] to represent the closed interval from the lesser
+   endpoint to the greater endpoint, so it always satisfies the invariant.
 
-    STEP 1 — SPECIFY CLOSED INTERVALS
+   Test [make (-2.0) 3.0], reversed inputs 3.0 and -2.0, and direct [rep_ok] on
+   an invalid internal record.
+   Build and run before continuing. *)
 
-    - Fill the interval AF and RI blocks.
-    - Require [lo <= hi] and reject NaNs.
-    - Decide whether [make] reorders endpoints or rejects reversed input.
-    - Document that decision before implementing [rep_ok] and [make].
+(* Task 2 — Observe intervals.
+   Define [bounds interval] to return [(lo, hi)]. Define [contains x interval]
+   to return [lo <= x && x <= hi]. Define [pp formatter interval] to print
+   ["[lo, hi]"] using [%g] for both floats.
 
-    STEP 2 — IMPLEMENT INTERVAL OPERATIONS
+   Test both endpoints, an interior point, an outside point, and the rendered
+   interval [-2.0, 3.0].
+   Build and run before continuing. *)
 
-    - Implement [bounds] and [contains].
-    - Implement [add].
-    - For [mul], calculate all four endpoint products, especially across zero.
-    - Implement [pp] with Format composition, not string concatenation.
+(* Task 3 — Add intervals.
+   Define [add [a,b] [c,d]] as [[a+c, b+d]], routing the result through [make].
+   Test [-2,3] + [4,5] = [2,8] and addition with [0,0].
+   Build and run before continuing. *)
 
-    STEP 3 — DEFINE THE FUNCTION-MAP AF
+(* Task 4 — Multiply intervals.
+   Define [mul [a,b] [c,d]] as the interval whose bounds are the minimum and
+   maximum of [a*c], [a*d], [b*c], and [b*d].
 
-    - Write the AF for representation ['k -> 'v option].
-    - Explain why an enumerable [bindings] operation is unavailable.
-    - Implement [find], [mem], [add], and [remove] in source order.
+   Test [-2,3] * [4,5] = [-10,15], two negative intervals, and multiplication
+   by [0,0]. Then seal [Interval] with abstract [t] and its six public operations.
+   Build and run before continuing. *)
 
-    STEP 4 — CHECK PERSISTENCE
+(* Task 5 — Define maps as functions.
+   Define module [Function_map] with [('k, 'v) t = 'k -> 'v option]. Define
+   [empty key = None], [find key map = map key], and [mem key map] according to
+   whether [find] returns [Some _].
 
-    - Implement [update].
-    - Keep references to the old and new maps.
-    - Verify each map continues to return its own value for the same key.
+   Test two absent keys in [empty].
+   Build and run before continuing. *)
 
-    FINISH
+(* Task 6 — Add persistent map updates.
+   Define [add key value map] to return a new function yielding [Some value] for
+   equal [key] and otherwise delegating to [map]. Define [remove key map] to
+   return [None] for that key and delegate otherwise.
 
-    - Run [opam exec -- dune exec exercises/e24_abstraction_functions.exe].
+   Test x=1 and y=2, shadow x with 3, remove x, and verify every older map still
+   returns its old values.
+   Build and run before continuing. *)
 
-    Source coverage: interval arithmetic; function maps. *)
-
-module Interval : sig
-  type t
-
-  val make : float -> float -> t
-  val bounds : t -> float * float
-  val contains : float -> t -> bool
-  val add : t -> t -> t
-  val mul : t -> t -> t
-  val pp : Format.formatter -> t -> unit
-end = struct
-  type t = { lo : float; hi : float }
-
-  let rep_ok (_x : t) : t = failwith "TODO: assert RI"
-  let make (_a : float) (_b : float) : t = failwith "TODO"
-  let bounds (_x : t) : float * float = failwith "TODO"
-  let contains (_x : float) (_interval : t) : bool = failwith "TODO"
-  let add (_a : t) (_b : t) : t = failwith "TODO"
-  let mul (_a : t) (_b : t) : t = failwith "TODO: four products"
-  let pp (_formatter : Format.formatter) (_x : t) : unit = failwith "TODO"
-end
-
-module Function_map = struct
-  type ('k, 'v) t = 'k -> 'v option
-
-  let empty : ('k, 'v) t = fun _ -> None
-  let find (_key : 'k) (_map : ('k, 'v) t) : 'v option = failwith "TODO"
-  let mem (_key : 'k) (_map : ('k, 'v) t) : bool = failwith "TODO"
-  let add (_key : 'k) (_value : 'v) (_map : ('k, 'v) t) : ('k, 'v) t = failwith "TODO"
-  let remove (_key : 'k) (_map : ('k, 'v) t) : ('k, 'v) t = failwith "TODO"
-
-  let update (_key : 'k) (_f : 'v option -> 'v option) (_map : ('k, 'v) t) : ('k, 'v) t
-      =
-    failwith "TODO: transfer"
-end
-
-(* INTERVAL AF: ...
-   INTERVAL RI: ...
-   FUNCTION MAP AF: ...
-   WHY BINDINGS IS IMPOSSIBLE: ... *)
-
-let () =
-  let x = Interval.make (-2.) 3. and y = Interval.make 4. 5. in
-  assert (Interval.bounds (Interval.add x y) = (2., 8.));
-  assert (Interval.bounds (Interval.mul x y) = (-10., 15.));
-  assert (Interval.contains 0. x && not (Interval.contains 4. x));
-  let m0 = Function_map.empty in
-  let m1 = m0 |> Function_map.add "x" 1 |> Function_map.add "y" 2 in
-  let m2 = Function_map.update "x" (Option.map (( + ) 10)) m1 in
-  assert (
-    Function_map.find "x" m0 = None
-    && Function_map.find "x" m1 = Some 1
-    && Function_map.find "x" m2 = Some 11);
-  assert (Function_map.find "x" (Function_map.remove "x" m2) = None);
-  print_endline "E24 complete"
+(* Task 7 — Generalize updates.
+   Define [update key f map] so the returned map yields [f (map key)] at [key]
+   and delegates elsewhere. Test incrementing x=1 to x=11 with
+   [Option.map (( + ) 10)] and creating an absent key with a function returning
+   [Some 5]. Explain why no [bindings] operation can enumerate an arbitrary
+   function map.
+   Build and run before continuing. *)

@@ -1,94 +1,48 @@
-(** E15 — Functors, include, and controlled reuse (30-45 min)
+(** E15 — Functors and [include] (75-100 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e15_functors_and_include.exe] Run:
+    [opam exec -- dune exec exercises/e15_functors_and_include.exe] Inspect:
+    [opam exec -- ocamlc -i exercises/e15_functors_and_include.ml] *)
 
-    - Generate modules from required capabilities.
-    - Preserve useful type equalities while controlling the exported surface.
+(* Task 1 — Define a printing functor.
+   Define module type [TO_STRING] with type [t] and
+   [to_string : t -> string]. Define functor [Print (M : TO_STRING)] whose result
+   exposes only [print : M.t -> unit]. [print x] must print [M.to_string x]
+   followed by a newline.
 
-    STEP 1 — BUILD THE SMALLEST FUNCTOR
+   Define one local argument module whose conversion increments a counter. Call
+   its generated printer once and test that the counter equals 1.
+   Build and run before continuing. *)
 
-    - Read [TO_STRING] and the result signature of [Print].
-    - Implement [Print.print].
-    - Confirm the result exposes exactly [print] and accepts [M.t].
+(* Task 2 — Instantiate the functor.
+   Define [My_int] with [type t = int] and [to_string = string_of_int]. Define
+   [My_string] with [type t = string] and identity conversion. Define
+   [Print_int = Print (My_int)] and [Print_string = Print (My_string)].
 
-    STEP 2 — INSTANTIATE AND PREDICT SEALING
+   Test both conversion functions directly on 3110 and ["modules"], then call
+   both generated printers with those values.
+   Build and run before continuing. *)
 
-    - Instantiate the functor for [int] and [string].
-    - Predict the client error if [type t = int] is hidden behind [type t].
-    - Make that change temporarily, inspect the error, and revert it.
+(* Task 3 — Reuse with [include].
+   Define [String_with_print] by including [String] and [Print (My_string)]. Do
+   not copy either implementation.
 
-    STEP 3 — REUSE WITH INCLUDE
+   Test [String_with_print.uppercase_ascii "reuse"] equals ["REUSE"], then print
+   that result with [String_with_print.print].
+   Build and run before continuing. *)
 
-    - Build [String_with_print] from two [include] statements.
-    - Export all [String] operations plus the generated printer.
-    - Copy no printer implementation.
+(* Task 4 — Define a debugging functor.
+   Define module type [DEBUGGABLE] with type [t] and
+   [to_debug_string : t -> string]. Define functor [Debug] exposing only
+   [dump : M.t -> unit], which prints ["DEBUG: " ^ M.to_debug_string x].
 
-    STEP 4 — EXPLAIN THE ABSTRACTION
+   Instantiate it for integers, test the underlying conversion on -7, and call
+   [dump] on -7.
+   Build and run before continuing. *)
 
-    - Fill the reuse explanation block.
-    - Compare functors with C++ templates and dependency injection.
-    - Name at least one important mismatch.
-
-    STEP 5 — TRANSFER AND FINISH
-
-    - Implement the [Debug] functor and [dump].
-    - Inspect with [ocamlc -i exercises/e15_functors_and_include.ml].
-    - Run [opam exec -- dune exec exercises/e15_functors_and_include.exe].
-
-    Source coverage: ToString; Print; Print Int; Print String; Print Reuse; Print String
-    reuse revisited. *)
-
-module type TO_STRING = sig
-  type t
-
-  val to_string : t -> string
-end
-
-module Print (M : TO_STRING) : sig
-  val print : M.t -> unit
-end = struct
-  let print (_x : M.t) = failwith "TODO"
-end
-
-module My_int = struct
-  type t = int
-
-  let to_string = string_of_int
-end
-
-module My_string = struct
-  type t = string
-
-  let to_string x = x
-end
-
-module Print_int = Print (My_int)
-module Print_string = Print (My_string)
-
-module String_with_print = struct
-  include String
-  include Print (My_string)
-end
-
-module type DEBUGGABLE = sig
-  type t
-
-  val to_debug_string : t -> string
-end
-
-module Debug (M : DEBUGGABLE) : sig
-  val dump : M.t -> unit
-end = struct
-  let dump (_x : M.t) = failwith "TODO: prefix a useful label"
-end
-
-(* REUSE EXPLANATION: ...
-   C++ COMPARISON: ... *)
-
-let () =
-  (* Uncomment these observational calls after implementing; they should print
-     three lines without exposing extra values from the generated modules. *)
-  Print_int.print 3110;
-  Print_string.print "modules";
-  String_with_print.print (String_with_print.uppercase_ascii "reuse");
-  print_endline "E15 complete"
+(* Task 5 — Inspect generated interfaces.
+   Run the inspection command. Add type annotations proving
+   [Print_int.print : int -> unit] and [Print_string.print : string -> unit].
+   In comments, compare functors with C++ templates and dependency injection,
+   naming one difference from each.
+   Build and run before continuing. *)

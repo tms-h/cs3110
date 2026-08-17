@@ -1,66 +1,52 @@
-(** E03 — Lists and the library boundary (30-40 min)
+(** E03 — Lists, patterns, and the List module (60-85 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e03_lists_and_library.exe] Run:
+    [opam exec -- dune exec exercises/e03_lists_and_library.exe] Reading:
+    https://ocaml.org/manual/5.4/api/List.html *)
 
-    - Read list shapes directly with patterns.
-    - Decide when recursion or a library operation is the clearer tool.
+(* Task 1 — Construct lists.
+   Define [one_to_five_a] as [1; 2; 3; 4; 5] with bracket syntax. Define
+   [one_to_five_b] using only [::] and [[]]. Define [one_to_five_c] using [@]
+   and the sublist [2; 3; 4]. Test that all three values are equal.
+   Build and run before continuing. *)
 
-    STEP 1 — CONSTRUCT ONE LIST THREE WAYS
+(* Task 2 — Recurse over lists.
+   Define recursive [product xs] with [product [] = 1] and
+   [product (x :: xs) = x * product xs]. Define recursive [concat xs] with
+   [concat [] = ""] and string concatenation in list order.
 
-    - Fill [one_to_five_a] with bracket syntax.
-    - Fill [one_to_five_b] using only [::] and [[]].
-    - Fill [one_to_five_c] using [@] and the literal sublist [[2; 3; 4]].
+   Test [product []], [product [2; 3; 4]], [concat []], and
+   [concat ["OC"; "aml"]].
+   Build and run before continuing. *)
 
-    STEP 2 — RECURSE OVER CONTENTS
+(* Task 3 — Match list shapes.
+   Define [starts_with_bigred xs] to return true exactly when the first two
+   elements are ["big"] and ["red"]. Define [length_is_two_or_four xs] to
+   return true exactly for lengths 2 and 4. Define [first_two_equal xs] to return
+   true exactly when at least two elements exist and the first two are equal.
 
-    - Implement [product] and [concat] directly recursively.
-    - Write down the identity element for each operation.
-    - Explain why that identity determines the empty-list result.
+   Test each true case and the nearest shorter false case. Also test
+   [first_two_equal [1; 1; 2]] and [first_two_equal [1; 2; 1]].
+   Build and run before continuing. *)
 
-    STEP 3 — RECOGNIZE SHAPES
+(* Task 4 — Select the fifth element safely.
+   Define [fifth_or_zero xs] with [List.nth_opt]. Return the fifth element when
+   it exists and zero otherwise. Test lists of lengths 4 and 5.
+   Build and run before continuing. *)
 
-    - Implement the three predicates in source order.
-    - Do not call [List.length]. Let exhaustiveness warnings guide the cases.
+(* Task 5 — Sort descending.
+   Define [descending xs] with [List.sort]. Preserve duplicates and order values
+   from greatest to least. Test [] and [2; 1; 3; 2].
+   Build and run before continuing. *)
 
-    STEP 4 — CROSS THE LIBRARY BOUNDARY
+(* Task 6 — Use an exception-raising library operation.
+   Define [last_exn xs] without pattern matching. Return the final element and
+   let the chosen List operation's documented exception escape for []. Test a
+   singleton, a longer list, and the exact empty-list exception.
+   Build and run before continuing. *)
 
-    - Open https://ocaml.org/manual/5.4/api/List.html.
-    - Implement [fifth_or_zero], [descending], [last_exn], and [any_zero].
-    - Use no pattern matching in [last_exn] or [any_zero].
-
-    STEP 5 — TEST, THEN DEBUG
-
-    - Add one boundary input and one adversarial input for every function.
-    - When a test fails, explain the bad case before editing the implementation.
-    - Run [opam exec -- dune exec exercises/e03_lists_and_library.exe].
-
-    Source coverage: list expressions; product; concat; product test; patterns; library;
-    library test; library puzzle. *)
-
-let one_to_five_a : int list = failwith "TODO"
-let one_to_five_b : int list = failwith "TODO"
-let one_to_five_c : int list = failwith "TODO"
-let rec product (_xs : int list) : int = failwith "TODO"
-let rec concat (_xs : string list) : string = failwith "TODO"
-let starts_with_bigred (_xs : string list) : bool = failwith "TODO"
-let length_is_two_or_four (_xs : 'a list) : bool = failwith "TODO"
-let first_two_equal (_xs : 'a list) : bool = failwith "TODO"
-let fifth_or_zero (_xs : int list) : int = failwith "TODO: consult List docs"
-let descending (_xs : int list) : int list = failwith "TODO"
-let last_exn (_xs : 'a list) : 'a = failwith "TODO: no pattern matching"
-let any_zero (_xs : int list) : bool = failwith "TODO: one library call"
-
-let () =
-  assert (one_to_five_a = one_to_five_b && one_to_five_b = one_to_five_c);
-  assert (one_to_five_a = [ 1; 2; 3; 4; 5 ]);
-  assert (product [] = 1 && product [ 2; -3; 4 ] = -24);
-  assert (concat [] = "" && concat [ "meta"; "learn" ] = "metalearn");
-  assert (starts_with_bigred [ "bigred"; "bear" ]);
-  assert (
-    length_is_two_or_four [ 1; 2; 3; 4 ] && not (length_is_two_or_four [ 1; 2; 3 ]));
-  assert (first_two_equal [ Some 1; Some 1 ] && not (first_two_equal [ 1; 2 ]));
-  assert (fifth_or_zero [ 9; 8; 7; 6; 5 ] = 5 && fifth_or_zero [ 9 ] = 0);
-  assert (descending [ 3; 1; 2; 3 ] = [ 3; 3; 2; 1 ]);
-  assert (last_exn [ "a"; "b" ] = "b");
-  assert (any_zero [ 4; 0; 5 ] && not (any_zero [ 4; 5 ]));
-  print_endline "E03 complete"
+(* Task 7 — Search with a predicate.
+   Define [any_zero xs] with one List-library call and no explicit recursion.
+   Return true exactly when an element equals zero. Test [], [1; 0; 2], and
+   [1; 2; 3].
+   Build and run before continuing. *)

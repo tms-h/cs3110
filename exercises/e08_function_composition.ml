@@ -1,73 +1,59 @@
-(** E08 — Function composition as an interface (25-35 min)
+(** E08 — Higher-order functions and composition (55-75 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e08_function_composition.exe] Run:
+    [opam exec -- dune exec exercises/e08_function_composition.exe] Inspect:
+    [opam exec -- ocamlc -i exercises/e08_function_composition.ml] *)
 
-    - Read curried types left-to-right and use partial application deliberately.
-    - Recognize point-free code without making debugging harder.
+(* Task 1 — Define repeated application.
+   Define [double x = 2 * x], [square x = x * x], and
+   [twice f x = f (f x)]. Define [quad] as [twice double] and [fourth] as
+   [twice square], without adding a final parameter.
 
-    STEP 1 — PREDICT INFERRED FUNCTIONS
+   Annotate both [quad] and [fourth] with [int -> int]. Test [quad 3] and
+   [fourth 2].
+   Build and run before continuing. *)
 
-    - Predict the types of [quad] and [fourth] before invoking the compiler.
-    - Explain how a binding with no visible final parameter is still a function.
-    - Check with [opam exec -- ocamlc -i exercises/e08_function_composition.ml].
+(* Task 2 — Investigate an application operator.
+   Define [($) f x = f x]. Evaluate [(fun x -> x * x) $ 2 + 2]. Assert that it
+   equals the correct one of [(fun x -> x * x) (2 + 2)] and
+   [((fun x -> x * x) 2) + 2], and assert that those two explicit expressions
+   have different results. Do not use [($)] after this task.
+   Build and run before continuing. *)
 
-    STEP 2 — INVESTIGATE AN OPERATOR
+(* Task 3 — Define forward composition.
+   Define [(%>) f g x = g (f x)]. Annotate it with
+   [('a -> 'b) -> ('b -> 'c) -> 'a -> 'c].
 
-    - Predict how [($)] groups an expression containing addition.
-    - Run the smallest experiment that distinguishes the possible parses.
-    - Do not use [($)] elsewhere. Explain its readability cost.
+   Test composing integer increment with [string_of_int] on 9, and composing
+   [String.length] with [double] on ["abc"].
+   Build and run before continuing. *)
 
-    STEP 3 — IMPLEMENT COMPOSITION AND REPETITION
+(* Task 4 — Repeat a function [n] times.
+   Define [repeat f n x]. Return [x] when [n = 0], apply [f] exactly [n] times
+   when [n > 0], and raise [Invalid_argument "repeat"] when [n < 0].
 
-    - Implement forward composition [(%>)].
-    - Choose explicit behavior for a negative [repeat] count.
-    - Implement [repeat] without silently looping on invalid input.
+   Test counts 0 and 5 with doubling, and test the negative-count exception.
+   Build and run before continuing. *)
 
-    STEP 4 — ADAPT LIBRARY FUNCTIONS
+(* Task 5 — Uncurry library functions.
+   Define [uncurried_append (xs, ys)], [uncurried_char_compare (a, b)], and
+   [uncurried_max (a, b)] by adapting the corresponding curried functions.
 
-    - Implement the three uncurried wrappers in source order.
-    - Build [descending] from [List.sort] using partial application.
+   Test append on [([1; 2], [3])], character comparison on [('a', 'b')], and
+   maximum on [(3, 9)] and [(9, 9)].
+   Build and run before continuing. *)
 
-    STEP 5 — FUSE, EXPLAIN, FINISH
+(* Task 6 — Partially apply sorting.
+   Define [descending] by partially applying [List.sort] to an integer comparator
+   that orders greater values first. Annotate [descending] with
+   [int list -> int list]. Test [] and [2; 1; 3; 2].
+   Build and run before continuing. *)
 
-    - Write the map-fusion argument in the marked block.
-    - Implement [map_fused] with exactly one [List.map].
-    - Explain when effects or exceptions make fusion observable.
-    - Run [opam exec -- dune exec exercises/e08_function_composition.exe].
+(* Task 7 — Fuse maps.
+   Define [map_fused f g xs] with exactly one [List.map], producing the same
+   values as [List.map f (List.map g xs)].
 
-    Source coverage: twice, no arguments; mystery operator 1; mystery operator 2;
-    repeat; library uncurried; map composition. *)
-
-let double x = 2 * x
-let square x = x * x
-let twice f x = f (f x)
-let quad = twice double
-let fourth = twice square
-let ( $ ) f x = f x
-
-let ( %> ) (_f : 'a -> 'b) (_g : 'b -> 'c) : 'a -> 'c =
-  failwith "TODO: forward composition"
-
-let repeat (_f : 'a -> 'a) (_n : int) (_x : 'a) : 'a = failwith "TODO"
-let uncurried_append (_args : 'a list * 'a list) : 'a list = failwith "TODO"
-let uncurried_char_compare (_args : char * char) : int = failwith "TODO"
-let uncurried_max (_args : 'a * 'a) : 'a = failwith "TODO"
-let descending : int list -> int list = failwith "TODO: partial application"
-
-let map_fused (_f : 'b -> 'c) (_g : 'a -> 'b) (_xs : 'a list) : 'c list =
-  failwith "TODO: exactly one List.map call"
-
-(* MAP FUSION ARGUMENT: ...
-   EFFECT/EXCEPTION CAVEAT: ... *)
-
-let () =
-  assert (quad 3 = 12 && fourth 2 = 16);
-  assert ((fun x -> x * x) $ 2 + 2 = 16);
-  assert (((fun x -> x + 1) %> string_of_int) 9 = "10");
-  assert (repeat (fun x -> x * 2) 5 1 = 32);
-  assert (uncurried_append ([ 1; 2 ], [ 3 ]) = [ 1; 2; 3 ]);
-  assert (uncurried_char_compare ('a', 'b') < 0);
-  assert (uncurried_max (3, 9) = 9);
-  assert (descending [ 2; 1; 3; 2 ] = [ 3; 2; 2; 1 ]);
-  assert (map_fused string_of_int (( + ) 1) [ 1; 2; 3 ] = [ "2"; "3"; "4" ]);
-  print_endline "E08 complete"
+   Test [map_fused string_of_int (( + ) 1) [1; 2; 3]] and compare it with the
+   two-pass expression. Add a comment stating that effects and exception timing
+   can make the two implementations observably different.
+   Build and run before continuing. *)

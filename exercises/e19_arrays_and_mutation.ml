@@ -1,72 +1,50 @@
-(** E19 — Arrays, mutation, and alias-safe construction (35-45 min)
+(** E19 — Arrays and alias-safe construction (70-95 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e19_arrays_and_mutation.exe] Run:
+    [opam exec -- dune exec exercises/e19_arrays_and_mutation.exe] Reading:
+    https://ocaml.org/manual/5.4/api/Array.html *)
 
-    - Compare functional array traversals with explicit loops.
-    - Detect and prevent shared-row aliasing in nested arrays.
+(* Task 1 — Compute a vector norm functionally.
+   Define [vector = float array]. Define [close a b] as absolute difference less
+   than [1e-10]. Define [norm_functional v] with Array map/fold as
+   [sqrt (v[0]² + ... + v[n-1]²)]. The norm of an empty vector is 0.0 and the
+   input must not change.
 
-    STEP 1 — WRITE THE NONMUTATING NORM
+   Test [], [3.0; 4.0], and unchanged input contents.
+   Build and run before continuing. *)
 
-    - Open https://ocaml.org/manual/5.4/api/Array.html.
-    - Implement [norm_functional] with Array mapping/folding.
-    - Confirm the input array is unchanged.
+(* Task 2 — Normalize with [Array.iteri].
+   Define [normalize_functional_style v] to divide every element by the original
+   norm in place. Return unit. Leave a zero-norm vector unchanged.
 
-    STEP 2 — NORMALIZE IN PLACE
+   Test [3.0; 4.0] becomes approximately [0.6; 0.8] with norm 1.0, and test a
+   zero vector remains unchanged.
+   Build and run before continuing. *)
 
-    - Decide and document behavior for a zero vector.
-    - Implement [normalize_functional_style] with [Array.iteri].
-    - Test the return value, mutated contents, and resulting norm.
+(* Task 3 — Reimplement with loops.
+   Define [norm_loop v] and [normalize_loop v] with [for] loops and the same
+   contracts as Tasks 1 and 2.
 
-    STEP 3 — REIMPLEMENT WITH LOOPS
+   Generate deterministic arrays from lengths 0 through 20 with values in
+   [-5.0, 5.0]. Test the two norms approximately agree and both normalizers
+   produce approximately equal arrays.
+   Build and run before continuing. *)
 
-    - Implement [norm_loop] and [normalize_loop] with [for].
-    - Compare both styles on deterministic randomized small arrays.
-    - Explain any numerical tolerance you use.
+(* Task 4 — Initialize independent matrix rows.
+   Define [init_matrix rows cols f] returning an array of [rows] arrays, where
+   cell [(i, j)] equals [f i j]. Raise [Invalid_argument "dimensions"] when a
+   dimension is negative. Every row must be a distinct array.
 
-    STEP 4 — PREDICT THE MATRIX ALIAS BUG
+   Test a 2-by-3 matrix with [f i j = 10*i + j]. Mutate cell (0,0) and test cell
+   (1,0) remains 10. Test zero rows, zero columns, and a negative dimension.
+   Build and run before continuing. *)
 
-    - Fill [ARRAY.MAKE ALIAS PREDICTION] before coding [init_matrix].
-    - Predict the effect of mutating one cell in an [Array.make] matrix.
-    - Implement [init_matrix] with independent rows and verify the prediction.
+(* Task 5 — Transpose a square matrix in place.
+   Define [transpose_square_in_place matrix]. First verify the matrix has [n]
+   rows and every row has length [n]; raise [Invalid_argument "square"] before
+   any mutation otherwise. Swap only cells above the diagonal and allocate no
+   second matrix.
 
-    STEP 5 — TRANSFER AND FINISH
-
-    - Reject a nonsquare matrix before any mutation.
-    - Implement [transpose_square_in_place] without a second matrix.
-    - Run [opam exec -- dune exec exercises/e19_arrays_and_mutation.exe].
-
-    Source coverage: norm; normalize; norm loop; normalize loop; init matrix. *)
-
-type vector = float array
-
-let norm_functional (_v : vector) : float = failwith "TODO"
-let normalize_functional_style (_v : vector) : unit = failwith "TODO"
-let norm_loop (_v : vector) : float = failwith "TODO"
-let normalize_loop (_v : vector) : unit = failwith "TODO"
-
-let init_matrix (_rows : int) (_cols : int) (_f : int -> int -> 'a) : 'a array array =
-  failwith "TODO: independent rows"
-
-let transpose_square_in_place (_m : 'a array array) : unit = failwith "TODO: transfer"
-
-(* ARRAY.MAKE ALIAS PREDICTION: ... *)
-
-let close a b = Float.abs (a -. b) < 1e-10
-
-let () =
-  assert (close (norm_functional [| 3.; 4. |]) 5.);
-  assert (close (norm_loop [| 3.; 4. |]) 5.);
-  let a = [| 3.; 4. |] and b = [| 3.; 4. |] in
-  normalize_functional_style a;
-  normalize_loop b;
-  assert (Array.to_list a = Array.to_list b && close (norm_loop a) 1.);
-  let m = init_matrix 2 3 (fun i j -> (10 * i) + j) in
-  m.(0).(0) <- 99;
-  assert (m.(1).(0) = 10);
-  let square = [| [| 1; 2; 3 |]; [| 4; 5; 6 |]; [| 7; 8; 9 |] |] in
-  transpose_square_in_place square;
-  assert (
-    Array.map Array.to_list square
-    |> Array.to_list
-    = [ [ 1; 4; 7 ]; [ 2; 5; 8 ]; [ 3; 6; 9 ] ]);
-  print_endline "E19 complete"
+   Test empty, 1-by-1, and the 3-by-3 matrix containing 1 through 9. Test a
+   nonsquare matrix raises and retains its original contents.
+   Build and run before continuing. *)

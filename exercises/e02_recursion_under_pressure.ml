@@ -1,76 +1,49 @@
-(** E02 — Recursion under pressure (30-45 min)
+(** E02 — Recursive functions (65-90 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e02_recursion_under_pressure.exe] Run:
+    [opam exec -- dune exec exercises/e02_recursion_under_pressure.exe] Reading:
+    https://cs3110.github.io/textbook/chapters/basics/rec_functions.html *)
 
-    - Turn a direct recursive definition into a constant-stack linear process.
-    - Use invariants and counterexamples to debug recursive state.
+(* Task 1 — Validate dates.
+   Define [days_in_month month] for lowercase English month names. Return
+   [Some 31] for January, March, May, July, August, October, and December;
+   [Some 30] for April, June, September, and November; [Some 28] for February;
+   and [None] for any other string.
 
-    STEP 1 — MODEL DATES
+   Define [valid_date day month] to return true exactly when the month is known
+   and [day] is between 1 and that month's length inclusive. Test January 31,
+   February 29, day zero, and an unknown month.
+   Build and run before continuing. *)
 
-    - Decide how [days_in_month] reports an unknown month.
-    - Implement it first, then implement [valid_date] by consuming its result.
-    - Ignore leap years. Run only the three date assertions if you need feedback.
+(* Task 2 — Define Fibonacci directly.
+   Define recursive [fib n] for [n >= 1] with [fib 1 = 1], [fib 2 = 1], and
+   [fib n = fib (n - 1) + fib (n - 2)]. Raise [Invalid_argument "fib"] when
+   [n < 1]. Test inputs 1, 2, 6, and 0.
+   Build and run before continuing. *)
 
-    STEP 2 — WRITE THE DIRECT FIBONACCI FUNCTION
+(* Task 3 — Define tail-recursive Fibonacci.
+   Define [fib_fast n] with the same contract as [fib]. Use a tail-recursive
+   helper whose two accumulators hold consecutive Fibonacci numbers. Write the
+   accumulator invariant in a comment.
 
-    - Implement the mathematical definition for [n >= 1].
-    - Before timing anything, predict why [fib 45] is much slower than [fib 35].
-    - Check small values first; do not wait for a large call to finish.
+   Test [fib_fast 1], [fib_fast 10], the invalid input 0, and equality with
+   [fib] for every input from 1 through 20.
+   Build and run before continuing. *)
 
-    STEP 3 — DERIVE THE FAST VERSION
+(* Task 4 — Find integer overflow.
+   Define [first_nonpositive_fib ()] to return the smallest [n >= 1] for which
+   [fib_fast n <= 0] because machine-integer arithmetic has overflowed.
 
-    - Write the invariant for [loop remaining previous current] in the marked block.
-    - Implement [fib_fast] only after the invariant is precise.
-    - Compare it with [fib] on the supplied range.
+   Let [n] be the returned index. Test that [n > 2], [fib_fast n <= 0], and
+   [fib_fast (n - 1) > 0]. Do not assert a platform-specific index.
+   Build and run before continuing. *)
 
-    STEP 4 — FIND MACHINE OVERFLOW
+(* Task 5 — Debug recursive state.
+   Define [fib_buggy n] with a helper [loop remaining previous current] that
+   starts at [loop n 0 1], returns [previous] when [remaining = 1], and otherwise
+   recurs with [remaining - 1], [current], and [previous + current].
 
-    - Implement [first_nonpositive_fib] as a search.
-    - Do not hard-code the word size or the expected answer.
-
-    STEP 5 — DEBUG UNFAMILIAR CODE
-
-    - Trace [fib_buggy] on paper for the first few inputs.
-    - Record the smallest counterexample and explain the bad state transition.
-    - Implement [fib_repaired] independently; do not copy [fib_fast].
-
-    FINISH
-
-    - Run [opam exec -- dune exec exercises/e02_recursion_under_pressure.exe].
-    - Read https://cs3110.github.io/textbook/chapters/basics/rec_functions.html only if
-      a recursive state or base case remains unclear.
-
-    Source coverage: date fun; fib; fib fast. *)
-
-let days_in_month (_month : string) : int option =
-  failwith "TODO: Jan..Dec, including Sept"
-
-let valid_date (_day : int) (_month : string) : bool =
-  failwith "TODO: consume days_in_month"
-
-let rec fib (_n : int) : int = failwith "TODO: direct recursive definition"
-
-(* INVARIANT for [loop remaining previous current]: ... *)
-let fib_fast (_n : int) : int = failwith "TODO: tail-recursive Fibonacci"
-let first_nonpositive_fib () : int = failwith "TODO: search using fib_fast"
-
-let fib_buggy n =
-  let rec loop remaining previous current =
-    if remaining = 1 then previous else loop (remaining - 1) current (previous + current)
-  in
-  if n < 1 then invalid_arg "fib_buggy" else loop n 0 1
-
-(* BUG EXPLANATION: ... *)
-let fib_repaired (_n : int) : int = failwith "TODO: independent repair"
-
-let () =
-  assert (valid_date 30 "Apr");
-  assert (not (valid_date 31 "Apr"));
-  assert (not (valid_date 1 "Smarch"));
-  assert (List.map fib [ 1; 2; 3; 7; 10 ] = [ 1; 1; 2; 13; 55 ]);
-  assert (List.init 25 (fun i -> fib_fast (i + 1)) = List.init 25 (fun i -> fib (i + 1)));
-  assert (first_nonpositive_fib () > 40);
-  assert (
-    List.init 25 (fun i -> fib_repaired (i + 1))
-    = List.init 25 (fun i -> fib_fast (i + 1)));
-  print_endline "E02 complete"
+   Find the smallest positive input on which it differs from [fib]. Record the
+   bad state transition in a comment. Define [fib_repaired n] independently and
+   test the counterexample plus inputs 1 through 20.
+   Build and run before continuing. *)

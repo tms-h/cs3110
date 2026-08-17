@@ -1,113 +1,77 @@
-(** E38 — Extend an interpreter vertically (45-50 min)
+(** E38 — Extending an interpreter vertically (110-150 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e38_extending_a_language.exe] Run:
+    [opam exec -- dune exec exercises/e38_extending_a_language.exe] *)
 
-    Carry a language feature through parsing, typing, pattern matching, and evaluation
-    without leaving the interpreter inconsistent.
+(* Task 1 — Define types, patterns, expressions, and values.
+   Define [typ] with [TInt], [TPair], and [TSum]. Define [pattern] with [PInt],
+   [PPair], [PLeft], [PRight], [PVar], and [PWildcard]. Define [expr] with [Int],
+   [Var], [Add], [Pair], [Left], [Right], and [Match]. Define [value] with [VInt],
+   [VPair], [VLeft], and [VRight].
 
-    STEP 1 — SPECIFY THE FEATURE BEFORE IMPLEMENTING IT
+   Construct and test the AST and value for pair [(1, Left 2)].
+   Build and run before continuing. *)
 
-    - Inspect the existing pairs, sums, and generalized-pattern constructors.
-    - Write the typing rule for each new expression form.
-    - Write the big-step evaluation rule for each new expression form.
-    - Predict which functions below must change when a new form is added.
+(* Task 2 — Parse integer pairs.
+   Define [token = Lparen | Rparen | Comma | Int_lit of int]. Define
+   [parse_pair tokens] to accept exactly
+   [Lparen; Int_lit a; Comma; Int_lit b; Rparen] and return
+   [Ok (Pair (Int a, Int b))]. Return [Error "expected pair"] for every other
+   token list, including trailing input.
 
-    STEP 2 — PARSE PAIRS
+   Test a valid pair, each missing delimiter, and one trailing token.
+   Build and run before continuing. *)
 
-    - Implement [parse_pair] for tokenized [(expr, expr)].
-    - Require the parentheses.
-    - Reject trailing input.
-    - Keep the parser deliberately small: this step tests feature plumbing, not
-      parser-generator syntax.
+(* Task 3 — Match generalized patterns.
+   Define [match_pattern pattern value] to return bindings in left-to-right order
+   or [None] on mismatch. [PWildcard] binds nothing; [PVar name] binds once;
+   compound patterns combine child bindings. If the same variable name would be
+   bound twice anywhere in one pattern, return [None] even when values agree.
 
-    STEP 3 — MATCH GENERALIZED PATTERNS
+   Test literals, wildcard, nested pair, left and right sums, mismatch, and
+   [PPair (PVar "x", PVar "x")].
+   Build and run before continuing. *)
 
-    - Implement [match_pattern].
-    - Combine bindings from compound patterns left-to-right.
-    - Reject any pattern that binds the same variable twice.
-    - Debug with the provided duplicate-binder assertion before continuing.
+(* Task 4 — Infer expression types.
+   Define [infer context expression], with newest-first string/type bindings.
+   Integers have [TInt]; Add requires two ints; Pair combines child types.
+   [Left e] has [TSum (type_of_e, TInt)] and [Right e] has
+   [TSum (TInt, type_of_e)].
 
-    STEP 4 — TYPE AND EVALUATE THE NEW FORMS
+   For Match, infer the scrutinee, check each pattern against that type, extend
+   the branch context with pattern bindings, and require every branch result type
+   to match. Return [Error "empty match"], ["unbound: name"], ["expected int"],
+   ["pattern type"], or ["branch mismatch"] as appropriate. Test every form and
+   every error string.
+   Build and run before continuing. *)
 
-    - Implement [infer] for pairs, sums, and matches.
-    - Implement [eval] for the same forms.
-    - Match branches in source order and use the first successful branch.
-    - Return a structured runtime error when no branch matches.
+(* Task 5 — Evaluate expression forms.
+   Define [eval environment expression], with newest-first string/value bindings.
+   Evaluate Add left-to-right on integers, Pair left-to-right, and sums on their
+   payload. For Match, evaluate the scrutinee, try branches in source order, and
+   evaluate the first matching branch in an environment extended by its bindings.
 
-    STEP 5 — DESUGAR LISTS
+   Return [Error "unbound: name"], ["expected int"], or ["no matching branch"].
+   Test every expression form, branch order, and every runtime error.
+   Build and run before continuing. *)
 
-    - Preserve the encoding [[] -> Left 0].
-    - Preserve the encoding [[h; ...] -> Right (h, t)].
-    - Build the source-level [not_empty] expression.
-    - Run it on [[]] and [[1]], predicting both encoded values before evaluation.
+(* Task 6 — Desugar lists.
+   Define recursive [desugar_list expressions] with
+   [[] -> Left (Int 0)] and
+   [[head; tail...] -> Right (Pair (head, desugar_list tail))]. Define
+   [not_empty] as a Match on variable ["xs"] returning 0 for any Left and 1 for
+   any Right.
 
-    STEP 6 — TRANSFER BY ADDING PROJECTIONS
+   Test desugaring [], [Int 1], and [Int 1; Int 2]. Evaluate [not_empty] with
+   environments containing the empty and singleton encodings.
+   Build and run before continuing. *)
 
-    - Add first and second projection forms through every affected interpreter layer.
-    - Compile after each layer change.
-    - Record every compiler warning that identifies an omitted layer.
+(* Task 7 — Add pair projections.
+   Add expression constructors [Fst of expr] and [Snd of expr]. In [infer],
+   require a pair and return its first or second component type. In [eval],
+   require [VPair] and return the selected component. Use
+   [Error "expected pair"] at both layers.
 
-    FINISH
-
-    Run: [opam exec -- dune exec exercises/e38_extending_a_language.exe]
-
-    Source coverage: pair parsing; pair type checking; pair evaluation; desugar list;
-    list not empty; generalize patterns. *)
-
-type typ = TInt | TPair of typ * typ | TSum of typ * typ
-
-type pattern =
-  | PInt of int
-  | PPair of pattern * pattern
-  | PLeft of pattern
-  | PRight of pattern
-  | PVar of string
-  | PWildcard
-
-type expr =
-  | Int of int
-  | Var of string
-  | Add of expr * expr
-  | Pair of expr * expr
-  | Left of expr
-  | Right of expr
-  | Match of expr * (pattern * expr) list
-
-type value = VInt of int | VPair of value * value | VLeft of value | VRight of value
-type token = Lparen | Rparen | Comma | Int_lit of int
-
-let parse_pair (_tokens : token list) : (expr, string) result = failwith "TODO"
-
-let match_pattern (_pattern : pattern) (_value : value) : (string * value) list option =
-  failwith "TODO: reject duplicate binders"
-
-let rec infer (_context : (string * typ) list) (_expression : expr) :
-    (typ, string) result =
-  failwith "TODO"
-
-let rec eval (_environment : (string * value) list) (_expression : expr) :
-    (value, string) result =
-  failwith "TODO"
-
-let rec desugar_list = function
-  | [] -> Left (Int 0)
-  | head :: tail -> Right (Pair (head, desugar_list tail))
-
-let not_empty = Match (Var "xs", [ (PLeft PWildcard, Int 0); (PRight PWildcard, Int 1) ])
-
-(* TYPING RULES: ...
-   EVALUATION RULES: ... *)
-
-let () =
-  assert (
-    parse_pair [ Lparen; Int_lit 1; Comma; Int_lit 2; Rparen ]
-    = Ok (Pair (Int 1, Int 2)));
-  assert (
-    match_pattern (PPair (PVar "x", PInt 2)) (VPair (VInt 1, VInt 2))
-    = Some [ ("x", VInt 1) ]);
-  assert (match_pattern (PPair (PVar "x", PVar "x")) (VPair (VInt 1, VInt 1)) = None);
-  assert (infer [] (Pair (Int 1, Left (Int 2))) = Ok (TPair (TInt, TSum (TInt, TInt))));
-  assert (eval [ ("xs", VLeft (VInt 0)) ] not_empty = Ok (VInt 0));
-  assert (
-    eval [ ("xs", VRight (VPair (VInt 1, VLeft (VInt 0)))) ] not_empty = Ok (VInt 1));
-  print_endline "E38 complete"
+   Test both projections on an integer/sum pair, plus type and runtime errors on
+   an integer. Update every pattern match until compilation is exhaustive.
+   Build and run before continuing. *)

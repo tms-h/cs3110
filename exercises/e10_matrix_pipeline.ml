@@ -1,72 +1,61 @@
-(** E10 — A checked matrix pipeline (40-50 min)
+(** E10 — Matrix pipelines (70-95 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e10_matrix_pipeline.exe] Run:
+    [opam exec -- dune exec exercises/e10_matrix_pipeline.exe] *)
 
-    - Compose validation, transposition, dot products, and nested mapping.
-    - Turn shape mistakes into explicit API errors.
+(* Task 1 — Validate matrix shape.
+   Define variant [matrix_error] with [Invalid_matrix] and
+   [Shape_mismatch of (int * int) * (int * int)].
 
-    STEP 1 — VALIDATE THE REPRESENTATION
+   Define [shape matrix] to return [Some (rows, columns)] exactly for a nonempty
+   list of nonempty rows that all have equal length; otherwise return [None].
+   Test a 2-by-3 matrix, [], [[]], [ []; [] ], and a ragged matrix.
+   Build and run before continuing. *)
 
-    - Implement [shape].
-    - Accept only a non-empty matrix with non-empty, equal-width rows.
-    - Return [(rows, columns)] instead of a Boolean.
+(* Task 2 — Add row vectors.
+   Define [add_rows a b] with [List.map2] to add corresponding integers. Let
+   [Invalid_argument] escape when lengths differ.
 
-    STEP 2 — ADD WITH A CHECKED BOUNDARY
+   Test two empty rows, [1; 1; 1] plus [9; 8; 7], and mismatched lengths.
+   Build and run before continuing. *)
 
-    - Implement [add_rows] with [List.map2].
-    - Implement polymorphic [map2_matrix].
-    - Convert a size mismatch into [Shape_mismatch] at your API boundary.
+(* Task 3 — Map over two matrices.
+   Define [map2_matrix f a b]. Return [Error Invalid_matrix] if either matrix has
+   no valid shape. If valid shapes differ, return
+   [Error (Shape_mismatch (shape_a, shape_b))]. Otherwise return [Ok] with [f]
+   applied pairwise to corresponding cells.
 
-    STEP 3 — CHOOSE A DOT-PRODUCT TOOL
+   Test two 2-by-2 matrices, a ragged input, and a 1-by-2 versus 2-by-1 mismatch.
+   Build and run before continuing. *)
 
-    - Read [List.combine], [List.map2], and [List.fold_left2].
-    - Choose one for [dot] and write down why.
-    - Implement [dot] only after deciding mismatch behavior.
+(* Task 4 — Add matrices.
+   Define [add_matrices a b] by calling [map2_matrix] with integer addition.
+   Test two 2-by-2 matrices whose result is [[5; 5]; [5; 5]], and test one shape
+   mismatch.
+   Build and run before continuing. *)
 
-    STEP 4 — BUILD MULTIPLICATION
+(* Task 5 — Compute dot products.
+   Define [dot a b] as the sum of corresponding products. Return 0 for two empty
+   lists and let [Invalid_argument] escape when lengths differ.
 
-    - Implement [transpose] without mutable arrays.
-    - Validate both matrices before multiplication.
-    - Map over rows and transposed columns to produce the result.
+   Test empty lists, [1; 2; 3] with [4; 5; 6], and mismatched lengths.
+   Build and run before continuing. *)
 
-    STEP 5 — DEBUG THE NESTING
+(* Task 6 — Transpose a matrix.
+   Define [transpose matrix] for valid matrices so rows become columns. Define
+   [transpose [] = []]. The result for invalid nonempty matrices is outside the
+   contract because callers validate first.
 
-    - Predict which test would fail if the nested maps were swapped.
-    - Make the swap temporarily, run the test, and explain the dimensions.
-    - Restore the correct order.
+   Test [] and [[1; 2; 3]; [4; 5; 6]]. Test that transposing a valid matrix
+   twice returns the original.
+   Build and run before continuing. *)
 
-    FINISH
+(* Task 7 — Multiply matrices.
+   Define [multiply a b]. Return [Error Invalid_matrix] if either input is
+   invalid. For valid shapes [(ar, ac)] and [(br, bc)], return
+   [Error (Shape_mismatch ((ar, ac), (br, bc)))] when [ac <> br]. Otherwise
+   return the [ar]-by-[bc] matrix of row-column dot products.
 
-    - Run [opam exec -- dune exec exercises/e10_matrix_pipeline.exe].
-
-    Source coverage: valid matrix; row vector add; matrix add; matrix multiply. *)
-
-type matrix_error = Invalid_matrix | Shape_mismatch of (int * int) * (int * int)
-
-let shape (_m : 'a list list) : (int * int) option = failwith "TODO"
-let add_rows (_a : int list) (_b : int list) : int list = failwith "TODO"
-
-let map2_matrix (_f : 'a -> 'b -> 'c) (_a : 'a list list) (_b : 'b list list) :
-    ('c list list, matrix_error) result =
-  failwith "TODO"
-
-let add_matrices a b = map2_matrix ( + ) a b
-let dot (_a : int list) (_b : int list) : int = failwith "TODO"
-let transpose (_m : 'a list list) : 'a list list = failwith "TODO"
-
-let multiply (_a : int list list) (_b : int list list) :
-    (int list list, matrix_error) result =
-  failwith "TODO"
-
-let () =
-  assert (shape [ [ 1; 2; 3 ]; [ 4; 5; 6 ] ] = Some (2, 3));
-  assert (shape [] = None && shape [ []; [] ] = None && shape [ [ 1 ]; [ 2; 3 ] ] = None);
-  assert (add_rows [ 1; 1; 1 ] [ 9; 8; 7 ] = [ 10; 9; 8 ]);
-  assert (
-    add_matrices [ [ 1; 2 ]; [ 3; 4 ] ] [ [ 4; 3 ]; [ 2; 1 ] ]
-    = Ok [ [ 5; 5 ]; [ 5; 5 ] ]);
-  assert (transpose [ [ 1; 2; 3 ]; [ 4; 5; 6 ] ] = [ [ 1; 4 ]; [ 2; 5 ]; [ 3; 6 ] ]);
-  assert (
-    multiply [ [ 1; 2; 3 ]; [ 4; 5; 6 ] ] [ [ 7; 8 ]; [ 9; 10 ]; [ 11; 12 ] ]
-    = Ok [ [ 58; 64 ]; [ 139; 154 ] ]);
-  print_endline "E10 complete"
+   Test a 2-by-3 times 3-by-2 product yielding [[58; 64]; [139; 154]], one
+   incompatible pair, and one invalid matrix.
+   Build and run before continuing. *)

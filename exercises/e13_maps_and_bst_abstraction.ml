@@ -1,88 +1,66 @@
-(** E13 — Map abstraction over a BST (40-50 min)
+(** E13 — Persistent BST maps (90-120 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e13_maps_and_bst_abstraction.exe] Run:
+    [opam exec -- dune exec exercises/e13_maps_and_bst_abstraction.exe] Reading:
+    https://ocaml.org/manual/5.4/api/Map.html *)
 
-    - Parameterize ordering instead of relying on polymorphic comparison.
-    - Implement and analyze a persistent BST map.
+(* Task 1 — Use [Map.Make].
+   Define [Char_map = Map.Make (Char)]. Define [radio] by adding
+   A→Alpha, E→Echo, S→Sierra, and V→Victor.
 
-    STEP 1 — ORIENT WITH THE STANDARD LIBRARY
+   Test finding E, removing A without changing [radio], and that
+   [List.map fst (Char_map.bindings radio)] equals ['A'; 'E'; 'S'; 'V'].
+   Build and run before continuing. *)
 
-    - Open https://ocaml.org/manual/5.4/api/Map.html.
-    - Explain why [Char] satisfies [Map.OrderedType].
-    - Predict [Char_map.bindings radio] before running it.
-    - Try different insertion histories and check that binding order is unchanged.
+(* Task 2 — Define ordered-map interfaces.
+   Define module type [ORDERED] with type [t] and [compare : t -> t -> int].
+   Define module type [MAP] with types [key] and ['v t], plus [empty], [add],
+   [find_opt], [remove], and [bindings] with these types:
 
-    STEP 2 — WRITE THE REPRESENTATION INVARIANT
+   - [empty : 'v t]
+   - [add : key -> 'v -> 'v t -> 'v t]
+   - [find_opt : key -> 'v t -> 'v option]
+   - [remove : key -> 'v t -> 'v t]
+   - [bindings : 'v t -> (key * 'v) list]
 
-    - Every left key compares below its node key.
-    - Every right key compares above its node key.
-    - No key occurs twice; [add] replaces the existing value.
+   Run interface inspection and verify that values remain polymorphic.
+   Build and run before continuing. *)
 
-    STEP 3 — IMPLEMENT THE SEARCH PATH
+(* Task 3 — Define [Make_bst_map] and insertion.
+   Define functor [Make_bst_map (K : ORDERED)] returning [MAP] with
+   [type key = K.t]. Use [Empty] or
+   [Node of left * key * value * right]. All left keys must compare below the
+   node key, all right keys above it, and duplicate keys replace their value.
 
-    - Implement [add] and [find_opt] using only [K.compare].
-    - Test replacement as well as insertion and absence.
+   Define [empty] and [add]. Instantiate [Int_map]. Test insertion of keys 2, 1,
+   and 3, then replacement of key 2.
+   Build and run before continuing. *)
 
-    STEP 4 — TRAVERSE AND DELETE
+(* Task 4 — Look up keys.
+   Define [find_opt key map] by following one comparator-directed search path.
+   Return [Some value] for a matching key and [None] when absent.
 
-    - Implement [bindings] in O(n) without repeated [@].
-    - Factor predecessor or successor extraction out of [remove].
-    - Test leaf, one-child, two-child, and root deletion.
+   Test keys 1, 2, 3, and absent key 4 in the map from Task 3.
+   Build and run before continuing. *)
 
-    STEP 5 — COMPARE AND FINISH
+(* Task 5 — Enumerate bindings.
+   Define [bindings map] to return ascending key-value pairs in O(n) time without
+   repeated [@]. Test the Task 3 map equals
+   [(1, "a"); (2, "B"); (3, "c")].
+   Build and run before continuing. *)
 
-    - Compare your worst case with Stdlib.Map's documented balanced tree.
-    - Run [opam exec -- dune exec exercises/e13_maps_and_bst_abstraction.exe].
+(* Task 6 — Remove keys persistently.
+   Define [remove key map]. Removing an absent key leaves equivalent bindings.
+   Handle leaf, one-child, and two-child nodes by factoring predecessor or
+   successor extraction. Do not mutate the old map.
 
-    Source coverage: binary search tree map; make char map; char ordered; use char map;
-    bindings. *)
+   Test each node case, removal of root 2, absent key 9, and that the original
+   map still has all three bindings.
+   Build and run before continuing. *)
 
-module Char_map = Map.Make (Char)
-
-let radio =
-  Char_map.empty |> Char_map.add 'A' "Alpha" |> Char_map.add 'E' "Echo"
-  |> Char_map.add 'S' "Sierra" |> Char_map.add 'V' "Victor"
-
-module type ORDERED = sig
-  type t
-
-  val compare : t -> t -> int
-end
-
-module type MAP = sig
-  type key
-  type 'v t
-
-  val empty : 'v t
-  val add : key -> 'v -> 'v t -> 'v t
-  val find_opt : key -> 'v t -> 'v option
-  val remove : key -> 'v t -> 'v t
-  val bindings : 'v t -> (key * 'v) list
-end
-
-module Make_bst_map (K : ORDERED) : MAP with type key = K.t = struct
-  type key = K.t
-  type 'v tree = Empty | Node of 'v tree * key * 'v * 'v tree
-  type 'v t = 'v tree
-
-  let empty = Empty
-  let rec add (_key : key) (_value : 'v) (_map : 'v t) : 'v t = failwith "TODO"
-  let rec find_opt (_key : key) (_map : 'v t) : 'v option = failwith "TODO"
-  let remove (_key : key) (_map : 'v t) : 'v t = failwith "TODO"
-  let bindings (_map : 'v t) : (key * 'v) list = failwith "TODO: O(n)"
-end
-
-module Int_map = Make_bst_map (Int)
-
-let () =
-  assert (Char_map.find 'E' radio = "Echo");
-  assert (not (Char_map.mem 'A' (Char_map.remove 'A' radio)));
-  assert (List.map fst (Char_map.bindings radio) = [ 'A'; 'E'; 'S'; 'V' ]);
-  let m =
-    Int_map.empty |> Int_map.add 2 "b" |> Int_map.add 1 "a" |> Int_map.add 3 "c"
-    |> Int_map.add 2 "B"
-  in
-  assert (Int_map.find_opt 2 m = Some "B");
-  assert (Int_map.bindings m = [ (1, "a"); (2, "B"); (3, "c") ]);
-  assert (Int_map.bindings (Int_map.remove 2 m) = [ (1, "a"); (3, "c") ]);
-  print_endline "E13 complete"
+(* Task 7 — Analyze unbalanced height.
+   Build one map by inserting integers 1 through 1,000 in ascending order. Test
+   that keys 1 and 1,000 are findable. State its height and worst-case operation
+   cost, then compare them with the balanced implementation promised by
+   [Stdlib.Map].
+   Build and run before continuing. *)

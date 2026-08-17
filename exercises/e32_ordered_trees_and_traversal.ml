@@ -1,98 +1,61 @@
-(** E32 — Ordered trees, efficient traversal, red-black auditing (40-50 min)
+(** E32 — Ordered trees and red-black invariants (100-140 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e32_ordered_trees_and_traversal.exe] Run:
+    [opam exec -- dune exec exercises/e32_ordered_trees_and_traversal.exe] Reading:
+    https://cs3110.github.io/textbook/chapters/ds/rb.html *)
 
-    Parameterize a BST set, write linear-time traversals, and audit red-black invariants
-    independently of insertion code.
+(* Task 1 — Define a functorized BST set.
+   Define module type [ORDERED] with type [t] and [compare]. Define functor
+   [Make_bst_set (Ord : ORDERED)] with [elt = Ord.t], tree type [t], [empty],
+   [mem], and persistent [add]. Equal elements are not duplicated; use only
+   [Ord.compare].
 
-    STEP 1 — BUILD THE FUNCTORIZED BST SET
+   Instantiate a case-insensitive string set. Test empty membership, insertion,
+   and that ["OCaml"] plus ["ocaml"] occupy one logical element.
+   Build and run before continuing. *)
 
-    - Implement [Make_bst_set] using only [Ord.compare].
-    - Do not use polymorphic comparison.
-    - Instantiate it with case-insensitive strings.
-    - Insert differently cased versions of the same word and verify that the set does
-      not retain duplicates.
+(* Task 2 — Enumerate set elements.
+   In [Make_bst_set], define [elements set] as ascending inorder traversal in
+   O(n) time, with one [::] per node and no [@].
 
-    STEP 2 — DERIVE EFFICIENT TRAVERSALS
+   Test scrambled integer insertion yields [1; 2; 3; 4] and the case-insensitive
+   set returns one representative for the duplicated word.
+   Build and run before continuing. *)
 
-    - Before coding, write the meaning of the accumulator for preorder, inorder, and
-      postorder.
-    - Implement all three traversals with exactly one [::] per node and no [@].
-    - Check the order on a three-node tree before using a larger example.
-    - If a traversal is reversed, repair the accumulator derivation instead of adding a
-      blind [List.rev].
+(* Task 3 — Define efficient tree traversals.
+   Define ['a tree = Leaf | Node of 'a tree * 'a * 'a tree]. Define [preorder],
+   [inorder], and [postorder] with accumulators, one [::] per node, and no [@].
 
-    STEP 3 — CONSTRUCT TREES WITH DIFFERENT BLACK HEIGHTS
+   On the balanced tree containing 1 through 7 with root 4, test exact results
+   [4;2;1;3;6;5;7], [1;2;3;4;5;6;7], and [1;3;2;5;7;6;4].
+   Build and run before continuing. *)
 
-    - Draw the perfect BST containing 1 through 15.
-    - Color it three ways to obtain valid black heights 2, 3, and 4.
-    - Encode each coloring and pass it to [audit_rb].
-    - If an audit fails, identify the first violated invariant before recoloring.
+(* Task 4 — Audit red-black trees.
+   Define [color = Red | Black] and
+   ['a rb_tree = RLeaf | RNode of color * left * value * right]. Define
+   [audit_rb compare tree] to return [Ok black_height] when the root is black,
+   keys satisfy strict BST order, no red node has a red child, and both subtrees
+   have equal black height. Count black internal nodes; [RLeaf] has height 0.
+   Return [Error message] for any violation.
 
-    STEP 4 — AUDIT A HAND INSERTION
+   Test a black root with two red children returns [Ok 1], then separately test
+   red root, red-red, unequal black height, and BST-order violations return Error.
+   Build and run before continuing. *)
 
-    - Using the book algorithm, hand-insert the letters in [D A T A S T R U C T U R E].
-    - Encode your final tree.
-    - Check it with [audit_rb].
-    - Independently check that its inorder traversal is sorted.
+(* Task 5 — Construct three valid colorings.
+   Define [rb_height_2], [rb_height_3], and [rb_height_4] as colorings of the
+   perfect BST containing 1 through 15. For height 2 color levels black-red-black-red;
+   for height 3 use black-black-red-black; for height 4 make every level black.
 
-    STEP 5 — EXPLAIN THE LIMIT OF THE AUDIT
+   Test inorder values are 1 through 15 and [audit_rb Int.compare] returns the
+   named black height for each tree.
+   Build and run before continuing. *)
 
-    - Give a short argument for why a tree that passes [audit_rb] need not have resulted
-      from the insertion history in Step 4.
+(* Task 6 — Audit a hand insertion.
+   Hand-insert letters [D A T A S T R U C T U R E] with the textbook red-black
+   insertion algorithm and define [inserted_letters_tree] as the resulting tree.
 
-    FINISH
-
-    Run: [opam exec -- dune exec exercises/e32_ordered_trees_and_traversal.exe]
-
-    Reading fallback: https://cs3110.github.io/textbook/chapters/ds/rb.html
-
-    Source coverage: functorized BST; efficient traversal; RB draw complete; RB draw
-    insert. *)
-
-module type ORDERED = sig
-  type t
-
-  val compare : t -> t -> int
-end
-
-module Make_bst_set (Ord : ORDERED) = struct
-  type elt = Ord.t
-  type t = Empty | Node of t * elt * t
-
-  let empty = Empty
-  let rec mem (_x : elt) (_t : t) : bool = failwith "TODO"
-  let rec add (_x : elt) (_t : t) : t = failwith "TODO"
-  let elements (_t : t) : elt list = failwith "TODO: linear inorder"
-end
-
-type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
-
-let preorder (_t : 'a tree) : 'a list = failwith "TODO: no append"
-let inorder (_t : 'a tree) : 'a list = failwith "TODO: no append"
-let postorder (_t : 'a tree) : 'a list = failwith "TODO: no append"
-
-type color = Red | Black
-type 'a rb_tree = RLeaf | RNode of color * 'a rb_tree * 'a * 'a rb_tree
-
-let audit_rb (_compare : 'a -> 'a -> int) (_t : 'a rb_tree) : (int, string) result =
-  failwith "TODO: root black, no red-red, equal black height, BST order"
-
-(* THREE COLORINGS: ...
-   INSERTION RESULT: ... *)
-
-let () =
-  let t =
-    Node
-      ( Node (Node (Leaf, 1, Leaf), 2, Node (Leaf, 3, Leaf)),
-        4,
-        Node (Node (Leaf, 5, Leaf), 6, Node (Leaf, 7, Leaf)) )
-  in
-  assert (preorder t = [ 4; 2; 1; 3; 6; 5; 7 ]);
-  assert (inorder t = [ 1; 2; 3; 4; 5; 6; 7 ]);
-  assert (postorder t = [ 1; 3; 2; 5; 7; 6; 4 ]);
-  let valid =
-    RNode (Black, RNode (Red, RLeaf, 1, RLeaf), 2, RNode (Red, RLeaf, 3, RLeaf))
-  in
-  assert (audit_rb Int.compare valid = Ok 1);
-  print_endline "E32 complete"
+   Test [audit_rb Char.compare] succeeds and inorder traversal equals the sorted
+   distinct letters. Explain why passing the audit does not prove which insertion
+   history produced the tree.
+   Build and run before continuing. *)

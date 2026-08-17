@@ -1,95 +1,68 @@
-(** E20 — Promises from scratch (40-50 min)
+(** E20 — Promises from scratch (90-125 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e20_promises_from_scratch.exe] Run:
+    [opam exec -- dune exec exercises/e20_promises_from_scratch.exe] Reading:
+    https://cs3110.github.io/textbook/chapters/ds/promises.html *)
 
-    - Implement a one-assignment state machine with callbacks.
-    - Reason about registration and resolution order precisely.
+(* Task 1 — Define promise state and creation.
+   Begin module [Promise]. Define ['a state] as either pending callbacks or one
+   resolved value. Define abstract-by-convention types ['a t] and ['a resolver]
+   using references to the same state. Define [create ()] to return a fresh
+   pending promise and its resolver.
 
-    STEP 1 — STATE THE PROMISE INVARIANT
+   Before sealing the module, inspect both returned references and test each
+   contains [Pending []].
+   Build and run before continuing. *)
 
-    - A pending promise owns callbacks in registration order.
-    - A resolved promise owns exactly one immutable value.
-    - A resolver succeeds once. Choose and document the second-call error.
+(* Task 2 — Register callbacks.
+   Complete [upon promise callback]. For a pending promise, save callbacks in
+   registration order without invoking them. For a resolved promise, invoke the
+   callback immediately exactly once.
 
-    STEP 2 — IMPLEMENT CREATION AND RESOLUTION
+   Register two callbacks that append distinct strings to a trace and test the
+   trace remains empty while pending.
+   Build and run before continuing. *)
 
-    - Implement [create], [return], [upon], and [resolve] in that order.
-    - Test callbacks registered before resolution.
-    - Test a callback registered after resolution; it must run immediately.
+(* Task 3 — Resolve once.
+   Define [resolve resolver value]. Change pending state to resolved, then invoke
+   every saved callback once in registration order. A second resolve must raise
+   [Invalid_argument "resolve"] and must not invoke callbacks again.
 
-    STEP 3 — CHAIN PROMISES
+   Test callback order with two registrations, an immediate late registration,
+   and the second-resolution exception.
+   Build and run before continuing. *)
 
-    - Implement [bind].
-    - Preserve registration order while forwarding the result promise.
-    - Draw the state transition if a callback returns an already resolved promise.
+(* Task 4 — Return and bind.
+   Define [return value] as an already resolved promise. Define
+   [bind promise f] to return a new promise resolved with the eventual value of
+   [f value]. It must work when either input or returned promise is already
+   resolved.
 
-    STEP 4 — DERIVE MAP TWICE
+   Test binding [return 3] through a function returning [return 4]. Then bind a
+   pending promise through a pending returned promise and test each resolution
+   step separately with a trace.
+   Build and run before continuing. *)
 
-    - Implement [map_via_bind] using only [bind] and [return].
-    - Implement [map_direct] without calling [bind].
-    - Explain why the two are observationally equivalent here.
+(* Task 5 — Define map twice.
+   Define [map_via_bind promise f] using only [bind] and [return]. Define
+   [map_direct promise f] without calling [bind]. Both must resolve to [f value]
+   exactly once and preserve callback timing.
 
-    STEP 5 — PREDICT THE TEST TRACE
+   Test both maps on an already resolved promise and on a pending promise that
+   later resolves to 21, producing 42.
+   Build and run before continuing. *)
 
-    - Write the expected trace before running the file.
-    - If it differs, draw state after every [create], [upon], and [resolve].
+(* Task 6 — Combine two promises.
+   Define [both a b] to resolve only after both inputs resolve, with pair
+   [(value_of_a, value_of_b)] regardless of resolution order.
 
-    STEP 6 — TRANSFER AND FINISH
+   Test resolving b before a leaves the result pending, then produces
+   [("left", "right")] after a resolves. Repeat with a before b.
+   Build and run before continuing. *)
 
-    - Implement [both]. Output order follows arguments, not resolution order.
-    - Explain how resolution order can still affect callback timing.
-    - Run [opam exec -- dune exec exercises/e20_promises_from_scratch.exe].
-
-    Reading fallback: https://cs3110.github.io/textbook/chapters/ds/promises.html
-
-    Source coverage: promise and resolve; map via bind; map anew. *)
-
-module Promise : sig
-  type 'a t
-  type 'a resolver
-
-  val create : unit -> 'a t * 'a resolver
-  val return : 'a -> 'a t
-  val resolve : 'a resolver -> 'a -> unit
-  val bind : 'a t -> ('a -> 'b t) -> 'b t
-  val map_via_bind : 'a t -> ('a -> 'b) -> 'b t
-  val map_direct : 'a t -> ('a -> 'b) -> 'b t
-  val upon : 'a t -> ('a -> unit) -> unit
-  val both : 'a t -> 'b t -> ('a * 'b) t
-end = struct
-  type 'a state = Pending of ('a -> unit) list | Resolved of 'a
-  type 'a t = 'a state ref
-  type 'a resolver = 'a state ref
-
-  let create () : 'a t * 'a resolver = failwith "TODO"
-  let return (_x : 'a) : 'a t = failwith "TODO"
-  let resolve (_r : 'a resolver) (_x : 'a) : unit = failwith "TODO"
-  let upon (_p : 'a t) (_f : 'a -> unit) : unit = failwith "TODO"
-  let bind (_p : 'a t) (_f : 'a -> 'b t) : 'b t = failwith "TODO"
-
-  let map_via_bind (_p : 'a t) (_f : 'a -> 'b) : 'b t =
-    failwith "TODO: use bind and return"
-
-  let map_direct (_p : 'a t) (_f : 'a -> 'b) : 'b t = failwith "TODO: do not call bind"
-  let both (_a : 'a t) (_b : 'b t) : ('a * 'b) t = failwith "TODO: transfer"
-end
-
-let () =
-  let trace = ref [] in
-  let p, r = Promise.create () in
-  let doubled = Promise.map_direct p (fun x -> x * 2) in
-  Promise.upon p (fun x -> trace := ("p=" ^ string_of_int x) :: !trace);
-  Promise.upon doubled (fun x -> trace := ("d=" ^ string_of_int x) :: !trace);
-  assert (!trace = []);
-  Promise.resolve r 21;
-  Promise.upon p (fun _ -> trace := "late" :: !trace);
-  assert (List.rev !trace = [ "p=21"; "d=42"; "late" ]);
-  let a, ra = Promise.create () and b, rb = Promise.create () in
-  let pair = Promise.both a b in
-  let seen = ref None in
-  Promise.upon pair (fun value -> seen := Some value);
-  Promise.resolve rb "right";
-  assert (!seen = None);
-  Promise.resolve ra "left";
-  assert (!seen = Some ("left", "right"));
-  print_endline "E20 complete"
+(* Task 7 — Seal the promise API.
+   Add a signature to [Promise] exposing abstract ['a t] and ['a resolver] plus
+   [create], [return], [resolve], [bind], [map_via_bind], [map_direct], [upon],
+   and [both] with their inferred types. Keep all earlier tests outside the
+   module and verify they still compile without representation access.
+   Build and run before continuing. *)

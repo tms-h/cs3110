@@ -1,82 +1,49 @@
-(** E16 — Interface boundaries in one file (25-40 min)
+(** E16 — Interface boundaries (80-110 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e16_interface_boundaries.exe] Run:
+    [opam exec -- dune exec exercises/e16_interface_boundaries.exe] Inspect:
+    [opam exec -- ocamlc -i exercises/e16_interface_boundaries.ml] *)
 
-    - Observe exactly how a signature changes client capabilities.
-    - Add useful formatting without exposing representation.
+(* Task 1 — Implement without an interface.
+   Define [Leaky_date] with record type [t = { month : int; day : int }],
+   [make month day], [month date], and [day date]. [make] stores its arguments
+   without validation.
 
-    NOTE
+   Test construction of month 13 and direct access to its record fields. Inspect
+   the inferred interface and list every exposed representation detail.
+   Build and run before continuing. *)
 
-    - Nested modules keep this a one-file lab.
-    - Sealing [Date] uses the same boundary that an [.mli] applies to an [.ml].
+(* Task 2 — Define an abstract date interface.
+   Define module type [DATE] with abstract type [t] and operations:
+   [make : month:int -> day:int -> t option], [month : t -> int],
+   [day : t -> int], [to_string : t -> string], and
+   [pp : Format.formatter -> t -> unit].
 
-    STEP 1 — INSPECT BEFORE IMPLEMENTING
+   Define no sealed implementation yet. Inspect and verify that the interface
+   exposes no record fields.
+   Build and run before continuing. *)
 
-    - Run [opam exec -- ocamlc -i exercises/e16_interface_boundaries.ml].
-    - Compare [Leaky_date] with the [DATE] signature.
-    - List every operation or representation detail the sealed client loses.
+(* Task 3 — Enforce valid date construction.
+   Begin unsealed [Date_impl] with a record representation. Define [make] to
+   accept months 1 through 12 and days valid for that month, using 28 days for
+   February. Return [None] otherwise. Define [month] and [day].
 
-    STEP 2 — ENFORCE VALID CONSTRUCTION
+   Test January 1, February 28, February 29, April 31, and month 13.
+   Build and run before continuing. *)
 
-    - Implement [Date.make] first and reject invalid inputs.
-    - Implement the accessors and [to_string].
-    - Confirm clients cannot construct a record or read its fields directly.
+(* Task 4 — Add date printers and seal the module.
+   Define [to_string date] as ["month/day"]. Define [pp formatter date] with
+   [Format.fprintf]. Seal the implementation as [module Date : DATE = Date_impl].
 
-    STEP 3 — COMPOSE A PRINTER
+   Define [render_pair a b] with [Format.asprintf] and two [%a] placeholders,
+   producing ["a -> b"]. Test January 1, December 31, and their rendered pair.
+   Build and run before continuing. *)
 
-    - Implement [Date.pp] with [Format.fprintf].
-    - Implement [render_pair] with two [%a] placeholders.
-    - Do not eagerly concatenate two date strings.
-
-    STEP 4 — PREDICT A MANIFEST TYPE
-
-    - Predict how [ocamlc -i] changes if [DATE] exposes the record definition.
-    - Make the change, inspect the interface, and revert it.
-
-    STEP 5 — TRANSFER AND FINISH
-
-    - Change the hidden representation to an ordinal day.
-    - Keep [DATE] and all client code unchanged.
-    - Run [opam exec -- dune exec exercises/e16_interface_boundaries.exe].
-
-    Source coverage: implementation without interface; implementation with interface;
-    implementation with abstracted interface; printer for date. *)
-
-module Leaky_date = struct
-  type t = { month : int; day : int }
-
-  let make month day = { month; day }
-  let month d = d.month
-  let day d = d.day
-end
-
-module type DATE = sig
-  type t
-
-  val make : month:int -> day:int -> t option
-  val month : t -> int
-  val day : t -> int
-  val to_string : t -> string
-  val pp : Format.formatter -> t -> unit
-end
-
-module Date : DATE = struct
-  type t = { month : int; day : int }
-
-  let make ~month:_ ~day:_ : t option = failwith "TODO"
-  let month (_d : t) : int = failwith "TODO"
-  let day (_d : t) : int = failwith "TODO"
-  let to_string (_d : t) : string = failwith "TODO"
-  let pp (_formatter : Format.formatter) (_d : t) : unit = failwith "TODO"
-end
-
-let render_pair (_a : Date.t) (_b : Date.t) : string =
-  failwith "TODO: Format.asprintf with two %a printers"
-
-let () =
-  let jan1 = Option.get (Date.make ~month:1 ~day:1) in
-  let dec31 = Option.get (Date.make ~month:12 ~day:31) in
-  assert (Date.make ~month:13 ~day:1 = None);
-  assert (Date.month jan1 = 1 && Date.day dec31 = 31);
-  assert (render_pair jan1 dec31 = "1/1 -> 12/31");
-  print_endline "E16 complete"
+(* Task 5 — Change the hidden representation.
+   Replace [Date_impl.t] with an ordinal day from 1 through 365. The ordinal for
+   [(month, day)] is [day] plus the sum of every preceding month's length.
+   Recover month by subtracting month lengths until the remainder fits, and use
+   that remainder as day. Update all five operations while leaving [DATE],
+   [Date], [render_pair], and client tests unchanged. Test February 28 and
+   December 31 again.
+   Build and run before continuing. *)

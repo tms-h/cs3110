@@ -1,74 +1,63 @@
-(** E09 — Folds, pipelines, and representation changes (35-50 min)
+(** E09 — Folds and pipelines (70-100 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e09_folds_pipelines_and_refactors.exe]
+    Run: [opam exec -- dune exec exercises/e09_folds_pipelines_and_refactors.exe]
+    Reading: https://ocaml.org/manual/5.4/api/List.html *)
 
-    - Choose map, filter, or fold from the shape of the required result.
-    - Reason about accumulator order before refactoring implementations.
+(* Task 1 — Multiply with both folds.
+   Define [product_left xs] with [List.fold_left] and [product_right xs] with
+   [List.fold_right]. Both return the floating-point product and use 1.0 for [].
 
-    STEP 1 — COMPARE THE TWO FOLDS
+   Test [] and [2.0; 3.0; 4.0] with both functions.
+   Build and run before continuing. *)
 
-    - Implement [product_left] and [product_right].
-    - Keep them terse, but retain names that reveal argument order.
+(* Task 2 — Build a map-filter-fold pipeline.
+   Define [sum_cube_odd n] for [n >= 0] as the sum of [x³] for odd integers
+   [x] from 0 through [n] inclusive. Use List initialization, filter, map, and
+   fold; define no recursive helper. Raise [Invalid_argument] for [n < 0].
 
-    STEP 2 — BUILD A DATA PIPELINE
+   Define [sum_cube_odd_pipe n] with the same computation written using [|>].
+   Test 0, 1, 5, and a negative input for both functions.
+   Build and run before continuing. *)
 
-    - Implement [sum_cube_odd] with map, filter, and fold.
-    - Write [sum_cube_odd_pipe] with [|>].
-    - Define no new recursive helper for either version.
+(* Task 3 — Compare existence implementations.
+   Define [exists_rec p xs] recursively with short-circuiting, [exists_fold p xs]
+   with a fold, and [exists_lib p xs] with [List.exists]. All return true exactly
+   when some element satisfies [p].
 
-    STEP 3 — TEST SHORT-CIRCUITING
+   Test empty, present, and absent cases for all three. Then use a predicate that
+   increments a reference to test how many elements each version examines when
+   the first element matches.
+   Build and run before continuing. *)
 
-    - Implement [exists_rec], [exists_fold], and [exists_lib].
-    - Predict which implementations can stop before the list ends.
-    - Verify with a predicate that increments a counter.
+(* Task 4 — Process debits in order.
+   Define [balance_rec initial debits], [balance_left initial debits], and
+   [balance_right initial debits]. Each must compute
+   [initial - d1 - d2 - ... - dn] in list order, using recursion,
+   [List.fold_left], and [List.fold_right] respectively.
 
-    STEP 4 — DEBUG OPERAND ORDER
+   Test initial 100 with [] and with [10; 5; 12].
+   Build and run before continuing. *)
 
-    - Implement the three balance functions.
-    - Use a non-symmetric debit example to expose a wrong [fold_right] order.
-    - Explain the required order before fixing it.
+(* Task 5 — Choose map or filter.
+   Define [long_strings xs] to keep strings whose length is greater than 3,
+   preserving order. Define [increment_floats xs] to add 1.0 to every element.
 
-    STEP 5 — CHOOSE ONE COMBINATOR PER JOB
+   Test [long_strings ["one"; "three"; "seven"]], [], and
+   [increment_floats [0.0; 2.5]].
+   Build and run before continuing. *)
 
-    - Use https://ocaml.org/manual/5.4/api/List.html.
-    - Implement [long_strings], [increment_floats], and [join].
-    - Ensure [join] emits no leading or trailing separator.
+(* Task 6 — Join strings.
+   Define [join sep xs] to concatenate elements with exactly one [sep] between
+   adjacent elements and none at either end. Return "" for [].
 
-    STEP 6 — DEDUPLICATE AND FINISH
+   Test [], a singleton, and [join "," ["hi"; "bye"]].
+   Build and run before continuing. *)
 
-    - Implement [unique_keys] after reading [List.sort_uniq].
-    - State its time complexity.
-    - Run [opam exec -- dune exec exercises/e09_folds_pipelines_and_refactors.exe].
+(* Task 7 — Extract unique keys.
+   Define [unique_keys bindings] to return the distinct keys in ascending order,
+   ignoring values. Use [List.sort_uniq].
 
-    Source coverage: product; terse product; sum_cube_odd; sum_cube_odd pipeline;
-    exists; account balance; more list fun; association list keys. *)
-
-let product_left : float list -> float = failwith "TODO"
-let product_right : float list -> float = failwith "TODO"
-let sum_cube_odd (_n : int) : int = failwith "TODO: no rec"
-let sum_cube_odd_pipe (_n : int) : int = failwith "TODO: use |>"
-let rec exists_rec (_p : 'a -> bool) (_xs : 'a list) : bool = failwith "TODO"
-let exists_fold (_p : 'a -> bool) (_xs : 'a list) : bool = failwith "TODO"
-let exists_lib (_p : 'a -> bool) (_xs : 'a list) : bool = failwith "TODO"
-let rec balance_rec (_initial : int) (_debits : int list) : int = failwith "TODO"
-let balance_left (_initial : int) (_debits : int list) : int = failwith "TODO"
-let balance_right (_initial : int) (_debits : int list) : int = failwith "TODO"
-let long_strings (_xs : string list) : string list = failwith "TODO"
-let increment_floats (_xs : float list) : float list = failwith "TODO"
-let join (_sep : string) (_xs : string list) : string = failwith "TODO"
-let unique_keys (_bindings : ('k * 'v) list) : 'k list = failwith "TODO"
-
-let () =
-  assert (product_left [] = 1. && product_right [ 2.; 3.; 4. ] = 24.);
-  assert (sum_cube_odd 5 = 153 && sum_cube_odd_pipe 5 = 153);
-  assert (exists_rec (( = ) 3) [ 1; 2; 3 ]);
-  assert (exists_fold (fun x -> x < 0) [ 1; -1; 2 ]);
-  assert (not (exists_lib (fun x -> x = 0) [ 1; 2 ]));
-  assert (balance_rec 100 [ 10; 5; 12 ] = 73);
-  assert (balance_left 100 [ 10; 5; 12 ] = 73);
-  assert (balance_right 100 [ 10; 5; 12 ] = 73);
-  assert (long_strings [ "one"; "three"; "seven" ] = [ "three"; "seven" ]);
-  assert (increment_floats [ 0.; 2.5 ] = [ 1.; 3.5 ]);
-  assert (join "," [ "hi"; "bye" ] = "hi,bye" && join "," [] = "");
-  assert (unique_keys [ (2, "b"); (1, "x"); (2, "c") ] = [ 1; 2 ]);
-  print_endline "E09 complete"
+   Test [] and [(2, "b"); (1, "x"); (2, "c")]. State the asymptotic time
+   complexity in a comment.
+   Build and run before continuing. *)

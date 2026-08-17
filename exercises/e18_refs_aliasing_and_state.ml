@@ -1,81 +1,56 @@
-(** E18 — References, aliasing, and state transitions (30-45 min)
+(** E18 — References and state transitions (65-90 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e18_refs_aliasing_and_state.exe] Run:
+    [opam exec -- dune exec exercises/e18_refs_aliasing_and_state.exe] *)
 
-    - Reason about object identity separately from current contents.
-    - Keep mutation local and make state transitions testable.
+(* Task 1 — Mutate a record field.
+   Define record [student] with immutable [name : string] and mutable
+   [gpa : float]. Define [raise_gpa student new_gpa] to assign the new GPA and
+   return unit.
 
-    STEP 1 — DRAW THE HEAP
+   Test changing Alice from 3.7 to 4.0 and verify her name is unchanged.
+   Build and run before continuing. *)
 
-    - Implement [raise_gpa] and the three reference values.
-    - Draw boxes and arrows for [bool ref], [int list ref], and [int ref list].
-    - Mark which values are mutable and which are immutable.
+(* Task 2 — Construct reference shapes.
+   Define [bool_cell] containing true, [list_cell] containing [1; 2], and
+   [cell_list] containing two distinct references to 3 and 4. Annotate them as
+   [bool ref], [int list ref], and [int ref list].
 
-    STEP 2 — STORE A FUNCTION IN STATE
+   Test their dereferenced runtime values. Draw the three heap shapes in comments.
+   Build and run before continuing. *)
 
-    - Implement [reach_3110] by dereferencing [step].
-    - Predict which clients observe a later assignment to [step].
-    - Replace the function temporarily, test the prediction, and restore it.
+(* Task 3 — Store a function in a reference.
+   Define [step] as a reference containing integer increment. Define
+   [reach_3110 ()] by dereferencing [step] and applying it to 3109.
 
-    STEP 3 — IMPLEMENT SMALL MUTATIONS
+   Test the initial result. Assign a function adding 2, test the new result 3111,
+   then restore increment and test 3110 again.
+   Build and run before continuing. *)
 
-    - Implement [(+:=)] and [swap].
-    - State the read/write sequencing assumed by each implementation.
+(* Task 4 — Define small mutation operators.
+   Define infix [(+:=)] so [cell +:= amount] adds [amount] to the integer in
+   [cell]. Define [swap a b] to exchange the contents of two references using one
+   saved old value.
 
-    STEP 4 — PREDICT ALIAS COMPARISONS
+   Test adding 5 to a cell containing 10, swapping cells containing 1 and 2, and
+   swapping one cell with itself.
+   Build and run before continuing. *)
 
-    - Fill the marked prediction block before running comparisons.
-    - Predict [x == y], [x == z], [x = y], and [x = z].
-    - Mutate [x], predict again, then check.
-    - Explain why structural equality on mutable graphs can be expensive or diverge.
+(* Task 5 — Observe aliasing safely.
+   Define [x = ref [1; 2]], [y = x], and [z = ref [1; 2]]. Assert only their
+   structural contents with [(=)]. Print the results of [x == y] and [x == z]
+   without asserting either physical-equality result.
 
-    STEP 5 — ROLLBACK ON FAILURE
+   Mutate [x] to [3] and assert the contents observed through [y] changed while
+   [z] still contains [1; 2]. Explain why [(==)] is not a content test.
+   Build and run before continuing. *)
 
-    - Implement [apply_atomically].
-    - Restore the old value when the update raises.
-    - Re-raise the same exception and test both success and failure.
-    - Run [opam exec -- dune exec exercises/e18_refs_aliasing_and_state.exe].
+(* Task 6 — Roll back a failed update.
+   Define [apply_atomically cell update]. Compute [update !cell]; on success,
+   assign the result. If [update] raises, restore the old value and re-raise the
+   same exception.
 
-    Source coverage: mutable fields; refs; inc fun; addition assignment; physical
-    equality. *)
-
-type student = { name : string; mutable gpa : float }
-
-let raise_gpa (_s : student) (_new_gpa : float) : unit = failwith "TODO"
-let bool_cell : bool ref = failwith "TODO"
-let list_cell : int list ref = failwith "TODO"
-let cell_list : int ref list = failwith "TODO"
-let step = ref (fun x -> x + 1)
-let reach_3110 () : int = failwith "TODO: use !step"
-let ( +:= ) (_cell : int ref) (_amount : int) : unit = failwith "TODO"
-let swap (_a : 'a ref) (_b : 'a ref) : unit = failwith "TODO"
-
-let apply_atomically (_cell : 'a ref) (_update : 'a -> 'a) : unit =
-  failwith "TODO: rollback and re-raise"
-
-(* ALIAS PREDICTIONS before mutation: ...
-   ALIAS PREDICTIONS after mutation: ...
-   STRUCTURAL-EQUALITY RISK: ... *)
-
-let () =
-  let alice = { name = "Alice"; gpa = 3.7 } in
-  raise_gpa alice 4.0;
-  assert (alice.gpa = 4.0);
-  assert (!bool_cell && !list_cell = [ 1; 2 ] && List.map ( ! ) cell_list = [ 3; 4 ]);
-  assert (reach_3110 () = 3110);
-  let n = ref 10 in
-  n +:= 5;
-  assert (!n = 15);
-  let a = ref 1 and b = ref 2 in
-  swap a b;
-  assert ((!a, !b) = (2, 1));
-  apply_atomically a (fun x -> x + 10);
-  assert (!a = 12);
-  assert (
-    try
-      apply_atomically a (fun _ -> failwith "boom");
-      false
-    with
-    | Failure "boom" -> !a = 12
-    | _ -> false);
-  print_endline "E18 complete"
+   Test adding 10 to a cell containing 2. Then use an update that raises
+   [Failure "boom"], test the exception message, and test the cell still contains
+   12.
+   Build and run before continuing. *)

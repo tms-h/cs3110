@@ -1,98 +1,63 @@
-(** E11 — Signatures, sealing, and fraction invariants (40-50 min)
+(** E11 — Signatures and fraction invariants (90-120 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e11_signatures_and_fractions.exe] Run:
+    [opam exec -- dune exec exercises/e11_signatures_and_fractions.exe] Inspect:
+    [opam exec -- ocamlc -i exercises/e11_signatures_and_fractions.ml] Reading:
+    https://cs3110.github.io/textbook/chapters/modules/modules.html *)
 
-    - Hide a representation behind a useful public contract.
-    - Preserve one canonical form through every constructor and operation.
+(* Task 1 — Define a manifest complex-number signature.
+   Define module type [COMPLEX] with manifest type [t = float * float], value
+   [zero : t], and [add : t -> t -> t]. Define sealed module [Complex : COMPLEX]
+   with componentwise addition.
 
-    STEP 1 — PROBE A SMALL SIGNATURE
+   Test that adding [zero] to [(2.0, -3.0)] returns [(2.0, -3.0)].
+   Build and run before continuing. *)
 
-    - Complete [COMPLEX] using its [t] synonym.
-    - Predict the error from omitting [zero], hiding [add], and using integer pairs.
-    - Try those changes one at a time; record the decisive message; then revert.
+(* Task 2 — Specify an abstract fraction interface.
+   Define module type [FRACTION] with abstract type [t] and operations [make],
+   [numerator], [denominator], [to_string], [to_float], [add], [mul], and
+   [compare]. Use these types:
 
-    STEP 2 — DESIGN FROM THE CLIENT BACKWARDS
+   - [make : int -> int -> t]
+   - [numerator : t -> int] and [denominator : t -> int]
+   - [to_string : t -> string] and [to_float : t -> float]
+   - [add : t -> t -> t], [mul : t -> t -> t], and [compare : t -> t -> int]
 
-    - Read the tests before implementing [FRACTION].
-    - Check that [t] is abstract at the client boundary.
-    - Add or clarify specifications before touching the representation.
+   Define no implementation yet. Run the interface-inspection command and check
+   that [t] remains abstract.
+   Build and run before continuing. *)
 
-    STEP 3 — STATE THE INVARIANT
+(* Task 3 — Normalize fraction construction.
+   Begin unsealed module [Fraction_impl] with representation [int * int]. Define
+   [gcd a b] to return the nonnegative greatest common divisor. Define
+   [normalize n d] and [make n d] so every value has positive denominator,
+   coprime numerator and denominator, and zero represented as [(0, 1)]. Raise
+   [Invalid_argument "denominator"] when [d = 0].
 
-    - Require a positive denominator.
-    - Require [gcd (abs numerator) denominator = 1].
-    - Decide and document the canonical representation and printing of zero.
+   Test 2/4, 3/(-6), 0/5, (-2)/(-4), and denominator zero by temporarily
+   inspecting the unsealed representation.
+   Build and run before continuing. *)
 
-    STEP 4 — IMPLEMENT THROUGH ONE NORMALIZER
+(* Task 4 — Observe fractions.
+   In [Fraction_impl], define [numerator], [denominator], [to_string], and
+   [to_float]. Format as ["n/d"] with the sign only on [n].
 
-    - Implement [gcd] and [normalize] first.
-    - Route [make], [add], and [mul] through [normalize].
-    - Implement accessors and conversions only after constructors preserve the RI.
+   Test 2/4 as numerator 1, denominator 2, string ["1/2"], and float 0.5. Test
+   3/(-6) as ["-1/2"] and zero as ["0/1"].
+   Build and run before continuing. *)
 
-    STEP 5 — TRANSFER AND INSPECT
+(* Task 5 — Add fraction arithmetic.
+   Define [add (a/b) (c/d)] as [(a*d + c*b)/(b*d)] and
+   [mul (a/b) (c/d)] as [(a*c)/(b*d)], routing both through [normalize].
 
-    - Explain the abstraction function in the marked block.
-    - Implement [compare] without float conversion; discuss integer overflow.
-    - Run [opam exec -- dune exec exercises/e11_signatures_and_fractions.exe].
-    - Inspect with [opam exec -- ocamlc -i exercises/e11_signatures_and_fractions.ml].
+   Test 1/2 + (-1/2) = 0/1, 1/2 + 1/3 = 5/6, and 1/2 * 10/3 = 5/3.
+   Build and run before continuing. *)
 
-    Reading fallback: https://cs3110.github.io/textbook/chapters/modules/modules.html
+(* Task 6 — Compare and seal fractions.
+   Define [compare (a/b) (c/d)] by comparing [a*d] with [c*b], without floats.
+   State the possible integer-overflow limitation in a comment. Seal the finished
+   implementation as [module Fraction : FRACTION = Fraction_impl].
 
-    Source coverage: complex synonym; complex encapsulation; fraction; fraction reduced.
-*)
-
-module type COMPLEX = sig
-  type t = float * float
-
-  val zero : t
-  val add : t -> t -> t
-end
-
-module Complex : COMPLEX = struct
-  type t = float * float
-
-  let zero = (0., 0.)
-  let add (_a : t) (_b : t) : t = failwith "TODO"
-end
-
-module type FRACTION = sig
-  type t
-
-  val make : int -> int -> t
-  val numerator : t -> int
-  val denominator : t -> int
-  val to_string : t -> string
-  val to_float : t -> float
-  val add : t -> t -> t
-  val mul : t -> t -> t
-  val compare : t -> t -> int
-end
-
-module Fraction : FRACTION = struct
-  type t = int * int
-
-  let rec gcd (_a : int) (_b : int) : int = failwith "TODO"
-  let normalize (_n : int) (_d : int) : t = failwith "TODO: enforce RI"
-  let make n d = normalize n d
-  let numerator (_x : t) : int = failwith "TODO"
-  let denominator (_x : t) : int = failwith "TODO"
-  let to_string (_x : t) : string = failwith "TODO"
-  let to_float (_x : t) : float = failwith "TODO"
-  let add (_a : t) (_b : t) : t = failwith "TODO"
-  let mul (_a : t) (_b : t) : t = failwith "TODO"
-  let compare (_a : t) (_b : t) : int = failwith "TODO: no floats"
-end
-
-(* AF: ...
-   WHY CANONICALIZATION ENABLES REPRESENTATION EQUALITY: ... *)
-
-let () =
-  assert (Complex.add Complex.zero (2., -3.) = (2., -3.));
-  let half = Fraction.make 2 4 in
-  let minus_half = Fraction.make 3 (-6) in
-  assert (Fraction.to_string half = "1/2");
-  assert (Fraction.to_string minus_half = "-1/2");
-  assert (Fraction.to_string (Fraction.add half minus_half) = "0/1");
-  assert (Fraction.to_string (Fraction.mul half (Fraction.make 10 3)) = "5/3");
-  assert (Fraction.compare half minus_half > 0);
-  print_endline "E11 complete"
+   Test 1/2 against -1/2, equality of 2/4 and 1/2, and -3/4 against -1/2 using
+   only the sealed module.
+   Build and run before continuing. *)

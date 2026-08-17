@@ -1,85 +1,51 @@
-(** E29 — Equational specifications (30-45 min)
+(** E29 — Equational specifications (75-100 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e29_equational_specifications.exe] Run:
+    [opam exec -- dune exec exercises/e29_equational_specifications.exe] *)
 
-    - Classify operations as generators, manipulators, or queries.
-    - Turn algebraic equations into implementation-independent tests.
+(* Task 1 — Specify a list-like abstraction.
+   Define module type [LISTISH] with ['a t], [nil], [cons], [append], and [length].
+   Use [nil : 'a t], [cons : 'a -> 'a t -> 'a t],
+   [append : 'a t -> 'a t -> 'a t], and [length : 'a t -> int]. Classify [nil]
+   and [cons] as generators, [append] as a manipulator, and [length] as a query.
 
-    STEP 1 — SPECIFY LISTISH
+   In comments, write equations for append with nil and cons, and length of nil,
+   cons, and append. Implement [Listish_list] with ordinary lists and test every
+   equation on concrete integer lists.
+   Build and run before continuing. *)
 
-    - Classify [nil], [cons], [append], and [length].
-    - Write equations that reduce any query built from [nil] and [cons].
-    - Identify one redundant equation that remains useful to clients.
+(* Task 2 — Specify a bag interface.
+   Define module type [BAG] with ['a t], [empty], [is_empty], [insert],
+   [multiplicity], and [remove]. Use [empty : 'a t],
+   [is_empty : 'a t -> bool], [insert : 'a -> 'a t -> 'a t],
+   [multiplicity : 'a -> 'a t -> int], and [remove : 'a -> 'a t -> 'a t].
+   [multiplicity x bag] is the number of x values; [remove x bag] decreases that
+   number by one when positive and changes nothing otherwise.
 
-    STEP 2 — SPECIFY BAG
+   In comments, classify operations and write equations for all queries over
+   empty, insert, and remove.
+   Build and run before continuing. *)
 
-    - Classify every [BAG] operation.
-    - Write equations for [is_empty], [multiplicity], and [remove].
-    - Ensure [remove] decreases multiplicity by at most one.
+(* Task 3 — Implement a list-backed bag.
+   Define [List_bag : BAG] with list representation. [insert] may prepend.
+   [remove] removes exactly the first matching element. [is_empty] and
+   [multiplicity] must depend only on bag contents.
 
-    STEP 3 — CHALLENGE THE SPEC
+   Test empty, insert x/y/x, multiplicities of x and absent z, one removal of x,
+   repeated removal, and removal of z.
+   Build and run before continuing. *)
 
-    - Invent a devious implementation that satisfies the current equations but violates
-      your intent.
-    - Add the missing equation before writing implementation code.
+(* Task 4 — Test every bag equation.
+   Turn every equation from Task 2 into at least one runtime assertion using
+   [List_bag]. Include equal and unequal inserted elements so both branches of
+   the multiplicity and remove equations are exercised.
+   Build and run before continuing. *)
 
-    STEP 4 — IMPLEMENT AND TEST THE EQUATIONS
+(* Task 5 — Define observational bag equality.
+   Define [bag_equal universe a b] to return true exactly when every element in
+   the finite [universe] has equal multiplicity in [a] and [b]. Duplicate values
+   in [universe] do not affect the result.
 
-    - Choose and state a [List_bag] representation invariant.
-    - Implement the operations in source order.
-    - Turn every equation into at least one executable test.
-
-    STEP 5 — DEFINE CLIENT EQUALITY
-
-    - State observational equivalence for bags.
-    - Explain why list structural equality is not the client-level relation.
-    - Run [opam exec -- dune exec exercises/e29_equational_specifications.exe].
-
-    Source coverage: list spec; bag spec. *)
-
-module type LISTISH = sig
-  type 'a t
-
-  val nil : 'a t
-  val cons : 'a -> 'a t -> 'a t
-  val append : 'a t -> 'a t -> 'a t
-  val length : 'a t -> int
-end
-
-module type BAG = sig
-  type 'a t
-
-  val empty : 'a t
-  val is_empty : 'a t -> bool
-  val insert : 'a -> 'a t -> 'a t
-  val multiplicity : 'a -> 'a t -> int
-  val remove : 'a -> 'a t -> 'a t
-end
-
-module List_bag : BAG = struct
-  type 'a t = 'a list
-
-  let empty = []
-  let is_empty (_bag : 'a t) : bool = failwith "TODO"
-  let insert (_x : 'a) (_bag : 'a t) : 'a t = failwith "TODO"
-  let multiplicity (_x : 'a) (_bag : 'a t) : int = failwith "TODO"
-  let remove (_x : 'a) (_bag : 'a t) : 'a t = failwith "TODO: at most one"
-end
-
-(* LISTISH CLASSIFICATION:
-   LISTISH EQUATIONS:
-
-   BAG CLASSIFICATION:
-   BAG EQUATIONS:
-
-   BAG OBSERVATIONAL EQUIVALENCE:
-*)
-
-let () =
-  let open List_bag in
-  let b = empty |> insert "x" |> insert "y" |> insert "x" in
-  assert (not (is_empty b));
-  assert (multiplicity "x" b = 2 && multiplicity "z" b = 0);
-  assert (multiplicity "x" (remove "x" b) = 1);
-  assert (multiplicity "z" (remove "z" b) = 0);
-  print_endline "E29 complete"
+   Test differently ordered bags with equal multiplicities, unequal bags, and a
+   universe containing duplicates. Explain why list equality is not bag equality.
+   Build and run before continuing. *)

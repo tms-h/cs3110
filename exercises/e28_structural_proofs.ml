@@ -1,84 +1,46 @@
-(** E28 — Structural proofs and the right lemma (40-50 min)
+(** E28 — Structural proofs and lemmas (90-125 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e28_structural_proofs.exe] Run:
+    [opam exec -- dune exec exercises/e28_structural_proofs.exe] *)
 
-    - Prove transformations over recursive data using explicit lemma dependencies.
-    - Discover a helper lemma when a larger proof gets stuck.
+(* Task 1 — Prove reverse through helper lemmas.
+   Define recursive [rev xs] using [rev tail @ [head]]. In comments, prove in
+   order: [xs @ [] = xs], [rev (xs @ ys) = rev ys @ rev xs], and
+   [rev (rev xs) = xs], using each earlier lemma explicitly.
 
-    STEP 1 — BUILD A REVERSE-PROOF CHAIN
+   Test all three equations on [] and on [1; 2; 3; 4].
+   Build and run before continuing. *)
 
-    - Prove [xs @ [] = xs].
-    - Use that result to prove reverse distributes over append.
-    - Use distribution to prove reverse is involutive.
-    - Keep each dependency explicit; do not reprove it inside the next theorem.
+(* Task 2 — Reflect binary trees.
+   Define ['a tree = Leaf | Node of 'a tree * 'a * 'a tree]. Define [size] as
+   node count and [reflect] by recursively swapping left and right subtrees.
 
-    STEP 2 — PROVE A TREE TRANSFORMATION
+   Prove [size (reflect t) = size t] by structural induction. Test a leaf and a
+   three-node tree with unequal subtree shapes.
+   Build and run before continuing. *)
 
-    - Prove [size (reflect t) = size t] by structural induction on [t].
-    - State one induction hypothesis for each recursive subtree.
+(* Task 3 — State the correct fold theorem.
+   In comments, state sufficient associativity plus left- and right-identity
+   assumptions for [List.fold_left op identity xs] to equal
+   [List.fold_right op xs identity]. Do not assume commutativity.
 
-    STEP 3 — REPAIR THE FOLD THEOREM
+   Test the theorem with string concatenation on [] and ["a"; "b"; "c"].
+   Build and run before continuing. *)
 
-    - Explain why commutativity cannot be assumed for string concatenation.
-    - Formulate the weakest useful fold-left/fold-right theorem.
-    - State associativity and both required identity assumptions precisely.
+(* Task 4 — Collect proposition atoms.
+   Define [proposition] with [Atom of string], [Not], [And], [Or], and [Implies].
+   Write its structural induction principle in comments. Define [atoms p] to
+   return distinct atom names in first-occurrence, left-to-right traversal order.
 
-    STEP 4 — INDUCT OVER PROPOSITIONS
+   Test a single atom and [(p ∧ q) → (q ∨ ¬r)], expecting ["p"; "q"; "r"].
+   Build and run before continuing. *)
 
-    - Read the complete proposition AST.
-    - Write its structural induction principle in the marked block.
-    - Implement [atoms] without duplicates.
+(* Task 5 — Simplify propositions without new atoms.
+   Define [simplify p] recursively. Eliminate double negation
+   [Not (Not p) -> simplify p] and implication
+   [Implies (p, q) -> Or (Not (simplify p), simplify q)]; preserve atoms and
+   recursively simplify other constructors.
 
-    STEP 5 — TRANSFER AND FINISH
-
-    - Implement [simplify].
-    - Prove that simplification introduces no new atom.
-    - Run [opam exec -- dune exec exercises/e28_structural_proofs.exe].
-
-    Source coverage: append nil; rev dist append; rev involutive; reflect size; fold
-    theorem 2; propositions. *)
-
-let rec rev = function [] -> [] | head :: tail -> rev tail @ [ head ]
-
-type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
-
-let rec size = function Leaf -> 0 | Node (l, _, r) -> 1 + size l + size r
-
-let rec reflect = function
-  | Leaf -> Leaf
-  | Node (l, value, r) -> Node (reflect r, value, reflect l)
-
-type proposition =
-  | Atom of string
-  | Not of proposition
-  | And of proposition * proposition
-  | Or of proposition * proposition
-  | Implies of proposition * proposition
-
-let atoms (_p : proposition) : string list = failwith "TODO: unique"
-let simplify (_p : proposition) : proposition = failwith "TODO: transfer"
-
-(* LEMMA 1 — append right identity:
-
-   LEMMA 2 — reverse distributes over append:
-
-   THEOREM 3 — reverse involution:
-
-   THEOREM 4 — reflect preserves size:
-
-   FOLD THEOREM:
-
-   PROPOSITION INDUCTION PRINCIPLE:
-*)
-
-let () =
-  let t = Node (Node (Leaf, 1, Leaf), 2, Node (Leaf, 3, Leaf)) in
-  assert (size (reflect t) = size t);
-  assert (rev (rev [ 1; 2; 3; 4 ]) = [ 1; 2; 3; 4 ]);
-  assert (
-    List.fold_left ( ^ ) "" [ "a"; "b"; "c" ]
-    = List.fold_right ( ^ ) [ "a"; "b"; "c" ] "");
-  let p = Implies (And (Atom "p", Atom "q"), Or (Atom "q", Not (Atom "r"))) in
-  assert (atoms p = [ "p"; "q"; "r" ]);
-  assert (List.for_all (fun atom -> List.mem atom (atoms p)) (atoms (simplify p)));
-  print_endline "E28 complete"
+   Test both rewrites, then test every atom in [simplify p] occurs in [atoms p]
+   for the proposition from Task 4.
+   Build and run before continuing. *)

@@ -1,132 +1,67 @@
-(** E17 — Algebra refactor under API lock (40-50 min)
+(** E17 — Algebraic reuse with modules (105-145 min)
 
-    OUTCOME
+    Build: [opam exec -- dune build exercises/e17_algebra_refactor.exe] Run:
+    [opam exec -- dune exec exercises/e17_algebra_refactor.exe] Inspect:
+    [opam exec -- ocamlc -i exercises/e17_algebra_refactor.ml] *)
 
-    - Remove structural duplication with signatures, [include], and functors.
-    - Preserve every public [RING] and [FIELD] type while refactoring.
+(* Task 1 — Define ring and field signatures.
+   Define [CORE_RING] with type [t], values [zero] and [one], and binary [add],
+   [sub], and [mul]. Define [RING] by including [CORE_RING] and adding
+   [of_int : int -> t]. Define [FIELD] by including [RING] and adding
+   [div : t -> t -> t].
 
-    CONSTRAINTS
+   Run interface inspection and verify each operation name is declared in only
+   one base signature.
+   Build and run before continuing. *)
 
-    - Declare each operation name directly in only one base signature.
-    - Define primitive integer operations once and float operations once.
-    - Define [of_int] algorithmically once in a reusable functor.
-    - Produce both rational fields from one functor.
+(* Task 2 — Generate [of_int].
+   Define [Add_of_int (R : CORE_RING)] returning [RING with type t = R.t]. Include
+   [R]. Define [of_int n] using [zero], [one], [add], and [sub] only. Handle
+   negative integers and use doubling so recursion depth is O(log |n|).
 
-    STEP 1 — MAP THE CODEBASE
+   Instantiate a minimal integer core and test -13, 0, 1, and 14.
+   Build and run before continuing. *)
 
-    - Read all signatures, modules, functors, and tests before editing.
-    - Draw the intended reuse graph.
-    - Run [ocamlc -i exercises/e17_algebra_refactor.ml] as a baseline.
+(* Task 3 — Define integer and float rings.
+   Define [Int_core : CORE_RING with type t = int] and
+   [Float_core : CORE_RING with type t = float] using the native arithmetic
+   operators. Define [Int_ring = Add_of_int (Int_core)] and
+   [Float_ring = Add_of_int (Float_core)].
 
-    STEP 2 — ADD INTEGER CONVERSION ONCE
+   Test integer -13 and float 7.0 through [of_int], plus one addition and one
+   multiplication in each ring.
+   Build and run before continuing. *)
 
-    - Implement [Add_of_int] using only operations supplied by [R].
-    - Handle negative inputs.
-    - Use doubling so recursion depth is not linear in the magnitude.
-    - Compile before continuing.
+(* Task 4 — Extend rings to fields.
+   Define [Int_field : FIELD with type t = int] by including [Int_ring] and using
+   integer division. Define [Float_field : FIELD with type t = float] by including
+   [Float_ring] and using float division.
 
-    STEP 3 — BUILD THE CONCRETE RINGS AND FIELDS
+   Test [Int_field.div 7 2 = 3] and [Float_field.div 7.0 2.0 = 3.5]. Test integer
+   division by zero raises [Division_by_zero], and test positive float division
+   by 0.0 produces positive infinity with [Float.is_infinite].
+   Build and run before continuing. *)
 
-    - Complete [Int_core] and [Float_core].
-    - Construct rings and fields with [include], not repeated wrappers.
-    - Recheck inferred interfaces.
+(* Task 5 — Define rational-pair arithmetic.
+   Define [Rational (F : FIELD)] returning [FIELD with type t = F.t * F.t]. Treat
+   [(n, d)] as [n/d], with nonzero denominator as a client precondition. Define
+   [zero = (F.zero, F.one)], [one = (F.one, F.one)], and:
 
-    STEP 4 — GENERATE RATIONAL FIELDS
+   - add [(a*d + c*b, b*d)]
+   - sub [(a*d - c*b, b*d)]
+   - mul [(a*c, b*d)]
+   - div [(a*d, b*c)]
+   - [of_int n = (F.of_int n, F.one)]
 
-    - State the rational representation invariant.
-    - Decide how division by zero is reported.
-    - Implement [Rational] without float-based normalization.
+   Do not reduce pairs. Test 1/2 + 1/3 = 5/6 and 2/3 * 3/4 = 6/12 with the
+   integer field.
+   Build and run before continuing. *)
 
-    STEP 5 — AUDIT AND FINISH
+(* Task 6 — Instantiate both rational modules.
+   Define [Int_rational = Rational (Int_field)] and
+   [Float_rational = Rational (Float_field)]. Test zero, one, [of_int 4], one
+   subtraction, and one division in each module using exact pair results.
 
-    - Compare final [ocamlc -i] output with the baseline public APIs.
-    - Explain each surprising equality or hidden type.
-    - Run [opam exec -- dune exec exercises/e17_algebra_refactor.exe].
-
-    Source coverage: refactor arith. *)
-
-module type CORE_RING = sig
-  type t
-
-  val zero : t
-  val one : t
-  val add : t -> t -> t
-  val sub : t -> t -> t
-  val mul : t -> t -> t
-end
-
-module type RING = sig
-  include CORE_RING
-
-  val of_int : int -> t
-end
-
-module type FIELD = sig
-  include RING
-
-  val div : t -> t -> t
-end
-
-module Add_of_int (R : CORE_RING) : RING with type t = R.t = struct
-  include R
-
-  let of_int (_n : int) : t = failwith "TODO: doubling, including negative"
-end
-
-module Int_core : CORE_RING with type t = int = struct
-  type t = int
-
-  let zero = 0
-  let one = 1
-  let add (_a : t) (_b : t) = failwith "TODO"
-  let sub (_a : t) (_b : t) = failwith "TODO"
-  let mul (_a : t) (_b : t) = failwith "TODO"
-end
-
-module Float_core : CORE_RING with type t = float = struct
-  type t = float
-
-  let zero = 0.
-  let one = 1.
-  let add (_a : t) (_b : t) = failwith "TODO"
-  let sub (_a : t) (_b : t) = failwith "TODO"
-  let mul (_a : t) (_b : t) = failwith "TODO"
-end
-
-module Int_ring = Add_of_int (Int_core)
-module Float_ring = Add_of_int (Float_core)
-
-module Int_field : FIELD with type t = int = struct
-  include Int_ring
-
-  let div (_a : t) (_b : t) = failwith "TODO"
-end
-
-module Float_field : FIELD with type t = float = struct
-  include Float_ring
-
-  let div (_a : t) (_b : t) = failwith "TODO"
-end
-
-module Rational (F : FIELD) : FIELD with type t = F.t * F.t = struct
-  type t = F.t * F.t
-
-  let zero = (F.zero, F.one)
-  let one = (F.one, F.one)
-  let add (_a : t) (_b : t) : t = failwith "TODO"
-  let sub (_a : t) (_b : t) : t = failwith "TODO"
-  let mul (_a : t) (_b : t) : t = failwith "TODO"
-  let div (_a : t) (_b : t) : t = failwith "TODO"
-  let of_int n = (F.of_int n, F.one)
-end
-
-module Int_rational = Rational (Int_field)
-module Float_rational = Rational (Float_field)
-
-let () =
-  assert (Int_ring.of_int (-13) = -13);
-  assert (Float_ring.of_int 7 = 7.);
-  assert (Int_field.div 7 2 = 3);
-  assert (Float_field.div 7. 2. = 3.5);
-  assert (Int_rational.add (1, 2) (1, 3) = (5, 6));
-  print_endline "E17 complete"
+   Inspect the final interfaces and verify both rational modules came from the
+   same functor body.
+   Build and run before continuing. *)
