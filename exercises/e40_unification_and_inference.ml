@@ -12,6 +12,7 @@
    Define [occurs variable typ]. Define [apply_subst substitution typ], applying
    mappings transitively so one call fully updates nested variables. Test base
    types, arrows, absent variables, a two-link substitution, and occurs results.
+   Example form: [let rec has x = function Tip -> false | Fork (l, y, r) -> x = y || has x l || has x r]
    Build and run before continuing. *)
 
 (* Task 2 — Unify constraints.
@@ -23,6 +24,7 @@
 
    Test no constraints, one variable binding, chained bindings, arrow
    decomposition, int/bool mismatch, and [a = a -> int] occurs failure.
+   Example form: [match left, right with Pair (a, b), Pair (c, d) -> compare_parts [(a, c); (b, d)] | _ -> compare_leaf left right]
    Build and run before continuing. *)
 
 (* Task 3 — Cross-check complete solutions.
@@ -32,6 +34,7 @@
    Manually solve [(a, int); (b, a -> bool)] and
    [(a -> b, int -> c); (c, bool)] in comments. Run [unify] on both and test the
    returned substitution satisfies the original system; do not assert list order.
+   Example form: [List.for_all (fun (input, expected) -> run candidate input = expected) examples]
    Build and run before continuing. *)
 
 (* Task 4 — Collect inference constraints.
@@ -45,6 +48,7 @@
    Return [Error "unbound: name"] only for an absent variable.
 
    Test exact collected types and constraints for identity and one application.
+   Example form: [let next_ticket dispenser = let ticket = dispenser.current in dispenser.current <- ticket + 1; ticket]
    Build and run before continuing. *)
 
 (* Task 5 — Infer monomorphic types.
@@ -55,6 +59,7 @@
 
    Test integer, Boolean, identity, application, valid if, branch mismatch,
    non-Boolean condition, and unbound variable.
+   Example form: [Result.bind (load path) (fun text -> Result.map parse_document (validate text))]
    Build and run before continuing. *)
 
 (* Task 6 — Normalize printed type variables.
@@ -65,6 +70,7 @@
 
    Test [TVar 9] prints ['a], [TArrow (TVar 9, TVar 2)] prints ['a -> 'b], and
    nested left versus right arrows receive the required parentheses.
+   Example form: [let spreadsheet_column index = String.make 1 (Char.chr (Char.code 'A' + index))]
    Build and run before continuing. *)
 
 (* Task 7 — Infer classic combinators and reject self-application.
@@ -76,4 +82,5 @@
    Test exact results [('a -> 'b) -> 'a -> 'b] for apply and
    [('a -> 'a) -> 'a -> 'a] for double; test S succeeds. Define
    [omega_half = fun x -> x x] and test inference returns an occurs-check Error.
+   Example form: [let compose_ast = Fun ("f", Fun ("g", Fun ("x", App (Var "f", App (Var "g", Var "x")))))]
    Build and run before continuing. *)

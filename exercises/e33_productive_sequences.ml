@@ -9,6 +9,7 @@
 
    Define a self-referential sequence of zeros and test its head plus the head of
    its tail.
+   Example form: [let rec countdown n = Cons (n, fun () -> countdown (n - 1))]
    Build and run before continuing. *)
 
 (* Task 2 — Define four producers.
@@ -19,6 +20,7 @@
    Define [take count sequence], returning [] when [count <= 0]. Test the first
    six naturals, first six powers, and positions 25 and 26 of the letter cycle.
    With two states seeded 3110, test the first 20 coin flips are identical.
+   Example form: [let rec counting_from n = Cons (n, fun () -> counting_from (n + 2))]
    Build and run before continuing. *)
 
 (* Task 3 — Select by index.
@@ -27,6 +29,7 @@
 
    Test natural indices 0 and 5, powers-of-two index 10 yielding 1024, and a
    negative index.
+   Example form: [let second stream = first (rest stream)]
    Build and run before continuing. *)
 
 (* Task 4 — Map without eager tails.
@@ -36,6 +39,7 @@
 
    Instrument a source tail with a counter. Test construction leaves the counter
    zero, requesting one tail makes it one, and mapped naturals have doubled values.
+   Example form: [let repeat_head (Link (x, _)) = Link (x, fun () -> Link (x, fun () -> failwith "end"))]
    Build and run before continuing. *)
 
 (* Task 5 — Filter productively.
@@ -44,12 +48,14 @@
 
    Test the first five even naturals are [0; 2; 4; 6; 8] and filtering a sequence
    whose head matches does not force beyond the first output node.
+   Example form: [let head_matches predicate stream = predicate (head stream)]
    Build and run before continuing. *)
 
 (* Task 6 — Interleave fairly.
    Define [interleave a b] to alternate heads starting with [a], then recursively
    swap the two tails. Test naturals with powers of two produce
    [0; 1; 1; 2; 2; 4; 3; 8] for the first eight values.
+   Example form: [let pair_heads a b = (head a, head b)]
    Build and run before continuing. *)
 
 (* Task 7 — Scan running accumulations.
@@ -59,4 +65,5 @@
    Test summing naturals from 1 with initial 0 produces [1; 3; 6; 10; 15]. Use a
    counter to test that the [take] definition from Task 2 forces exactly five
    source tails while producing those five outputs.
+   Example form: [let next_total = combine accumulated (head source)]
    Build and run before continuing. *)

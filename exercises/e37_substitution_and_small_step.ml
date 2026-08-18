@@ -12,6 +12,7 @@
 
    Define [free_vars expression]. Test a closed function, a let with shadowing,
    and a match whose two branch bodies contain different free names.
+   Example form: [let names = String_set.union left_names right_names]
    Build and run before continuing. *)
 
 (* Task 2 — Generate deterministic fresh names.
@@ -20,6 +21,7 @@
 
    Test an empty set, a set containing only ["x"], and a set containing ["x"],
    ["x_1"], and ["x_2"].
+   Example form: [let candidate = if suffix = 0 then base else base ^ "_" ^ string_of_int suffix]
    Build and run before continuing. *)
 
 (* Task 3 — Substitute without capture.
@@ -32,6 +34,7 @@
    Test ordinary arithmetic substitution, shadowing, no occurrence, and replacing
    x by y in [fun y -> x + y], expecting a fresh binder such as [y_1] while y
    remains free.
+   Example form: [match term with Name x when x = target -> replacement | Lambda (x, body) when x = target -> term | _ -> recurse term]
    Build and run before continuing. *)
 
 (* Task 4 — Define call-by-value values and one step.
@@ -49,6 +52,7 @@
 
    Return [None] only for a value; raise [Stuck expression] for any nonvalue with
    no rule. Test one rule from each group, one value, and one stuck addition.
+   Example form: [match term with Plus (Number a, Number b) -> Some (Number (a + b)) | other -> reduce_child other]
    Build and run before continuing. *)
 
 (* Task 5 — Produce bounded traces.
@@ -59,6 +63,7 @@
 
    Test the complete trace of [let x = 2+2 in x+x] ends at 8, a value produces
    a singleton trace, and a stuck expression remains the final state.
+   Example form: [let rec repeat budget state = if budget = 0 then state else repeat (budget - 1) (reduce state)]
    Build and run before continuing. *)
 
 (* Task 6 — Trace self-application.
@@ -66,6 +71,7 @@
    [trace ~fuel:5 omega] has length 6 and every successful step returns the same
    AST. Explain why this untyped term diverges while OCaml rejects its analogous
    source type.
+   Example form: [let ordinary_application = App (Fun ("z", Var "z"), Int 7)]
    Build and run before continuing. *)
 
 (* Task 7 — Inline a value used once.
@@ -77,4 +83,5 @@
    Test one successful inline, a body using x twice, a nonvalue binding, and a
    case requiring alpha-renaming. Test original and transformed programs reach
    the same final value with [trace].
+   Example form: [match term with Bind (name, value, body) when used_once name body -> replace value name body | _ -> term]
    Build and run before continuing. *)

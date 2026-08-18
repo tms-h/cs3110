@@ -12,6 +12,7 @@
    Define [create capacity], rejecting [capacity <= 0] with
    [Invalid_argument "capacity"], and [length table = table.live]. Test capacity
    4, zero counters, length zero, and invalid capacity.
+   Example form: [type 'a slot = Empty | Deleted | Entry of string * 'a]
    Build and run before continuing. *)
 
 (* Task 2 — Define one bounded probe.
@@ -23,6 +24,7 @@
    Define a constant-hash integer module and instantiate [T]. Manually place a
    binding after a tombstone and test [locate] finds it. Fill every slot and test
    termination with [`Full] or a remembered tombstone.
+   Example form: [let index = (start + offset) mod Array.length slots]
    Build and run before continuing. *)
 
 (* Task 3 — Implement lookup and replacement.
@@ -32,6 +34,7 @@
 
    Test two colliding keys, absent lookup, replacement without length growth,
    and insertion into a tombstone.
+   Example form: [match probe storage label with `Present i -> storage.slots.(i) <- Entry (label, payload) | `Available i -> place_at i]
    Build and run before continuing. *)
 
 (* Task 4 — Implement removal.
@@ -40,6 +43,7 @@
 
    Insert keys 1 and 2 with the constant hash, remove 1, and test key 2 remains
    findable while key 1 is absent. Test all three counters with [stats table].
+   Example form: [match probe storage label with `Present i -> slots.(i) <- Deleted | _ -> ()]
    Build and run before continuing. *)
 
 (* Task 5 — Rehash and resize.
@@ -51,6 +55,7 @@
    Insert keys 1 through 100, remove 1 through 90, and test remaining bindings,
    capacity at least the initial capacity, live count 10, and tombstones fewer
    than capacity.
+   Example form: [Array.iter (function Entry (label, payload) -> visit label payload | Empty | Deleted -> ()) slots]
    Build and run before continuing. *)
 
 (* Task 6 — Compare with a model.
@@ -60,4 +65,5 @@
 
    Generate 10,000 deterministic operations with seed 3110 and keys 0 through
    99. Assert the checker returns [None].
+   Example form: [type action = Put of string * int | Drop of string | Get of string]
    Build and run before continuing. *)

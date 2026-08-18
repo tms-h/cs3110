@@ -10,6 +10,7 @@
 
    Test finding E, removing A without changing [radio], and that
    [List.map fst (Char_map.bindings radio)] equals ['A'; 'E'; 'S'; 'V'].
+   Example form: [module Word_map = Map.Make (String)]
    Build and run before continuing. *)
 
 (* Task 2 — Define ordered-map interfaces.
@@ -24,6 +25,7 @@
    - [bindings : 'v t -> (key * 'v) list]
 
    Run interface inspection and verify that values remain polymorphic.
+   Example form: [module type LOOKUP = sig type key type 'a t val find : key -> 'a t -> 'a option end]
    Build and run before continuing. *)
 
 (* Task 3 — Define [Make_bst_map] and insertion.
@@ -34,6 +36,7 @@
 
    Define [empty] and [add]. Instantiate [Int_map]. Test insertion of keys 2, 1,
    and 3, then replacement of key 2.
+   Example form: [module Make_set (K : ORDERED) = struct type t = Empty | Node of t * K.t * t end]
    Build and run before continuing. *)
 
 (* Task 4 — Look up keys.
@@ -41,12 +44,14 @@
    Return [Some value] for a matching key and [None] when absent.
 
    Test keys 1, 2, 3, and absent key 4 in the map from Task 3.
+   Example form: [let rec search key = function Empty -> None | Node (_, k, value, _) when key = k -> Some value | _ -> None]
    Build and run before continuing. *)
 
 (* Task 5 — Enumerate bindings.
    Define [bindings map] to return ascending key-value pairs in O(n) time without
    repeated [@]. Test the Task 3 map equals
    [(1, "a"); (2, "B"); (3, "c")].
+   Example form: [let rec collect tree acc = match tree with Empty -> acc | Node (_, item, rest) -> item :: collect rest acc]
    Build and run before continuing. *)
 
 (* Task 6 — Remove keys persistently.
@@ -56,6 +61,7 @@
 
    Test each node case, removal of root 2, absent key 9, and that the original
    map still has all three bindings.
+   Example form: [let replace_left tree new_left = match tree with Empty -> Empty | Node (_, k, v, r) -> Node (new_left, k, v, r)]
    Build and run before continuing. *)
 
 (* Task 7 — Analyze unbalanced height.
@@ -63,4 +69,5 @@
    that keys 1 and 1,000 are findable. State its height and worst-case operation
    cost, then compare them with the balanced implementation promised by
    [Stdlib.Map].
+   Example form: [let keys = List.init 20 (fun i -> i + 1)]
    Build and run before continuing. *)

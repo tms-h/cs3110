@@ -8,6 +8,7 @@
    [Node of 'a tree * 'a * 'a tree]. Define [depth tree] with [depth Leaf = 0]
    and [depth (Node (l, _, r)) = 1 + max (depth l) (depth r)].
 
+   Example form: [type 'a shrub = Tip | Fork of 'a shrub * 'a]
    Test a leaf, a one-node tree, and an unbalanced tree of depth 3.
    Build and run before continuing. *)
 
@@ -17,12 +18,14 @@
 
    Test equal shapes with different values and types, and two trees that first
    differ below the root.
+   Example form: [let rec same_outline a b = match a, b with Tip, Tip -> true | _ -> false]
    Build and run before continuing. *)
 
 (* Task 3 — Report maximum through an exception.
    Define recursive [list_max_exn xs]. Return the greatest integer for a nonempty
    list and raise [Failure "empty"] for []. Test a singleton, an all-negative
    list, and the exact exception for [].
+   Example form: [let first_exn = function [] -> failwith "missing" | x :: _ -> x]
    Build and run before continuing. *)
 
 (* Task 4 — Consume the exception API.
@@ -31,6 +34,7 @@
    raised. Do not catch other exceptions.
 
    Test [] and [3; 9; 4].
+   Example form: [try string_of_int (first_exn values) with Failure "missing" -> "none"]
    Build and run before continuing. *)
 
 (* Task 5 — Check the global BST invariant.
@@ -41,6 +45,7 @@
 
    Test an empty tree, a valid three-node tree, a duplicate key, and a tree whose
    left subtree contains a key greater than the root.
+   Example form: [let within low high key = low < key && key < high]
    Build and run before continuing. *)
 
 (* Task 6 — Locate a BST violation.
@@ -49,4 +54,5 @@
    encountered in a root-left-right traversal that violates a bound.
 
    Test the valid tree and deep violation from Task 5.
+   Example form: [let visit ~lower ~upper tree = inspect lower upper tree]
    Build and run before continuing. *)

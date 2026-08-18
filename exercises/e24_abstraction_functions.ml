@@ -12,6 +12,7 @@
 
    Test [make (-2.0) 3.0], reversed inputs 3.0 and -2.0, and direct [rep_ok] on
    an invalid internal record.
+   Example form: [let validate_box box = if box.width >= 0.0 then box else invalid_arg "box"]
    Build and run before continuing. *)
 
 (* Task 2 — Observe intervals.
@@ -21,11 +22,13 @@
 
    Test both endpoints, an interior point, an outside point, and the rendered
    interval [-2.0, 3.0].
+   Example form: [let pp fmt box = Format.fprintf fmt "{%g x %g}" box.width box.height]
    Build and run before continuing. *)
 
 (* Task 3 — Add intervals.
    Define [add [a,b] [c,d]] as [[a+c, b+d]], routing the result through [make].
    Test [-2,3] + [4,5] = [2,8] and addition with [0,0].
+   Example form: [let translate amount box = make (box.lo +. amount) (box.hi +. amount)]
    Build and run before continuing. *)
 
 (* Task 4 — Multiply intervals.
@@ -34,6 +37,7 @@
 
    Test [-2,3] * [4,5] = [-10,15], two negative intervals, and multiplication
    by [0,0]. Then seal [Interval] with abstract [t] and its six public operations.
+   Example form: [let extremes values = (List.fold_left min infinity values, List.fold_left max neg_infinity values)]
    Build and run before continuing. *)
 
 (* Task 5 — Define maps as functions.
@@ -42,6 +46,7 @@
    whether [find] returns [Some _].
 
    Test two absent keys in [empty].
+   Example form: [let blank _query = None]
    Build and run before continuing. *)
 
 (* Task 6 — Add persistent map updates.
@@ -51,6 +56,7 @@
 
    Test x=1 and y=2, shadow x with 3, remove x, and verify every older map still
    returns its old values.
+   Example form: [let put label payload old_lookup query = if query = label then Some payload else old_lookup query]
    Build and run before continuing. *)
 
 (* Task 7 — Generalize updates.
@@ -59,4 +65,5 @@
    [Option.map (( + ) 10)] and creating an absent key with a function returning
    [Some 5]. Explain why no [bindings] operation can enumerate an arbitrary
    function map.
+   Example form: [let modify label f old_lookup query = if query = label then f (old_lookup query) else old_lookup query]
    Build and run before continuing. *)

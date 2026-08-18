@@ -9,6 +9,7 @@
    [rev (rev xs) = xs], using each earlier lemma explicitly.
 
    Test all three equations on [] and on [1; 2; 3; 4].
+   Example form: [(* Base: prove the equation for []. Step: assume it for [xs], then prove it for [x :: xs]. *)]
    Build and run before continuing. *)
 
 (* Task 2 — Reflect binary trees.
@@ -17,6 +18,7 @@
 
    Prove [size (reflect t) = size t] by structural induction. Test a leaf and a
    three-node tree with unequal subtree shapes.
+   Example form: [let rec count = function Tip -> 0 | Branch (left, right) -> 1 + count left + count right]
    Build and run before continuing. *)
 
 (* Task 3 — State the correct fold theorem.
@@ -25,6 +27,7 @@
    [List.fold_right op xs identity]. Do not assume commutativity.
 
    Test the theorem with string concatenation on [] and ["a"; "b"; "c"].
+   Example form: [(* Assumptions: op is associative; identity is both a left and right identity. *)]
    Build and run before continuing. *)
 
 (* Task 4 — Collect proposition atoms.
@@ -33,6 +36,7 @@
    return distinct atom names in first-occurrence, left-to-right traversal order.
 
    Test a single atom and [(p ∧ q) → (q ∨ ¬r)], expecting ["p"; "q"; "r"].
+   Example form: [type formula = Name of string | Both of formula * formula]
    Build and run before continuing. *)
 
 (* Task 5 — Simplify propositions without new atoms.
@@ -43,4 +47,5 @@
 
    Test both rewrites, then test every atom in [simplify p] occurs in [atoms p]
    for the proposition from Task 4.
+   Example form: [let rec reduce = function Swap (a, b) -> Pair (reduce b, reduce a) | Pair (a, b) -> Pair (reduce a, reduce b) | item -> item]
    Build and run before continuing. *)

@@ -10,6 +10,7 @@
 
    Test natural 10, the next value 11, and mapped value 22. Use a counter to test
    calling [head] twice invokes the same thunk twice.
+   Example form: [let rec repeat x = Cons (fun () -> (x, repeat x))]
    Build and run before continuing. *)
 
 (* Task 2 — Observe [Lazy.t] memoization.
@@ -18,6 +19,7 @@
    forces return unit.
 
    Explain why this differs from a plain [unit -> unit] thunk.
+   Example form: [let cached = lazy (incr calls; compute ()) in Lazy.force cached]
    Build and run before continuing. *)
 
 (* Task 3 — Define lazy conjunction.
@@ -26,6 +28,7 @@
 
    Use a counter in [right]. Test false-left leaves the counter zero, true-left
    forces it once, and the returned Boolean matches ordinary conjunction.
+   Example form: [let lazy_or left right = if Lazy.force left then true else Lazy.force right]
    Build and run before continuing. *)
 
 (* Task 4 — Define memoizing lazy sequences.
@@ -36,6 +39,7 @@
    Instrument an input node and mapping function. Test construction does no work,
    one force does the work once, and forcing that result node again changes no
    counters.
+   Example form: [let singleton value = lazy (LCons (value, lazy (failwith "end")))]
    Build and run before continuing. *)
 
 (* Task 5 — Filter a memoizing sequence.
@@ -45,6 +49,7 @@
 
    Test the first three even naturals, construction without forcing, and repeated
    forcing of one result node without repeated predicate calls.
+   Example form: [let delayed_check predicate source = lazy (let LCons (x, _) = Lazy.force source in predicate x)]
    Build and run before continuing. *)
 
 (* Task 6 — Zip with precise forcing.
@@ -53,4 +58,5 @@
 
    Use separate counters. Test construction forces neither input, one output
    force increments both once, and a repeated force increments neither again.
+   Example form: [lazy (let LCons (x, _) = Lazy.force left and LCons (y, _) = Lazy.force right in (x, y))]
    Build and run before continuing. *)

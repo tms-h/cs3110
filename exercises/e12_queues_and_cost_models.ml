@@ -12,6 +12,7 @@
    Define [empty_is_empty (module Q : QUEUE)] to return
    [Q.is_empty Q.empty], exercising first-class signature syntax. Its runtime
    tests begin after concrete queue modules exist.
+   Example form: [let initial_size (module C : COLLECTION) = C.size C.empty]
    Build and run before continuing. *)
 
 (* Task 2 — Implement a one-list queue.
@@ -20,6 +21,7 @@
 
    Test [is_empty empty], enqueue 1 then 2 then 3, and check three dequeues return
    1, 2, and 3 followed by [None].
+   Example form: [module Stack = struct type 'a t = 'a list let empty = [] end]
    Build and run before continuing. *)
 
 (* Task 3 — Implement a batched queue.
@@ -30,6 +32,7 @@
 
    Implement all four queue operations. Repeat the FIFO test from Task 2 and add
    an enqueue after one dequeue.
+   Example form: [let rebalance = function [], saved -> (List.rev saved, []) | state -> state]
    Build and run before continuing. *)
 
 (* Task 4 — Write a representation-independent client.
@@ -39,6 +42,7 @@
 
    Define [L = Exercise (List_queue)] and [B = Exercise (Batched_queue)]. Test
    [L.drain (L.fill 5)] and [B.drain (B.fill 5)] both equal [0; 1; 2; 3; 4].
+   Example form: [module Use (C : COLLECTION) = struct let singleton x = C.add x C.empty end]
    Build and run before continuing. *)
 
 (* Task 5 — Measure queue construction.
@@ -48,6 +52,7 @@
    modules produce equal drained lists; print rather than assert elapsed times.
 
    Record the measurements in a comment.
+   Example form: [let started = Unix.gettimeofday () in let result = work input in (result, Unix.gettimeofday () -. started)]
    Build and run before continuing. *)
 
 (* Task 6 — State operation costs.
@@ -56,4 +61,5 @@
    O(n) still gives amortized O(1) dequeue.
 
    Retain the runtime equality tests from Task 5.
+   Example form: [(* stack push: worst-case O(1); stack pop: worst-case O(1). *)]
    Build and run before continuing. *)

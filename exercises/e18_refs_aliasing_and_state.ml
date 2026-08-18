@@ -8,6 +8,7 @@
    [gpa : float]. Define [raise_gpa student new_gpa] to assign the new GPA and
    return unit.
 
+   Example form: [type lamp = { label : string; mutable lit : bool }]
    Test changing Alice from 3.7 to 4.0 and verify her name is unchanged.
    Build and run before continuing. *)
 
@@ -17,6 +18,7 @@
    [bool ref], [int list ref], and [int ref list].
 
    Test their dereferenced runtime values. Draw the three heap shapes in comments.
+   Example form: [let count : int ref = ref 3]
    Build and run before continuing. *)
 
 (* Task 3 — Store a function in a reference.
@@ -25,6 +27,7 @@
 
    Test the initial result. Assign a function adding 2, test the new result 3111,
    then restore increment and test 3110 again.
+   Example form: [let transform = ref String.uppercase_ascii in (!transform) "hi"]
    Build and run before continuing. *)
 
 (* Task 4 — Define small mutation operators.
@@ -34,6 +37,7 @@
 
    Test adding 5 to a cell containing 10, swapping cells containing 1 and 2, and
    swapping one cell with itself.
+   Example form: [let replace cell value = cell := value]
    Build and run before continuing. *)
 
 (* Task 5 — Observe aliasing safely.
@@ -43,6 +47,7 @@
 
    Mutate [x] to [3] and assert the contents observed through [y] changed while
    [z] still contains [1; 2]. Explain why [(==)] is not a content test.
+   Example form: [Printf.printf "%b\n" (first_cell == second_cell)]
    Build and run before continuing. *)
 
 (* Task 6 — Roll back a failed update.
@@ -53,4 +58,5 @@
    Test adding 10 to a cell containing 2. Then use an update that raises
    [Failure "boom"], test the exception message, and test the cell still contains
    12.
+   Example form: [try use resource with exn -> close resource; raise exn]
    Build and run before continuing. *)

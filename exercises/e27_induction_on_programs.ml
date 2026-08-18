@@ -10,6 +10,7 @@
 
    In comments, prove [pow x (m+n) = pow x m * pow x n] by induction on [m].
    Test the equation for x from -3 through 3 and m,n from 0 through 8.
+   Example form: [(* Base case: show P(0). Inductive step: assume P(k), then show P(k + 1). *)]
    Build and run before continuing. *)
 
 (* Task 2 — Define iterative Fibonacci and its invariant.
@@ -19,6 +20,7 @@
    accumulators to consecutive Fibonacci numbers.
 
    Define a direct reference function and test equality for n from 0 through 30.
+   Example form: [let rec loop remaining total = if remaining = 0 then total else loop (remaining - 1) (total + remaining)]
    Build and run before continuing. *)
 
 (* Task 3 — Define exponentiation by squaring.
@@ -28,6 +30,7 @@
 
    Prove equivalence with [pow] by strong induction. Test x from -4 through 4
    and n from 0 through 12.
+   Example form: [let half_result = fast_power base (exponent / 2) in half_result * half_result]
    Build and run before continuing. *)
 
 (* Task 4 — Remove the exponent-one special case.
@@ -37,6 +40,7 @@
 
    Record why the proof still covers n=1. Test equality with [pow] over the same
    bounded range and test the negative exception.
+   Example form: [match exponent with 0 -> 1 | n when n mod 2 = 0 -> even_case n | n -> odd_case n]
    Build and run before continuing. *)
 
 (* Task 5 — Induct over Peano naturals.
@@ -46,4 +50,5 @@
 
    Prove [mul n Z = Z] by structural induction. Test 0*3, 2*3, and 3*0 using
    explicit Peano values.
+   Example form: [type count = Zero | Next of count]
    Build and run before continuing. *)

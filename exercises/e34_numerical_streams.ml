@@ -9,6 +9,7 @@
    [n <= 0].
 
    Test the first five naturals from 3 and test [take 0].
+   Example form: [let rec repeat value = Cons (value, fun () -> repeat value)]
    Build and run before continuing. *)
 
 (* Task 2 — Generate primes by sifting.
@@ -18,6 +19,7 @@
 
    Test the first ten primes are [2;3;5;7;11;13;17;19;23;29]. Explain how keeping
    references to old stream heads can retain already processed data.
+   Example form: [let keep_not_multiple divisor value = value mod divisor <> 0]
    Build and run before continuing. *)
 
 (* Task 3 — Generate naive exponential terms.
@@ -27,6 +29,7 @@
 
    Test the first five terms for x=1 are [1; 1; 1/2; 1/6; 1/24] approximately,
    and test the corresponding running totals.
+   Example form: [let rec terms n = Cons (term_for n, fun () -> terms (n + 1))]
    Build and run before continuing. *)
 
 (* Task 4 — Stop on absolute convergence.
@@ -36,6 +39,7 @@
 
    Apply it to running totals of [e_terms_naive 1.0] with epsilon 1e-8 and test
    the result is within 1e-7 of [Float.exp 1.0]. Test invalid epsilon.
+   Example form: [let close_pair tolerance a b = Float.abs (a -. b) < tolerance]
    Build and run before continuing. *)
 
 (* Task 5 — Generate exponential terms recurrently.
@@ -45,6 +49,7 @@
    Test its first ten terms approximately match [e_terms_naive] for x=2. Compare
    both running-total approximations for a large positive and negative x, and
    record one input where the naive intermediate values degrade.
+   Example form: [let next = current *. ratio /. float_of_int (index + 1)]
    Build and run before continuing. *)
 
 (* Task 6 — Define mixed closeness.
@@ -54,6 +59,7 @@
 
    Test equal values, values near zero, large nearby values, opposite signs, and
    negative epsilon.
+   Example form: [let tolerance scale epsilon = epsilon *. max 1.0 (Float.abs scale)]
    Build and run before continuing. *)
 
 (* Task 7 — Bound exponential approximation.
@@ -66,4 +72,5 @@
    Test x=2, epsilon 1e-10, and 1,000 iterations succeeds within 1e-8 of
    [Float.exp 2.0]. Test invalid epsilon, and test zero iterations returns
    [Error (Did_not_converge 1.0)].
+   Example form: [let rec countdown remaining = if remaining = 0 then Error `Stopped else countdown (remaining - 1)]
    Build and run before continuing. *)

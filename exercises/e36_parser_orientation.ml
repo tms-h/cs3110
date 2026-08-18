@@ -12,6 +12,7 @@
    indices.
 
    Construct and test the exact AST [Add (Int 1, Mul (Int 2, Int 3))].
+   Example form: [type shape = Circle of int | Combine of shape * shape]
    Build and run before continuing. *)
 
 (* Task 2 — Lex the arithmetic language.
@@ -22,6 +23,7 @@
 
    Test ["x + 12*(y_2)"] produces the exact token list. Test ["3.14"] reports a
    lexical error at the dot position 1.
+   Example form: [match source.[position] with '+' -> Ok Plus | character -> Error (position, String.make 1 character)]
    Build and run before continuing. *)
 
 (* Task 3 — Define cursor operations.
@@ -31,6 +33,7 @@
    position by one.
 
    Test two consumes from [TInt_lit 1; TPlus], then test [peek] past the array.
+   Example form: [let advance reader = let item = current reader in reader.index <- reader.index + 1; item]
    Build and run before continuing. *)
 
 (* Task 4 — Parse atoms and products.
@@ -42,6 +45,7 @@
 
    Test tokens for [1*2*3] produce [Mul (Mul (Int 1, Int 2), Int 3)]. Test a
    missing right parenthesis returns Error.
+   Example form: [let rec parse_value reader = match advance reader with Number n -> Ok (Literal n) | _ -> Error "expected value"]
    Build and run before continuing. *)
 
 (* Task 5 — Parse sums and complete input.
@@ -51,6 +55,7 @@
    Multiplication binds tighter than addition.
 
    Test ["1+2*3"], ["(1+2)*3"], ["3+"], and ["1 2"].
+   Example form: [match current reader with Plus -> continue_chain left | _ -> left]
    Build and run before continuing. *)
 
 (* Task 6 — Compare identifier rules.
@@ -59,6 +64,7 @@
    ["2x"], and ["x'"] according to that rule.
 
    In comments, record at least two differences from OCaml identifiers.
+   Example form: [let is_ascii_letter c = ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')]
    Build and run before continuing. *)
 
 (* Task 7 — Infer simple expression types.
@@ -71,4 +77,5 @@
    returns bool; if requires bool condition and equal branch types; let infers the
    bound expression then extends the context for its body. Test each success and
    each error constructor, including shadowing in a let.
+   Example form: [match term with Literal _ -> Ok Number_type | Name x -> lookup_type scope x]
    Build and run before continuing. *)

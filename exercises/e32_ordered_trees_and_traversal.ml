@@ -12,6 +12,7 @@
 
    Instantiate a case-insensitive string set. Test empty membership, insertion,
    and that ["OCaml"] plus ["ocaml"] occupy one logical element.
+   Example form: [module Make_tree (Ord : ORDERED) = struct type t = Empty | Node of t * Ord.t * t end]
    Build and run before continuing. *)
 
 (* Task 2 — Enumerate set elements.
@@ -20,6 +21,7 @@
 
    Test scrambled integer insertion yields [1; 2; 3; 4] and the case-insensitive
    set returns one representative for the duplicated word.
+   Example form: [let rec collect_right tree acc = match tree with Empty -> acc | Node (_, x, right) -> collect_right right (x :: acc)]
    Build and run before continuing. *)
 
 (* Task 3 — Define efficient tree traversals.
@@ -28,6 +30,7 @@
 
    On the balanced tree containing 1 through 7 with root 4, test exact results
    [4;2;1;3;6;5;7], [1;2;3;4;5;6;7], and [1;3;2;5;7;6;4].
+   Example form: [let rec node_count = function Leaf -> 0 | Node (left, _, right) -> 1 + node_count left + node_count right]
    Build and run before continuing. *)
 
 (* Task 4 — Audit red-black trees.
@@ -40,6 +43,7 @@
 
    Test a black root with two red children returns [Ok 1], then separately test
    red root, red-red, unequal black height, and BST-order violations return Error.
+   Example form: [match inspect child with Ok summary -> Ok (extend summary) | Error message -> Error message]
    Build and run before continuing. *)
 
 (* Task 5 — Construct three valid colorings.
@@ -49,6 +53,7 @@
 
    Test inorder values are 1 through 15 and [audit_rb Int.compare] returns the
    named black height for each tree.
+   Example form: [let sample = RNode (Black, RNode (Red, RLeaf, 1, RLeaf), 2, RLeaf)]
    Build and run before continuing. *)
 
 (* Task 6 — Audit a hand insertion.
@@ -58,4 +63,5 @@
    Test [audit_rb Char.compare] succeeds and inorder traversal equals the sorted
    distinct letters. Explain why passing the audit does not prove which insertion
    history produced the tree.
+   Example form: [let built = List.fold_left (fun tree item -> insert item tree) empty ['C'; 'O'; 'D'; 'E']]
    Build and run before continuing. *)

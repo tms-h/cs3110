@@ -10,6 +10,7 @@
    Define [shape matrix] to return [Some (rows, columns)] exactly for a nonempty
    list of nonempty rows that all have equal length; otherwise return [None].
    Test a 2-by-3 matrix, [], [[]], [ []; [] ], and a ragged matrix.
+   Example form: [type grid_error = Empty_grid | Uneven_rows of int * int]
    Build and run before continuing. *)
 
 (* Task 2 — Add row vectors.
@@ -17,6 +18,7 @@
    [Invalid_argument] escape when lengths differ.
 
    Test two empty rows, [1; 1; 1] plus [9; 8; 7], and mismatched lengths.
+   Example form: [let pairwise_max xs ys = List.map2 max xs ys]
    Build and run before continuing. *)
 
 (* Task 3 — Map over two matrices.
@@ -26,12 +28,14 @@
    applied pairwise to corresponding cells.
 
    Test two 2-by-2 matrices, a ragged input, and a 1-by-2 versus 2-by-1 mismatch.
+   Example form: [match dimensions grid with None -> Error Empty_grid | Some size -> Ok size]
    Build and run before continuing. *)
 
 (* Task 4 — Add matrices.
    Define [add_matrices a b] by calling [map2_matrix] with integer addition.
    Test two 2-by-2 matrices whose result is [[5; 5]; [5; 5]], and test one shape
    mismatch.
+   Example form: [let combine_grids a b = map2_grid ( + ) a b]
    Build and run before continuing. *)
 
 (* Task 5 — Compute dot products.
@@ -39,6 +43,7 @@
    lists and let [Invalid_argument] escape when lengths differ.
 
    Test empty lists, [1; 2; 3] with [4; 5; 6], and mismatched lengths.
+   Example form: [List.map2 max xs ys |> List.fold_left max min_int]
    Build and run before continuing. *)
 
 (* Task 6 — Transpose a matrix.
@@ -48,6 +53,7 @@
 
    Test [] and [[1; 2; 3]; [4; 5; 6]]. Test that transposing a valid matrix
    twice returns the original.
+   Example form: [let heads rows = List.map List.hd rows]
    Build and run before continuing. *)
 
 (* Task 7 — Multiply matrices.
@@ -58,4 +64,5 @@
 
    Test a 2-by-3 times 3-by-2 product yielding [[58; 64]; [139; 154]], one
    incompatible pair, and one invalid matrix.
+   Example form: [let cell row column = List.map2 ( * ) row column |> List.fold_left ( + ) 0]
    Build and run before continuing. *)

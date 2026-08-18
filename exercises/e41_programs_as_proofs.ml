@@ -14,6 +14,7 @@
    [false -> p] into OCaml types. Define [conjunction_example] as one value of the
    nested conjunction, and [left_example] plus [right_example] as values choosing
    the two outer disjunction branches. Assert their runtime contents.
+   Example form: [type ('a, 'b) choice = This of 'a | That of 'b]
    Build and run before continuing. *)
 
 (* Task 2 — Prove commutativity by programming.
@@ -22,6 +23,7 @@
    Use no exceptions, mutation, [Obj], or nontermination.
 
    Test one pair and both disjunction constructors.
+   Example form: [let label_pair (word, count) = word ^ ":" ^ string_of_int count]
    Build and run before continuing. *)
 
 (* Task 3 — Simplify a proof term by evaluation.
@@ -31,6 +33,7 @@
 
    Define [simplified : 'a * 'b -> 'a] with the extensionally equivalent body.
    Test both functions on integer/string and string/Boolean pairs.
+   Example form: [let describe : int * string -> string = fun (_, text) -> text]
    Build and run before continuing. *)
 
 (* Task 4 — Distribute conjunction over disjunction.
@@ -39,6 +42,7 @@
    shared ['a] and the input branch.
 
    Test [(1, Left "x")] and [(1, Right true)].
+   Example form: [let describe_choice = function This n -> string_of_int n | That text -> text]
    Build and run before continuing. *)
 
 (* Task 5 — Compose implications.
@@ -47,6 +51,7 @@
 
    Test integer increment followed by [string_of_int] on 9, and [String.length]
    followed by an evenness predicate on ["OCaml"].
+   Example form: [let run_both first second input = (first input, second input)]
    Build and run before continuing. *)
 
 (* Task 6 — Eliminate falsehood.
@@ -56,4 +61,5 @@
 
    Retain a runtime assertion for [and_commute] so this task still runs executable
    checks without fabricating [empty].
+   Example form: [let impossible : empty_case -> 'a = function _ -> .]
    Build and run before continuing. *)

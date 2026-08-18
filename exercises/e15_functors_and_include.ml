@@ -12,6 +12,7 @@
 
    Define one local argument module whose conversion increments a counter. Call
    its generated printer once and test that the counter equals 1.
+   Example form: [module Show (M : TO_TEXT) = struct let show x = print_endline (M.to_text x) end]
    Build and run before continuing. *)
 
 (* Task 2 — Instantiate the functor.
@@ -21,6 +22,7 @@
 
    Test both conversion functions directly on 3110 and ["modules"], then call
    both generated printers with those values.
+   Example form: [module Show_bool = Show (Bool_text)]
    Build and run before continuing. *)
 
 (* Task 3 — Reuse with [include].
@@ -29,6 +31,7 @@
 
    Test [String_with_print.uppercase_ascii "reuse"] equals ["REUSE"], then print
    that result with [String_with_print.print].
+   Example form: [module Extended = struct include Base include Extra end]
    Build and run before continuing. *)
 
 (* Task 4 — Define a debugging functor.
@@ -38,6 +41,7 @@
 
    Instantiate it for integers, test the underlying conversion on -7, and call
    [dump] on -7.
+   Example form: [module Trace (M : RENDERABLE) = struct let trace x = print_endline ("TRACE " ^ M.render x) end]
    Build and run before continuing. *)
 
 (* Task 5 — Inspect generated interfaces.
@@ -45,4 +49,5 @@
    [Print_int.print : int -> unit] and [Print_string.print : string -> unit].
    In comments, compare functors with C++ templates and dependency injection,
    naming one difference from each.
+   Example form: [let _ : bool -> string = string_of_bool]
    Build and run before continuing. *)

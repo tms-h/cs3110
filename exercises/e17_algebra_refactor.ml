@@ -12,6 +12,7 @@
 
    Run interface inspection and verify each operation name is declared in only
    one base signature.
+   Example form: [module type GROUP = sig type t val identity : t val combine : t -> t -> t end]
    Build and run before continuing. *)
 
 (* Task 2 — Generate [of_int].
@@ -20,6 +21,7 @@
    negative integers and use doubling so recursion depth is O(log |n|).
 
    Instantiate a minimal integer core and test -13, 0, 1, and 14.
+   Example form: [module Add_repeat (M : MONOID) = struct include M let twice x = combine x x end]
    Build and run before continuing. *)
 
 (* Task 3 — Define integer and float rings.
@@ -30,6 +32,7 @@
 
    Test integer -13 and float 7.0 through [of_int], plus one addition and one
    multiplication in each ring.
+   Example form: [module Int_group : GROUP with type t = int = struct type t = int let identity = 0 let combine = ( + ) end]
    Build and run before continuing. *)
 
 (* Task 4 — Extend rings to fields.
@@ -40,6 +43,7 @@
    Test [Int_field.div 7 2 = 3] and [Float_field.div 7.0 2.0 = 3.5]. Test integer
    division by zero raises [Division_by_zero], and test positive float division
    by 0.0 produces positive infinity with [Float.is_infinite].
+   Example form: [module Float_scale = struct include Float_group let divide = ( /. ) end]
    Build and run before continuing. *)
 
 (* Task 5 — Define rational-pair arithmetic.
@@ -55,6 +59,7 @@
 
    Do not reduce pairs. Test 1/2 + 1/3 = 5/6 and 2/3 * 3/4 = 6/12 with the
    integer field.
+   Example form: [module Pairwise (M : GROUP) = struct let combine (a, b) (c, d) = (M.combine a c, M.combine b d) end]
    Build and run before continuing. *)
 
 (* Task 6 — Instantiate both rational modules.
@@ -64,4 +69,5 @@
 
    Inspect the final interfaces and verify both rational modules came from the
    same functor body.
+   Example form: [module Int_pairs = Pairwise (Int_group)]
    Build and run before continuing. *)

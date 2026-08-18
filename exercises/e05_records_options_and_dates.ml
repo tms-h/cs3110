@@ -9,6 +9,7 @@
    and [gpa : float]. Define [make_student first last gpa] and [name student],
    where [name] returns [(first_name, last_name)].
 
+   Example form: [type book = { title : string; pages : int }]
    Test a student named Ada Lovelace with GPA 4.0.
    Build and run before continuing. *)
 
@@ -17,6 +18,7 @@
    [safe_tail xs] to return [Some tail] or [None] for []. Do not catch exceptions
    from [List.hd] or [List.tl].
 
+   Example form: [let describe = function None -> "missing" | Some n -> string_of_int n]
    Test both functions on [] and on [1].
    Build and run before continuing. *)
 
@@ -28,6 +30,7 @@
    Define [highest_impact tickets] to return [None] for [] and otherwise the
    ticket with greatest [impact]. On ties, return the leftmost ticket; priority
    does not break ties. Test [], one ticket, a unique maximum, and a two-way tie.
+   Example form: [type urgency = Calm | Pressing]
    Build and run before continuing. *)
 
 (* Task 4 — Order dates.
@@ -35,6 +38,7 @@
    return true exactly when [a] is chronologically earlier than [b], using year,
    then month, then day. Equal dates are not before each other.
 
+   Example form: [let before_pair (a, b) (c, d) = a < c || (a = c && b < d)]
    Test dates differing by year, month, and day, plus equal dates.
    Build and run before continuing. *)
 
@@ -42,6 +46,7 @@
    Define [earliest dates] to return [None] for [] and otherwise the leftmost
    earliest date without sorting. Test [], a singleton, an unsorted list spanning
    two years, and a tie for the earliest date.
+   Example form: [let choose_smaller current candidate = if candidate < current then candidate else current]
    Build and run before continuing. *)
 
 (* Task 6 — Implement a shadowing association list.
@@ -51,4 +56,5 @@
 
    Insert x=1, then y=2, then x=3. Test that lookup returns 3 for x, 2 for y,
    and [None] for z.
+   Example form: [let labels bindings = List.map fst bindings]
    Build and run before continuing. *)

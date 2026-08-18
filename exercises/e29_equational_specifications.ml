@@ -12,6 +12,7 @@
    In comments, write equations for append with nil and cons, and length of nil,
    cons, and append. Implement [Listish_list] with ordinary lists and test every
    equation on concrete integer lists.
+   Example form: [(* size (add x collection) = size collection + 1 *)]
    Build and run before continuing. *)
 
 (* Task 2 — Specify a bag interface.
@@ -24,6 +25,7 @@
 
    In comments, classify operations and write equations for all queries over
    empty, insert, and remove.
+   Example form: [module type COUNTS = sig type 'a t val blank : 'a t val count : 'a -> 'a t -> int end]
    Build and run before continuing. *)
 
 (* Task 3 — Implement a list-backed bag.
@@ -33,12 +35,14 @@
 
    Test empty, insert x/y/x, multiplicities of x and absent z, one removal of x,
    repeated removal, and removal of z.
+   Example form: [let rec first = function [] -> None | x :: _ -> Some x]
    Build and run before continuing. *)
 
 (* Task 4 — Test every bag equation.
    Turn every equation from Task 2 into at least one runtime assertion using
    [List_bag]. Include equal and unequal inserted elements so both branches of
    the multiplicity and remove equations are exercised.
+   Example form: [assert (Counts.count item (Counts.add item Counts.empty) = 1)]
    Build and run before continuing. *)
 
 (* Task 5 — Define observational bag equality.
@@ -48,4 +52,5 @@
 
    Test differently ordered bags with equal multiplicities, unequal bags, and a
    universe containing duplicates. Explain why list equality is not bag equality.
+   Example form: [let equal_on domain left right = List.for_all (fun x -> observe x left = observe x right) domain]
    Build and run before continuing. *)

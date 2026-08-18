@@ -12,6 +12,7 @@
 
    Write requires/returns clauses in comments. Test [], duplicates, descending
    data, [second_largest [3; 1; 3; 2]], and [num_vowels "OCaml Universe"].
+   Example form: [(* Returns [true] exactly when every integer in [values] is positive. *)]
    Build and run before continuing. *)
 
 (* Task 2 — Define the polynomial interface.
@@ -22,6 +23,7 @@
 
    Use the operation types implied by integer coefficients and evaluation. Run
    interface inspection before implementing the module.
+   Example form: [module type SERIES = sig type t val empty : t val evaluate : t -> int -> int end]
    Build and run before continuing. *)
 
 (* Task 3 — Normalize polynomial construction.
@@ -30,6 +32,7 @@
    all-zero list, including [], as [0]. Define [zero] and [of_coefficients].
 
    Test [], [0; 0], [1; 2; 0; 0], and [0; 1; 1].
+   Example form: [let rec remove_trailing_empty items = List.rev items |> drop_empty |> List.rev]
    Build and run before continuing. *)
 
 (* Task 4 — Observe and evaluate polynomials.
@@ -39,6 +42,7 @@
 
    Test zero, [1; 2; 0; 0], equality with [1; 2], and evaluation of [0; 1; 1]
    at 10 yielding 110.
+   Example form: [let decimal_value digits = List.fold_left (fun acc digit -> (10 * acc) + digit) 0 digits]
    Build and run before continuing. *)
 
 (* Task 5 — Add polynomials.
@@ -47,6 +51,7 @@
 
    Test [1; 2] + [-1; 3; 4] = [0; 5; 4], addition with zero, and cancellation
    to the canonical zero polynomial.
+   Example form: [let pairwise_larger left right = List.map2 max left right]
    Build and run before continuing. *)
 
 (* Task 6 — Multiply and seal polynomials.
@@ -56,6 +61,7 @@
 
    Test [1; 1] * [1; -1] = [1; 0; -1], multiplication by zero, and a constant
    times [0; 1; 1].
+   Example form: [let weighted values = List.mapi (fun index value -> index * value) values]
    Build and run before continuing. *)
 
 (* Task 7 — Test the client boundary.
@@ -65,4 +71,5 @@
 
    Change [Poly_impl] to an array representation without changing [POLY] or
    [client_demo], then rerun every client test.
+   Example form: [let client (module S : SERIES) = S.evaluate S.empty 7]
    Build and run before continuing. *)

@@ -10,6 +10,7 @@
    [zero : t], and [add : t -> t -> t]. Define sealed module [Complex : COMPLEX]
    with componentwise addition.
 
+   Example form: [module type POINT = sig type t = int * int val origin : t end]
    Test that adding [zero] to [(2.0, -3.0)] returns [(2.0, -3.0)].
    Build and run before continuing. *)
 
@@ -25,6 +26,7 @@
 
    Define no implementation yet. Run the interface-inspection command and check
    that [t] remains abstract.
+   Example form: [module type COUNTER = sig type t val create : unit -> t val read : t -> int end]
    Build and run before continuing. *)
 
 (* Task 3 — Normalize fraction construction.
@@ -36,6 +38,7 @@
 
    Test 2/4, 3/(-6), 0/5, (-2)/(-4), and denominator zero by temporarily
    inspecting the unsealed representation.
+   Example form: [module Clock_impl = struct type t = int * int let assemble h m = (h, m) end]
    Build and run before continuing. *)
 
 (* Task 4 — Observe fractions.
@@ -44,6 +47,7 @@
 
    Test 2/4 as numerator 1, denominator 2, string ["1/2"], and float 0.5. Test
    3/(-6) as ["-1/2"] and zero as ["0/1"].
+   Example form: [let render (hours, minutes) = Printf.sprintf "%d:%02d" hours minutes]
    Build and run before continuing. *)
 
 (* Task 5 — Add fraction arithmetic.
@@ -51,6 +55,7 @@
    [mul (a/b) (c/d)] as [(a*c)/(b*d)], routing both through [normalize].
 
    Test 1/2 + (-1/2) = 0/1, 1/2 + 1/3 = 5/6, and 1/2 * 10/3 = 5/3.
+   Example form: [let add_minutes (hours, minutes) extra = standardize hours (minutes + extra)]
    Build and run before continuing. *)
 
 (* Task 6 — Compare and seal fractions.
@@ -60,4 +65,5 @@
 
    Test 1/2 against -1/2, equality of 2/4 and 1/2, and -3/4 against -1/2 using
    only the sealed module.
+   Example form: [module Clock : CLOCK = Clock_impl]
    Build and run before continuing. *)

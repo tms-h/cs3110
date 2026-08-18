@@ -13,6 +13,7 @@
    when no such divisor exists. Define [smallest_bad_factor_input ()] by exhaustive
    search. Test that it returns 4 and that the buggy result for 4 violates the
    intended contract.
+   Example form: [let rec first_failure n = if implementation n <> oracle n then n else first_failure (n + 1)]
    Build and run before continuing. *)
 
 (* Task 2 — Repair least odd factor.
@@ -22,6 +23,7 @@
 
    Test 1, 2, 3, 4, 9, 25, and 49. For every n from 1 through 500, test the result
    is 1 or an odd divisor, and no smaller odd integer at least 3 divides n.
+   Example form: [let valid_divisor n candidate = n mod candidate = 0]
    Build and run before continuing. *)
 
 (* Task 3 — Define a mean oracle.
@@ -30,6 +32,7 @@
    [close a b] as absolute difference less than [1e-12].
 
    Test [1], [-2; 0; 2], [1; 2; 3; 4], and [].
+   Example form: [let range values = List.fold_left max min_int values - List.fold_left min max_int values]
    Build and run before continuing. *)
 
 (* Task 4 — Reproduce and shrink a mean bug.
@@ -42,6 +45,7 @@
    disagreement, repeatedly delete the leftmost element whose removal preserves
    disagreement. Test the returned list disagrees with [mean_reference] and no
    single-element deletion still disagrees.
+   Example form: [let still_fails sample = not (close (candidate sample) (oracle sample))]
    Build and run before continuing. *)
 
 (* Task 5 — Repair and stress the mean.
@@ -49,4 +53,5 @@
    minimized counterexample from Task 4. Then generate 10,000 deterministic
    nonempty lists of length 1 through 20 and values -100 through 100; assert the
    repaired result is [close] to the oracle for every list.
+   Example form: [for trial = 1 to 500 do let sample = generate state in assert (candidate sample = oracle sample) done]
    Build and run before continuing. *)

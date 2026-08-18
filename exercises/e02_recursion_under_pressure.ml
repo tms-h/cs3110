@@ -13,12 +13,14 @@
    Define [valid_date day month] to return true exactly when the month is known
    and [day] is between 1 and that month's length inclusive. Test January 31,
    February 29, day zero, and an unknown month.
+   Example form: [let season name = match name with "June" -> Some `Winter | _ -> None]
    Build and run before continuing. *)
 
 (* Task 2 — Define Fibonacci directly.
    Define recursive [fib n] for [n >= 1] with [fib 1 = 1], [fib 2 = 1], and
    [fib n = fib (n - 1) + fib (n - 2)]. Raise [Invalid_argument "fib"] when
    [n < 1]. Test inputs 1, 2, 6, and 0.
+   Example form: [let rec factorial n = if n = 0 then 1 else n * factorial (n - 1)]
    Build and run before continuing. *)
 
 (* Task 3 — Define tail-recursive Fibonacci.
@@ -28,6 +30,7 @@
 
    Test [fib_fast 1], [fib_fast 10], the invalid input 0, and equality with
    [fib] for every input from 1 through 20.
+   Example form: [let rec loop remaining acc = if remaining = 0 then acc else loop (remaining - 1) (acc + 2)]
    Build and run before continuing. *)
 
 (* Task 4 — Find integer overflow.
@@ -36,6 +39,7 @@
 
    Let [n] be the returned index. Test that [n > 2], [fib_fast n <= 0], and
    [fib_fast (n - 1) > 0]. Do not assert a platform-specific index.
+   Example form: [let rec first_even n = if n mod 2 = 0 then n else first_even (n + 1)]
    Build and run before continuing. *)
 
 (* Task 5 — Debug recursive state.
@@ -46,4 +50,5 @@
    Find the smallest positive input on which it differs from [fib]. Record the
    bad state transition in a comment. Define [fib_repaired n] independently and
    test the counterexample plus inputs 1 through 20.
+   Example form: [let observed = flawed 4 in assert (observed <> reference 4)]
    Build and run before continuing. *)

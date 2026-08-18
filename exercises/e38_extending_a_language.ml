@@ -10,6 +10,7 @@
    [VPair], [VLeft], and [VRight].
 
    Construct and test the AST and value for pair [(1, Left 2)].
+   Example form: [type item = Number of int | Tuple of item * item]
    Build and run before continuing. *)
 
 (* Task 2 — Parse integer pairs.
@@ -20,6 +21,7 @@
    token list, including trailing input.
 
    Test a valid pair, each missing delimiter, and one trailing token.
+   Example form: [match tokens with [Begin; Word label; End] -> Ok (Command label) | _ -> Error "expected command"]
    Build and run before continuing. *)
 
 (* Task 3 — Match generalized patterns.
@@ -30,6 +32,7 @@
 
    Test literals, wildcard, nested pair, left and right sums, mismatch, and
    [PPair (PVar "x", PVar "x")].
+   Example form: [match pattern, value with Any, _ -> Some [] | Name x, value -> Some [(x, value)] | _ -> None]
    Build and run before continuing. *)
 
 (* Task 4 — Infer expression types.
@@ -43,6 +46,7 @@
    to match. Return [Error "empty match"], ["unbound: name"], ["expected int"],
    ["pattern type"], or ["branch mismatch"] as appropriate. Test every form and
    every error string.
+   Example form: [Result.bind (check scope left) (fun left_type -> Result.map (combine left_type) (check scope right))]
    Build and run before continuing. *)
 
 (* Task 5 — Evaluate expression forms.
@@ -53,6 +57,7 @@
 
    Return [Error "unbound: name"], ["expected int"], or ["no matching branch"].
    Test every expression form, branch order, and every runtime error.
+   Example form: [match term with Number n -> Ok (Number_value n) | Name x -> lookup x scope]
    Build and run before continuing. *)
 
 (* Task 6 — Desugar lists.
@@ -64,6 +69,7 @@
 
    Test desugaring [], [Int 1], and [Int 1; Int 2]. Evaluate [not_empty] with
    environments containing the empty and singleton encodings.
+   Example form: [let rec join_words = function [] -> "" | [word] -> word | word :: rest -> word ^ "," ^ join_words rest]
    Build and run before continuing. *)
 
 (* Task 7 — Add pair projections.
@@ -74,4 +80,5 @@
 
    Test both projections on an integer/sum pair, plus type and runtime errors on
    an integer. Update every pattern match until compilation is exhaustive.
+   Example form: [match value with Pair_value (first, second) -> render first second | other -> reject other]
    Build and run before continuing. *)

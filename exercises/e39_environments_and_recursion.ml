@@ -13,6 +13,7 @@
    [Unbound], [Expected_int], and [Expected_function].
 
    Construct and test the AST for [let x = 2 in x + 3].
+   Example form: [type term = Number of int | Name of string | Bind of string * term * term]
    Build and run before continuing. *)
 
 (* Task 2 — Evaluate first-order expressions.
@@ -24,6 +25,7 @@
 
    Test arithmetic, shadowing, both branches, an unbound variable, and each
    integer-type error.
+   Example form: [match expression with Number n -> Ok (Number_value n) | Name x -> lookup x environment]
    Build and run before continuing. *)
 
 (* Task 3 — Evaluate lexical closures.
@@ -35,6 +37,7 @@
    Define [lexical_scope_probe] for
    [let x=5 in let f y=x+y in let x=4 in f 3]. Test it returns [VInt 8], then
    test a higher-order application and applying an integer.
+   Example form: [match expression with Lambda (parameter, body) -> Ok (Closure (environment, parameter, body)) | _ -> other_cases ()]
    Build and run before continuing. *)
 
 (* Task 4 — Evaluate recursive closures.
@@ -45,6 +48,7 @@
 
    Define [factorial_3] with [If_zero] and subtraction represented as addition of
    a negative integer. Test it returns [VInt 6], and test a zero input returns 1.
+   Example form: [let saved_function = Recursive_closure (saved_scope, label, parameter, body)]
    Build and run before continuing. *)
 
 (* Task 5 — Implement dynamic scope deliberately.
@@ -55,6 +59,7 @@
 
    Test [lexical_scope_probe] returns [DInt 7]. Add two more nested-shadowing
    programs and test both evaluators' exact, different results.
+   Example form: [let dynamic_function = Dynamic_closure (parameter, body)]
    Build and run before continuing. *)
 
 (* Task 6 — Add mutually recursive groups.
@@ -68,4 +73,5 @@
    Define mutually recursive [even] and [odd] over nonnegative integers using
    [If_zero] and decrement by one. Test even 10 and odd 9 return 1, while even 9
    and odd 10 return 0.
+   Example form: [let names = List.map (fun (name, _, _) -> name) declarations]
    Build and run before continuing. *)

@@ -12,6 +12,7 @@
 
    Define [Date_map = Map.Make (Date_order)]. Test January 1 before March 14,
    March 14 after January 1, and equality.
+   Example form: [module Score_order = struct type t = int let compare = Int.compare end]
    Build and run before continuing. *)
 
 (* Task 2 — Render a calendar.
@@ -20,6 +21,7 @@
 
    Test [] for an empty map. Add March 14→Pi and January 1→New year in that order,
    then test the rendered list is ["1/1: New year"; "3/14: Pi"].
+   Example form: [let render entries = Map.bindings entries |> List.map (fun (k, v) -> Printf.sprintf "%d=%s" k v)]
    Build and run before continuing. *)
 
 (* Task 3 — Transform map values.
@@ -28,6 +30,7 @@
    converting to a list.
 
    Test a→apple and z→zebra, and test an empty map.
+   Example form: [let lengths map = Word_map.map String.length map]
    Build and run before continuing. *)
 
 (* Task 4 — Find the next date.
@@ -37,6 +40,7 @@
 
    In the calendar from Task 2, test a date before January 1, January 1 itself,
    and March 14.
+   Example form: [match Int_map.find_first_opt (fun key -> key > cutoff) map with None -> None | Some (_, value) -> Some value]
    Build and run before continuing. *)
 
 (* Task 5 — Build a case-insensitive set.
@@ -45,6 +49,7 @@
 
    Test that ["grr"] and ["GRR"] are one element, while ["Argh"] is distinct;
    the cardinality must be 2.
+   Example form: [module Length_set = Set.Make (Length_order)]
    Build and run before continuing. *)
 
 (* Task 6 — Merge calendars with conflicts.
@@ -54,4 +59,5 @@
 
    Test merging with an empty map, two disjoint one-event maps, and two maps that
    assign different events to January 1.
+   Example form: [Map.merge (fun _ left right -> match left with Some _ -> left | None -> right) first second]
    Build and run before continuing. *)

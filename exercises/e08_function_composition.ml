@@ -11,6 +11,7 @@
 
    Annotate both [quad] and [fourth] with [int -> int]. Test [quad 3] and
    [fourth 2].
+   Example form: [let apply_once f x = f x]
    Build and run before continuing. *)
 
 (* Task 2 — Investigate an application operator.
@@ -18,6 +19,7 @@
    equals the correct one of [(fun x -> x * x) (2 + 2)] and
    [((fun x -> x * x) 2) + 2], and assert that those two explicit expressions
    have different results. Do not use [($)] after this task.
+   Example form: [let ( @@? ) f x = f x]
    Build and run before continuing. *)
 
 (* Task 3 — Define forward composition.
@@ -26,6 +28,7 @@
 
    Test composing integer increment with [string_of_int] on 9, and composing
    [String.length] with [double] on ["abc"].
+   Example form: [let ( <.> ) left right = left *. right]
    Build and run before continuing. *)
 
 (* Task 4 — Repeat a function [n] times.
@@ -33,6 +36,7 @@
    when [n > 0], and raise [Invalid_argument "repeat"] when [n < 0].
 
    Test counts 0 and 5 with doubling, and test the negative-count exception.
+   Example form: [let call_if condition f x = if condition then f x else x]
    Build and run before continuing. *)
 
 (* Task 5 — Uncurry library functions.
@@ -41,12 +45,14 @@
 
    Test append on [([1; 2], [3])], character comparison on [('a', 'b')], and
    maximum on [(3, 9)] and [(9, 9)].
+   Example form: [let uncurried_add (a, b) = ( + ) a b]
    Build and run before continuing. *)
 
 (* Task 6 — Partially apply sorting.
    Define [descending] by partially applying [List.sort] to an integer comparator
    that orders greater values first. Annotate [descending] with
    [int list -> int list]. Test [] and [2; 1; 3; 2].
+   Example form: [let alphabetic = List.sort String.compare]
    Build and run before continuing. *)
 
 (* Task 7 — Fuse maps.
@@ -56,4 +62,5 @@
    Test [map_fused string_of_int (( + ) 1) [1; 2; 3]] and compare it with the
    two-pass expression. Add a comment stating that effects and exception timing
    can make the two implementations observably different.
+   Example form: [let squared xs = List.map (fun x -> x * x) xs]
    Build and run before continuing. *)

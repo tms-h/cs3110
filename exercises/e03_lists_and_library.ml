@@ -8,6 +8,7 @@
    Define [one_to_five_a] as [1; 2; 3; 4; 5] with bracket syntax. Define
    [one_to_five_b] using only [::] and [[]]. Define [one_to_five_c] using [@]
    and the sublist [2; 3; 4]. Test that all three values are equal.
+   Example form: [let letters = 'a' :: ['b'] @ ['c']]
    Build and run before continuing. *)
 
 (* Task 2 — Recurse over lists.
@@ -17,6 +18,7 @@
 
    Test [product []], [product [2; 3; 4]], [concat []], and
    [concat ["OC"; "aml"]].
+   Example form: [let rec sum = function [] -> 0 | x :: xs -> x + sum xs]
    Build and run before continuing. *)
 
 (* Task 3 — Match list shapes.
@@ -27,26 +29,31 @@
 
    Test each true case and the nearest shorter false case. Also test
    [first_two_equal [1; 1; 2]] and [first_two_equal [1; 2; 1]].
+   Example form: [let has_two = function _ :: _ :: _ -> true | _ -> false]
    Build and run before continuing. *)
 
 (* Task 4 — Select the fifth element safely.
    Define [fifth_or_zero xs] with [List.nth_opt]. Return the fifth element when
    it exists and zero otherwise. Test lists of lengths 4 and 5.
+   Example form: [match List.nth_opt colors 1 with Some c -> c | None -> "white"]
    Build and run before continuing. *)
 
 (* Task 5 — Sort descending.
    Define [descending xs] with [List.sort]. Preserve duplicates and order values
    from greatest to least. Test [] and [2; 1; 3; 2].
+   Example form: [let alphabetic words = List.sort String.compare words]
    Build and run before continuing. *)
 
 (* Task 6 — Use an exception-raising library operation.
    Define [last_exn xs] without pattern matching. Return the final element and
    let the chosen List operation's documented exception escape for []. Test a
    singleton, a longer list, and the exact empty-list exception.
+   Example form: [let first_exn words = List.hd words]
    Build and run before continuing. *)
 
 (* Task 7 — Search with a predicate.
    Define [any_zero xs] with one List-library call and no explicit recursion.
    Return true exactly when an element equals zero. Test [], [1; 0; 2], and
    [1; 2; 3].
+   Example form: [let any_long words = List.exists (fun word -> String.length word > 8) words]
    Build and run before continuing. *)

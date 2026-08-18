@@ -9,6 +9,7 @@
    [List.fold_right]. Both return the floating-point product and use 1.0 for [].
 
    Test [] and [2.0; 3.0; 4.0] with both functions.
+   Example form: [let sum_left xs = List.fold_left ( + ) 0 xs]
    Build and run before continuing. *)
 
 (* Task 2 — Build a map-filter-fold pipeline.
@@ -18,6 +19,7 @@
 
    Define [sum_cube_odd_pipe n] with the same computation written using [|>].
    Test 0, 1, 5, and a negative input for both functions.
+   Example form: [values |> List.filter is_ready |> List.map score |> List.fold_left ( + ) 0]
    Build and run before continuing. *)
 
 (* Task 3 — Compare existence implementations.
@@ -28,6 +30,7 @@
    Test empty, present, and absent cases for all three. Then use a predicate that
    increments a reference to test how many elements each version examines when
    the first element matches.
+   Example form: [let seen = ref 0 in List.exists (fun x -> incr seen; x = target) values]
    Build and run before continuing. *)
 
 (* Task 4 — Process debits in order.
@@ -37,6 +40,7 @@
    [List.fold_left], and [List.fold_right] respectively.
 
    Test initial 100 with [] and with [10; 5; 12].
+   Example form: [let sentence words = List.fold_left (fun text word -> text ^ " " ^ word) "" words]
    Build and run before continuing. *)
 
 (* Task 5 — Choose map or filter.
@@ -45,6 +49,7 @@
 
    Test [long_strings ["one"; "three"; "seven"]], [], and
    [increment_floats [0.0; 2.5]].
+   Example form: [let evens xs = List.filter (fun n -> n mod 2 = 0) xs]
    Build and run before continuing. *)
 
 (* Task 6 — Join strings.
@@ -52,6 +57,7 @@
    adjacent elements and none at either end. Return "" for [].
 
    Test [], a singleton, and [join "," ["hi"; "bye"]].
+   Example form: [let combine sep left right = left ^ sep ^ right]
    Build and run before continuing. *)
 
 (* Task 7 — Extract unique keys.
@@ -60,4 +66,5 @@
 
    Test [] and [(2, "b"); (1, "x"); (2, "c")]. State the asymptotic time
    complexity in a comment.
+   Example form: [let unique_words words = List.sort_uniq String.compare words]
    Build and run before continuing. *)

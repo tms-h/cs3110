@@ -12,6 +12,7 @@
 
    Run a 0.001-second call with [Lwt_main.run] and test a captured trace changes
    from [] to ["done"].
+   Example form: [Lwt_unix.sleep 0.005 >>= fun () -> log "ready"; Lwt.return_unit]
    Build and run before continuing. *)
 
 (* Task 2 — Run delays sequentially.
@@ -21,6 +22,7 @@
 
    Test the exact log order. Measure and print elapsed time, but do not assert a
    timing threshold.
+   Example form: [pause () >>= fun () -> log "first"; pause () >>= fun () -> log "second"; Lwt.return_unit]
    Build and run before continuing. *)
 
 (* Task 3 — Join concurrent delays.
@@ -30,6 +32,7 @@
    Test the exact completion order ["10ms"; "30ms"; "60ms"]. Measure and print
    elapsed time, and explain why it is near the longest delay rather than their
    sum. Do not assert elapsed time.
+   Example form: [let jobs = [fetch "a"; fetch "b"] in Lwt.join jobs]
    Build and run before continuing. *)
 
 (* Task 4 — Observe discarded promises.
@@ -38,6 +41,7 @@
    test the trace is still empty when the main promise resolves.
 
    Add a comment explaining when constructing an Lwt promise starts work.
+   Example form: [let _unused = Lwt_unix.sleep 0.01 in Lwt.return_unit]
    Build and run before continuing. *)
 
 (* Task 5 — Copy lines until EOF.
@@ -48,6 +52,7 @@
    Use [Lwt_io.pipe] to write ["alpha"] and ["beta"], close the output, and test
    the consumer saw both lines. Use a consumer that fails with [Failure "stop"]
    and test that exact failure escapes.
+   Example form: [Lwt.catch (fun () -> Lwt_io.read_line input >>= consume) (function End_of_file -> Lwt.return_unit | exn -> Lwt.fail exn)]
    Build and run before continuing. *)
 
 (* Task 6 — Monitor a file with scoped cleanup.
@@ -57,4 +62,5 @@
 
    Create a temporary two-line file, test both lines are consumed, then test a
    failing consumer preserves its exception. Remove the temporary file afterward.
+   Example form: [Lwt_io.with_file ~mode:Lwt_io.Input path (fun channel -> read_all channel)]
    Build and run before continuing. *)

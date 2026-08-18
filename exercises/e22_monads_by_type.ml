@@ -11,6 +11,7 @@
 
    Run interface inspection and verify each type variable occurs in the intended
    positions.
+   Example form: [module type BOXED = sig type 'a t val pure : 'a -> 'a t val map : 'a t -> ('a -> 'b) -> 'b t end]
    Build and run before continuing. *)
 
 (* Task 2 — Implement the maybe monad directly.
@@ -20,6 +21,7 @@
    function.
 
    Test every operation with [Some] and [None], including [join (Some None)].
+   Example form: [let value_or fallback = function None -> fallback | Some x -> x]
    Build and run before continuing. *)
 
 (* Task 3 — Seal [Maybe] and add optional integers.
@@ -28,6 +30,7 @@
    no direct [Some] or [None] match.
 
    Test 2 + 3 produces [Some 5], and either missing operand produces [None].
+   Example form: [Box.bind left (fun x -> Box.bind right (fun y -> Box.return (x ^ y)))]
    Build and run before continuing. *)
 
 (* Task 4 — Derive [fmap] and [join] from bind.
@@ -37,6 +40,7 @@
 
    Instantiate it for [Maybe]. Test derived map on [Some 3] and [None], and
    derived join on [Some (Some 4)] and [Some None].
+   Example form: [let transform item f = chain item (fun x -> pure (f x))]
    Build and run before continuing. *)
 
 (* Task 5 — Derive bind from [fmap] and [join].
@@ -45,6 +49,7 @@
 
    Instantiate it for [Maybe]. Test binding [Some 3] to [Some 4] and binding
    [None] without calling the function.
+   Example form: [let chain item f = flatten (transform item f)]
    Build and run before continuing. *)
 
 (* Task 6 — Implement the list monad.
@@ -54,6 +59,7 @@
 
    Test empty inputs and test binding [1; 2; 3] with
    [fun x -> [x; -x]] produces [1; -1; 2; -2; 3; -3].
+   Example form: [let choose_many choices f = List.concat_map f choices]
    Build and run before continuing. *)
 
 (* Task 7 — Check monad laws on a trivial monad.
@@ -63,4 +69,5 @@
 
    Add a comment explaining why these examples illustrate but do not prove the
    polymorphic laws.
+   Example form: [assert (chain (pure sample) f = f sample)]
    Build and run before continuing. *)

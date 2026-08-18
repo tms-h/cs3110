@@ -10,6 +10,7 @@
 
    Define [make_numbered_rank n] to return [Some (Num n)] for 2 through 10 and
    [None] otherwise. Test 1, 2, 10, and 11.
+   Example form: [type temperature = Cold | Warm of int]
    Build and run before continuing. *)
 
 (* Task 2 — Order ranks.
@@ -19,6 +20,7 @@
 
    Test [Num 2] against [Num 10], [Num 10] against [Jack], [Ace] against [King],
    and equality.
+   Example form: [let compare_size a b = match a, b with Small, Large -> -1 | _ -> 0]
    Build and run before continuing. *)
 
 (* Task 3 — Check pattern coverage.
@@ -27,6 +29,7 @@
    why patterns [Some _ :: _] and [None :: _] still need an [] case.
 
    Test [], [None], and [Some 1; None].
+   Example form: [let begins_ok = function Ok _ :: _ -> true | _ -> false]
    Build and run before continuing. *)
 
 (* Task 4 — Classify quadrants with closed variants.
@@ -35,12 +38,14 @@
    and no guards. Return [None] when either coordinate is zero.
 
    Test one point in each quadrant, the origin, and one point on each axis.
+   Example form: [let classify = function Left, Up -> Northwest | _ -> Center]
    Build and run before continuing. *)
 
 (* Task 5 — Classify quadrants with guards.
    Define [quadrant_guarded (x, y)] with guards and without calling [sign]. It
    must have exactly the same result as [quadrant]. Test agreement on the seven
    cases from Task 4.
+   Example form: [let direction (x, y) = match x, y with x, _ when x > 0 -> `Right | _ -> `Other]
    Build and run before continuing. *)
 
 (* Task 6 — Use polymorphic variants.
@@ -49,10 +54,12 @@
    [Some `IV], or [None] on an axis.
 
    Test -1, 0, and 1 with [sign_poly], and test quadrants II and IV plus an axis.
+   Example form: [let traffic_light = function 0 -> `Red | _ -> `Green]
    Build and run before continuing. *)
 
 (* Task 7 — Classify axes without changing [quad].
    Define [classify_axis point] returning [`Origin], [`Axis_x], [`Axis_y], or
    [`Quadrant q] for a value [q : quad]. Test the origin, both axes, and one
    quadrant.
+   Example form: [let wrap color = `Colored color]
    Build and run before continuing. *)
