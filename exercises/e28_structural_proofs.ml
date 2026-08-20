@@ -1,51 +1,71 @@
-(** E28 — Structural proofs and lemmas (90-125 min)
+(** E28 — Structural proofs and supporting lemmas (90-125 min)
 
     Build: [opam exec -- dune build exercises/e28_structural_proofs.exe] Run:
     [opam exec -- dune exec exercises/e28_structural_proofs.exe] *)
 
-(* Task 1 — Prove reverse through helper lemmas.
-   Define recursive [rev xs] using [rev tail @ [head]]. In comments, prove in
-   order: [xs @ [] = xs], [rev (xs @ ys) = rev ys @ rev xs], and
-   [rev (rev xs) = xs], using each earlier lemma explicitly.
+(* Task 1 — Establish the append lemmas.
+   Prove [xs @ [] = xs] for every list by structural induction on [xs]. Also
+   state and prove append associativity in the orientation needed later:
+   [(xs @ ys) @ zs = xs @ (ys @ zs)]. Do not cite associativity without making
+   it an explicit available lemma in this standalone file.
 
-   Test all three equations on [] and on [1; 2; 3; 4].
-   Example form: [(* Base: prove the equation for []. Step: assume it for [xs], then prove it for [x :: xs]. *)]
+   After both proofs, test them on empty and nonempty lists. Runtime examples do
+   not replace either proof.
    Build and run before continuing. *)
 
-(* Task 2 — Reflect binary trees.
-   Define ['a tree = Leaf | Node of 'a tree * 'a * 'a tree]. Define [size] as
-   node count and [reflect] by recursively swapping left and right subtrees.
+(* Task 2 — Prove the reverse theorems in dependency order.
+   Define the deliberately simple recursive reverse:
+   [rev [] = []] and [rev (head :: tail) = rev tail @ [head]].
 
-   Prove [size (reflect t) = size t] by structural induction. Test a leaf and a
-   three-node tree with unequal subtree shapes.
-   Example form: [let rec count = function Tip -> 0 | Branch (left, right) -> 1 + count left + count right]
+   First prove for all [xs] and [ys]:
+   [rev (xs @ ys) = rev ys @ rev xs]. State which list is the induction variable
+   and use both Task 1 lemmas explicitly. Then prove [rev (rev xs) = xs], citing
+   the distribution theorem rather than reproving it.
+
+   Add tests for distribution on [([], [1;2])], [([1;2], [])], and
+   [([1;2], [3;4])], plus involution on empty and nonempty lists.
    Build and run before continuing. *)
 
-(* Task 3 — State the correct fold theorem.
-   In comments, state sufficient associativity plus left- and right-identity
-   assumptions for [List.fold_left op identity xs] to equal
-   [List.fold_right op xs identity]. Do not assume commutativity.
+(* Task 3 — Reflect binary trees.
+   Define ['a tree = Leaf | Node of 'a tree * 'a * 'a tree], node-counting [size],
+   and [reflect] by recursively swapping subtrees. Prove
+   [size (reflect t) = size t] for every tree by structural induction. State both
+   induction hypotheses in the node case and show where each is used.
 
-   Test the theorem with string concatenation on [] and ["a"; "b"; "c"].
-   Example form: [(* Assumptions: op is associative; identity is both a left and right identity. *)]
+   Test a leaf and a tree whose left and right shapes differ.
    Build and run before continuing. *)
 
-(* Task 4 — Collect proposition atoms.
-   Define [proposition] with [Atom of string], [Not], [And], [Or], and [Implies].
-   Write its structural induction principle in comments. Define [atoms p] to
-   return distinct atom names in first-occurrence, left-to-right traversal order.
+(* Task 4 — Formulate and prove the noncommutative fold theorem.
+   The familiar theorem assuming an associative and commutative operator does
+   not explain why left and right folds with string concatenation agree. Discover
+   a weaker theorem in which the operator is associative but need not commute.
+   The source hint is to add the right condition on the initial accumulator.
 
-   Test a single atom and [(p ∧ q) → (q ∨ ¬r)], expecting ["p"; "q"; "r"].
-   Example form: [type formula = Name of string | Both of formula * formula]
+   State every algebraic assumption precisely, formulate the theorem for an
+   arbitrary list, and prove it. If the induction needs a generalized accumulator
+   lemma, state and prove that lemma first. Only afterward test empty and
+   nonempty string lists. A pair of string assertions is not a proof.
    Build and run before continuing. *)
 
-(* Task 5 — Simplify propositions without new atoms.
-   Define [simplify p] recursively. Eliminate double negation
-   [Not (Not p) -> simplify p] and implication
-   [Implies (p, q) -> Or (Not (simplify p), simplify q)]; preserve atoms and
-   recursively simplify other constructors.
+(* Task 5 — State a structural induction principle for propositions.
+   Define propositions with atomic names, negation, conjunction, disjunction,
+   and implication. Write the complete induction principle: one base obligation
+   for atoms and one constructor obligation for each recursive form, with an
+   induction hypothesis for every recursive child. Then use the principle to
+   outline a small proof of your choice about all propositions.
+   Build before continuing. *)
 
-   Test both rewrites, then test every atom in [simplify p] occurs in [atoms p]
-   for the proposition from Task 4.
-   Example form: [let rec reduce = function Swap (a, b) -> Pair (reduce b, reduce a) | Pair (a, b) -> Pair (reduce a, reduce b) | item -> item]
-   Build and run before continuing. *)
+(* Extension — Atom collection and semantics-preserving simplification.
+   Define [atoms] to return distinct names in first-occurrence, left-to-right
+   order. Define [simplify] to remove implication and double negation. Use a
+   helper that simplifies a newly constructed negation, so simplifying
+   [Implies (Not p, q)] cannot leave [Not (Not ...)] behind.
+
+   Define an evaluator under a truth assignment. Prove by structural induction
+   that simplification preserves evaluation and introduces no new atoms. Then
+   add representative executable checks, including an implication whose
+   antecedent is a negation. *)
+
+(* Final task — Completion marker.
+   Only after all required theorems, prerequisite lemmas, and executable checks
+   are complete, make the program print exactly [E28 passed] once. *)

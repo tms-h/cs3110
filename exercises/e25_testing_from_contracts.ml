@@ -1,67 +1,96 @@
-(** E25 — Testing from contracts (95-130 min)
+(** E25 — OUnit, Bisect, and QCheck from contracts (95-130 min)
+
+    Required opam packages: [ounit2], [bisect_ppx], and [qcheck]. The dedicated
+    Dune stanza for this executable links [ounit2] and [qcheck] and declares the
+    [bisect_ppx] instrumentation backend.
 
     Build: [opam exec -- dune build exercises/e25_testing_from_contracts.exe] Run:
     [opam exec -- dune exec exercises/e25_testing_from_contracts.exe] *)
 
-(* Task 1 — Define a list-backed set.
-   Define module [List_set] with ['a t = 'a list], [empty = []], [mem], [add],
-   [remove], and [elements]. The representation contains no duplicates. [add]
-   leaves an existing element unchanged; [remove] removes the element if present;
-   [elements] returns the representation order.
+(* Task 1 — Recreate the two textbook set implementations.
+   Define module type [SET] with abstract ['a t], [empty], [mem], [add], and
+   [elements]. Its contract is mathematical set behavior: adding an existing
+   member changes no observable membership, and [elements] contains each member
+   exactly once; its order is unspecified.
 
-   Test empty membership, first insertion, repeated insertion, absent removal,
-   present removal, and an add-remove-add sequence.
-   Example form: [module Bag = struct type 'a t = 'a list let empty = [] end]
+   Define [ListSet] with a list representation that permits duplicate stored
+   values: [add] is constant-time cons and [elements] sorts and deduplicates.
+   Define [UniqListSet] with an RI forbidding duplicates: [add] checks membership
+   and [elements] can return the representation. Seal both as [SET]. These are
+   the implementations the source testing exercises assume.
    Build and run before continuing. *)
 
-(* Task 2 — Package black-box tests.
-   Define [black_box_tests ()] to run assertions derived only from the Task 1
-   contract. Include partitions for empty/nonempty, present/absent, duplicate
-   insertion, repeated removal, and at least two operation sequences.
+(* Task 2 — Write OUnit black-box tests.
+   Using [OUnit2], write a suite for [ListSet] derived only from [SET]'s public
+   specifications. Cover empty/nonempty, member/nonmember, first and duplicate
+   addition, at least two operation sequences, and [elements]. Do not inspect or
+   assert the hidden representation; compare element lists extensionally rather
+   than assuming an order.
 
-   Call [black_box_tests ()] at program startup.
-   Example form: [let contract_tests () = let value = Api.create () in assert (Api.size value = 0)]
+   Immediately before the test declarations, add this exact structure-item
+   attribute line: [@@@coverage off]. This keeps Bisect focused on
+   the Task 1 implementations instead of counting the OUnit/QCheck harness as
+   code under test. Do not place the attribute before [ListSet] or [UniqListSet].
+
+   Run the suite with an OUnit runner and preserve the full test output.
    Build and run before continuing. *)
 
-(* Task 3 — Add glass-box tests.
-   Define [glass_box_tests ()] after reading your implementation. Add one runtime
-   assertion for every pattern or conditional branch in [mem], [add], and
-   [remove]. In a comment, identify one branch test that adds coverage without
-   adding new contractual behavior.
+(* Task 3 — Measure glass-box coverage with Bisect.
+   Read both implementations. Add focused tests for every conditional and
+   pattern branch in [ListSet] and [UniqListSet], including duplicate and
+   nonduplicate insertion paths. Collect and inspect real coverage with:
 
-   Call both test functions.
-   Example form: [let branch_tests () = assert (classify 0 = `Zero); assert (classify 1 = `Positive)]
+   [mkdir -p _coverage/e25-run-1]
+   [BISECT_FILE=_coverage/e25-run-1/bisect opam exec -- dune exec --instrument-with bisect_ppx --force exercises/e25_testing_from_contracts.exe]
+   [opam exec -- bisect-ppx-report summary --coverage-path _coverage/e25-run-1]
+   [opam exec -- bisect-ppx-report html --coverage-path _coverage/e25-run-1 -o _coverage/e25-run-1/html]
+
+   Record the measured percentage and any uncovered points, then open
+   [_coverage/e25-run-1/html/index.html] and inspect the highlighted branches. Do not claim
+   coverage from inspection alone. Aim as close to 100% as reachable without
+   adding meaningless tests. Use a fresh run directory when repeating a run
+   so stale counts cannot be mistaken for the latest result (for example,
+   change [e25-run-1] to [e25-run-2]).
+
+   In comments, distinguish a branch test that adds structural coverage from a
+   black-box test that adds new contractual behavior.
    Build and run before continuing. *)
 
-(* Task 4 — Generate bounded random lists.
-   Define [bounded_list state] using only the supplied [Random.State.t]. Choose a
-   length uniformly from 5 through 10 inclusive and each integer uniformly from
-   0 through 100 inclusive.
+(* Task 4 — Generate bounded lists with QCheck.
+   Use [QCheck.Gen.generate1] to generate one integer list whose length is 5
+   through 10 inclusive and whose elements are 0 through 100 inclusive. Use
+   [QCheck.Gen.generate] to generate exactly three such lists. Assert all bounds.
 
-   With seed [3110], generate 100 lists. For each, assert the length and every
-   element are within those bounds. Recreate the seed and test the same sequence
-   of lists is generated again.
-   Example form: [let length = 2 + Random.State.int state 4 in List.init length (fun _ -> Random.State.int state 10)]
+   Then use [QCheck.make] to construct an [int list QCheck.arbitrary] with the
+   same bounds. Supply a readable printer so failures show the generated list.
    Build and run before continuing. *)
 
-(* Task 5 — Find property counterexamples.
-   Define [find_counterexample state trials property]. Generate up to [trials]
-   bounded lists and return the first list for which [property] is false, or
-   [None] if every trial passes. Return [None] when [trials <= 0].
+(* Task 5 — Run a QCheck property.
+   Lift the property “an integer is even” to “this list contains at least one
+   even integer.” First define a regular [QCheck.Test.t] over the bounded
+   arbitrary and run 100 cases. As the source notes, a single run might happen to
+   pass; repeat with reported seeds until a run fails. Record its seed and
+   counterexample, and explain why the property is not universally true even
+   though many individual samples pass.
 
-   Test an always-true property, an always-false property, zero trials, and the
-   property “contains an even integer” for 100 trials with seed 3110. If a
-   counterexample is found, assert it really contains no even integer.
-   Example form: [let rec gather count = if count = 0 then [] else generate () :: gather (count - 1)]
+   Then keep the discovery in the completed passing suite with
+   [QCheck.Test.make_neg], which succeeds only when QCheck finds a counterexample.
+   Reuse the recorded failing seed through the runner's [~rand] argument so this
+   required check is reproducible rather than flaky. Use [run_tests], assert its
+   return code is zero, and continue to the completion marker; [run_tests_main]
+   exits before later code can run.
+
+   Do not replace the QCheck test with a hand-written [Random.State] loop.
    Build and run before continuing. *)
 
-(* Task 6 — Compare operation traces with a model.
-   Define variant [operation] with [Add of int], [Remove of int], and
-   [Mem of int]. Define [check_trace operations] to apply each operation to
-   [List_set] and [Set.Make (Int)], checking membership for keys 0 through 20
-   after every step and returning the first failing prefix or [None].
+(* Extension — Deterministic model-based traces.
+   Define a separate extended set API with [remove]. Generate a deterministic
+   trace of add/remove/membership commands and compare it after every step with
+   [Set.Make (Int)]. This supplements rather than replaces OUnit, Bisect, or
+   QCheck. The final executable must exit successfully before printing its
+   completion marker. *)
 
-   Generate 10,000 deterministic operations with seed 3110 and keys 0 through
-   20. Assert [check_trace] returns [None].
-   Example form: [type command = Insert of string | Delete of string | Contains of string]
-   Build and run before continuing. *)
+(* Final task — Completion marker.
+   Only after the OUnit suite passes, a Bisect summary is recorded, and the
+   QCheck generator/property tasks are complete, make the program print exactly
+   [E25 passed] once. *)

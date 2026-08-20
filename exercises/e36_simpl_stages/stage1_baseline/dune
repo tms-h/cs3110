@@ -1,0 +1,13 @@
+(library
+ (name simpl_baseline)
+ (modules ast parser lexer driver))
+
+(menhir
+ (modules parser))
+
+(ocamllex lexer)
+
+(executable
+ (name check)
+ (modules check)
+ (libraries simpl_baseline))

@@ -23,7 +23,7 @@
    Use no exceptions, mutation, [Obj], or nontermination.
 
    Test one pair and both disjunction constructors.
-   Example form: [let label_pair (word, count) = word ^ ":" ^ string_of_int count]
+   Example test form: [assert (and_commute (1, "x") = ("x", 1))]
    Build and run before continuing. *)
 
 (* Task 3 — Simplify a proof term by evaluation.
@@ -36,30 +36,35 @@
    Example form: [let describe : int * string -> string = fun (_, text) -> text]
    Build and run before continuing. *)
 
-(* Task 4 — Distribute conjunction over disjunction.
+(* Extension Task 4 — Distribute conjunction over disjunction.
    Define
    [distribute : 'a * ('b, 'c) either -> ('a * 'b, 'a * 'c) either]. Preserve the
    shared ['a] and the input branch.
 
    Test [(1, Left "x")] and [(1, Right true)].
-   Example form: [let describe_choice = function This n -> string_of_int n | That text -> text]
+   Example test form: [assert (distribute (1, Left "x") = Left (1, "x"))]
    Build and run before continuing. *)
 
-(* Task 5 — Compose implications.
+(* Extension Task 5 — Compose implications.
    Define [compose_implications : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c]. Apply
    the first implication before the second.
 
    Test integer increment followed by [string_of_int] on 9, and [String.length]
    followed by an evenness predicate on ["OCaml"].
-   Example form: [let run_both first second input = (first input, second input)]
+   Example test form: [assert (compose_implications succ string_of_int 9 = "10")]
    Build and run before continuing. *)
 
-(* Task 6 — Eliminate falsehood.
-   Define [from_false : empty -> 'a] with an exhaustive match containing no
-   branches. Annotate it exactly with that type. Explain why no runtime assertion
-   can call it and why totality does not require constructing an ['a].
+(* Extension Task 6 — Eliminate falsehood.
+   Define [from_false : empty -> 'a] with a refutation case such as
+   [function _ -> .]. It has no value-producing branch. Annotate it exactly with
+   that type. Explain why no runtime assertion can call it and why totality does
+   not require constructing an ['a].
 
    Retain a runtime assertion for [and_commute] so this task still runs executable
    checks without fabricating [empty].
-   Example form: [let impossible : empty_case -> 'a = function _ -> .]
+   Example form: [type empty_case = |]
+   [let impossible : empty_case -> 'a = function _ -> .]
+   After every required translation, proof program, evaluation, and assertion in
+   E41 is present and passing, print the exact line ["E41 passed"] once, and not
+   earlier.
    Build and run before continuing. *)

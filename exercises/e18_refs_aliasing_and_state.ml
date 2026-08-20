@@ -5,58 +5,48 @@
 
 (* Task 1 — Mutate a record field.
    Define record [student] with immutable [name : string] and mutable
-   [gpa : float]. Define [raise_gpa student new_gpa] to assign the new GPA and
-   return unit.
-
-   Example form: [type lamp = { label : string; mutable lit : bool }]
-   Test changing Alice from 3.7 to 4.0 and verify her name is unchanged.
+   [gpa : float]. Define Alice with GPA 3.7, mutate it to 4.0, and assert both the
+   changed GPA and unchanged name. Then package the assignment as
+   [set_gpa : student -> float -> unit].
    Build and run before continuing. *)
 
 (* Task 2 — Construct reference shapes.
-   Define [bool_cell] containing true, [list_cell] containing [1; 2], and
-   [cell_list] containing two distinct references to 3 and 4. Annotate them as
-   [bool ref], [int list ref], and [int ref list].
-
-   Test their dereferenced runtime values. Draw the three heap shapes in comments.
-   Example form: [let count : int ref = ref 3]
+   Define expressions with types [bool ref], [int list ref], and [int ref list].
+   Annotate each expression, check it in the program, and draw the three heap
+   shapes in comments. For the last shape, use two separately allocated cells
+   that initially contain the same integer so allocation, not contents,
+   distinguishes them.
    Build and run before continuing. *)
 
 (* Task 3 — Store a function in a reference.
-   Define [step] as a reference containing integer increment. Define
-   [reach_3110 ()] by dereferencing [step] and applying it to 3109.
-
-   Test the initial result. Assign a function adding 2, test the new result 3111,
-   then restore increment and test 3110 again.
-   Example form: [let transform = ref String.uppercase_ascii in (!transform) "hi"]
+   Define [inc = ref (fun x -> x + 1)]. Dereference and apply it to produce 3110.
+   Then assign a function that adds 2, assert the changed result, restore the
+   original behavior, and assert 3110 again.
    Build and run before continuing. *)
 
-(* Task 4 — Define small mutation operators.
-   Define infix [(+:=)] so [cell +:= amount] adds [amount] to the integer in
-   [cell]. Define [swap a b] to exchange the contents of two references using one
-   saved old value.
-
-   Test adding 5 to a cell containing 10, swapping cells containing 1 and 2, and
-   swapping one cell with itself.
-   Example form: [let replace cell value = cell := value]
+(* Task 4 — Define addition assignment.
+   Before implementing it, write the intended type of infix [(+:=)]. Define it
+   so [cell +:= amount] adds [amount] to the integer stored in [cell] and returns
+   unit. Test zero, a positive amount, and a negative amount.
    Build and run before continuing. *)
 
-(* Task 5 — Observe aliasing safely.
-   Define [x = ref [1; 2]], [y = x], and [z = ref [1; 2]]. Assert only their
-   structural contents with [(=)]. Print the results of [x == y] and [x == z]
-   without asserting either physical-equality result.
+(* Task 5 — Predict physical and structural equality.
+   Define exactly [x = ref 0], [y = x], and [z = ref 0]. Before running any of
+   the following, record predictions for [x == y], [x == z], [x = y], [x = z],
+   then mutate [x := 1] and predict [x = y] and [x = z].
 
-   Mutate [x] to [3] and assert the contents observed through [y] changed while
-   [z] still contains [1; 2]. Explain why [(==)] is not a content test.
-   Example form: [Printf.printf "%b\n" (first_cell == second_cell)]
+   Assert every prediction. Explain why physical equality is meaningful here
+   because refs are mutable locations, but is not a general content test.
    Build and run before continuing. *)
 
-(* Task 6 — Roll back a failed update.
-   Define [apply_atomically cell update]. Compute [update !cell]; on success,
-   assign the result. If [update] raises, restore the old value and re-raise the
-   same exception.
+(* Extension — Aliasing utilities.
+   Define [swap] for two refs using one saved value; test distinct cells and a
+   cell swapped with itself. Then define [apply_atomically cell update]. If
+   [update !cell] succeeds, store its result. If it raises, restore the old
+   value and re-raise the same exception. Test both paths, including an update
+   closure that mutates [cell] before raising. *)
 
-   Test adding 10 to a cell containing 2. Then use an update that raises
-   [Failure "boom"], test the exception message, and test the cell still contains
-   12.
-   Example form: [try use resource with exn -> close resource; raise exn]
-   Build and run before continuing. *)
+(* Final task — Completion marker.
+   Only after every prediction, assertion, heap drawing, and explanation is
+   present and passing, make the completed program print exactly [E18 passed]
+   once. *)

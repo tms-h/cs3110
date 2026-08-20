@@ -1,73 +1,170 @@
-(** E17 — Algebraic reuse with modules (105-145 min)
+(** E17 — Refactor a duplicated algebra implementation (105-145 min)
+
+    This file begins with the pinned textbook's working [algebra.ml] starter.
+    Refactor the code in place; do not replace its public API with a new one.
 
     Build: [opam exec -- dune build exercises/e17_algebra_refactor.exe] Run:
     [opam exec -- dune exec exercises/e17_algebra_refactor.exe] Inspect:
     [opam exec -- ocamlc -i exercises/e17_algebra_refactor.ml] *)
 
-(* Task 1 — Define ring and field signatures.
-   Define [CORE_RING] with type [t], values [zero] and [one], and binary [add],
-   [sub], and [mul]. Define [RING] by including [CORE_RING] and adding
-   [of_int : int -> t]. Define [FIELD] by including [RING] and adding
-   [div : t -> t -> t].
-
-   Run interface inspection and verify each operation name is declared in only
-   one base signature.
-   Example form: [module type GROUP = sig type t val identity : t val combine : t -> t -> t end]
+(* Task 1 — Establish the baseline.
+   Build the untouched starter below. Save the complete output of the inspection
+   command in a comment. The public API that must remain unchanged contains
+   [Ring], [Field], [IntRing], [IntField], [FloatRing], [FloatField],
+   [IntRational], and [FloatRational]. In particular, preserve the operators,
+   unary negation, [to_string], [of_int], and the abstract result types.
    Build and run before continuing. *)
 
-(* Task 2 — Generate [of_int].
-   Define [Add_of_int (R : CORE_RING)] returning [RING with type t = R.t]. Include
-   [R]. Define [of_int n] using [zero], [one], [add], and [sub] only. Handle
-   negative integers and use doubling so recursion depth is O(log |n|).
-
-   Instantiate a minimal integer core and test -13, 0, 1, and 14.
-   Example form: [module Add_repeat (M : MONOID) = struct include M let twice x = combine x x end]
+(* Task 2 — Refactor signature duplication.
+   Use [include] and any private helper signatures you need so that no public
+   operation is directly declared in more than one base signature. Do not add,
+   remove, rename, or reorder behavior in the public [Ring] and [Field] APIs.
+   Re-run interface inspection and compare it with the baseline.
    Build and run before continuing. *)
 
-(* Task 3 — Define integer and float rings.
-   Define [Int_core : CORE_RING with type t = int] and
-   [Float_core : CORE_RING with type t = float] using the native arithmetic
-   operators. Define [Int_ring = Add_of_int (Int_core)] and
-   [Float_ring = Add_of_int (Float_core)].
+(* Task 3 — Refactor implementation duplication.
+   Reorganize the integer and float structures so their shared ring operations
+   are directly defined once per representation and reused by the corresponding
+   field. Preserve the public abstraction: clients must still see each module
+   through [Ring] or [Field], not a manifest [int] or [float] type.
 
-   Test integer -13 and float 7.0 through [of_int], plus one addition and one
-   multiplication in each ring.
-   Example form: [module Int_group : GROUP with type t = int = struct type t = int let identity = 0 let combine = ( + ) end]
+   Add client assertions through [of_int], the arithmetic operators, and
+   [to_string] without accessing a hidden representation.
    Build and run before continuing. *)
 
-(* Task 4 — Extend rings to fields.
-   Define [Int_field : FIELD with type t = int] by including [Int_ring] and using
-   integer division. Define [Float_field : FIELD with type t = float] by including
-   [Float_ring] and using float division.
-
-   Test [Int_field.div 7 2 = 3] and [Float_field.div 7.0 2.0 = 3.5]. Test integer
-   division by zero raises [Division_by_zero], and test positive float division
-   by 0.0 produces positive infinity with [Float.is_infinite].
-   Example form: [module Float_scale = struct include Float_group let divide = ( /. ) end]
+(* Task 4 — Share [of_int].
+   Introduce a functor that can construct [of_int] for an arbitrary ring core;
+   directly define that conversion algorithm only once. Derive it solely from
+   the core's [zero], [one], addition, and negation behavior. The final public
+   module interfaces must still match Task 1.
    Build and run before continuing. *)
 
-(* Task 5 — Define rational-pair arithmetic.
-   Define [Rational (F : FIELD)] returning [FIELD with type t = F.t * F.t]. Treat
-   [(n, d)] as [n/d], with nonzero denominator as a client precondition. Define
-   [zero = (F.zero, F.one)], [one = (F.one, F.one)], and:
+(* Task 5 — Share rational arithmetic.
+   Replace [IntRational] and [FloatRational]'s duplicated bodies with one functor
+   applied to [IntRing] and [FloatRing]. Its parameter needs ring operations, not
+   base-field division. Preserve unary negation and [to_string]. State the
+   representation precondition that stored denominators are nonzero and the
+   division precondition that the divisor's numerator is nonzero.
 
-   - add [(a*d + c*b, b*d)]
-   - sub [(a*d - c*b, b*d)]
-   - mul [(a*c, b*d)]
-   - div [(a*d, b*c)]
-   - [of_int n = (F.of_int n, F.one)]
-
-   Do not reduce pairs. Test 1/2 + 1/3 = 5/6 and 2/3 * 3/4 = 6/12 with the
-   integer field.
-   Example form: [module Pairwise (M : GROUP) = struct let combine (a, b) (c, d) = (M.combine a c, M.combine b d) end]
+   Test addition, negation, multiplication, division by a nonzero rational, and
+   conversion from an integer through each public module.
    Build and run before continuing. *)
 
-(* Task 6 — Instantiate both rational modules.
-   Define [Int_rational = Rational (Int_field)] and
-   [Float_rational = Rational (Float_field)]. Test zero, one, [of_int 4], one
-   subtraction, and one division in each module using exact pair results.
-
-   Inspect the final interfaces and verify both rational modules came from the
-   same functor body.
-   Example form: [module Int_pairs = Pairwise (Int_group)]
+(* Task 6 — Prove interface preservation.
+   Run interface inspection again and compare every public declaration with the
+   saved baseline. In comments, count the remaining direct definitions and
+   explain where reuse now occurs. A refactor that changes a public name, hides
+   [to_string], exposes [type t = int], or replaces unary negation with binary
+   subtraction is not complete.
    Build and run before continuing. *)
+
+(* Extension — Logarithmic conversion.
+   Improve the shared [of_int] algorithm to use doubling with logarithmic
+   recursion depth. Include [min_int] in the tests; do not compute [-min_int]. *)
+
+(* Final task — Completion marker.
+   Only after the final interface matches the saved baseline and all required
+   assertions and explanations pass, add the required
+   [let () = print_endline "E17 passed"] statement at the physical end of this
+   file, after the refactored starter code below. It must print exactly once. *)
+
+module type Ring = sig
+  type t
+
+  val zero : t
+  val one : t
+  val ( + ) : t -> t -> t
+  val ( ~- ) : t -> t
+  val ( * ) : t -> t -> t
+  val to_string : t -> string
+  val of_int : int -> t
+end
+
+module type Field = sig
+  type t
+
+  val zero : t
+  val one : t
+  val ( + ) : t -> t -> t
+  val ( ~- ) : t -> t
+  val ( * ) : t -> t -> t
+  val ( / ) : t -> t -> t
+  val to_string : t -> string
+  val of_int : int -> t
+end
+
+module IntRing : Ring = struct
+  type t = int
+
+  let zero = 0
+  let one = 1
+  let ( + ) = ( + )
+  let ( ~- ) = ( ~- )
+  let ( * ) = ( * )
+  let to_string = string_of_int
+  let of_int n = n
+end
+
+module IntField : Field = struct
+  type t = int
+
+  let zero = 0
+  let one = 1
+  let ( + ) = ( + )
+  let ( ~- ) = ( ~- )
+  let ( * ) = ( * )
+  let ( / ) = ( / )
+  let to_string = string_of_int
+  let of_int n = n
+end
+
+module FloatRing : Ring = struct
+  type t = float
+
+  let zero = 0.
+  let one = 1.
+  let ( + ) = ( +. )
+  let ( ~- ) = ( ~-. )
+  let ( * ) = ( *. )
+  let to_string = string_of_float
+  let of_int = float_of_int
+end
+
+module FloatField : Field = struct
+  type t = float
+
+  let zero = 0.
+  let one = 1.
+  let ( + ) = ( +. )
+  let ( ~- ) = ( ~-. )
+  let ( * ) = ( *. )
+  let ( / ) = ( /. )
+  let to_string = string_of_float
+  let of_int = float_of_int
+end
+
+module IntRational : Field = struct
+  type t = int * int
+
+  let zero = (0, 1)
+  let one = (1, 1)
+  let ( + ) (a, b) (c, d) = ((a * d) + (c * b), b * d)
+  let ( ~- ) (a, b) = (-a, b)
+  let ( / ) (a, b) (c, d) = (a * d, b * c)
+  let ( * ) (a, b) (c, d) = (a * c, b * d)
+  let to_string (a, b) = string_of_int a ^ "/" ^ string_of_int b
+  let of_int n = (n, 1)
+end
+
+module FloatRational : Field = struct
+  type t = float * float
+
+  let zero = (0., 1.)
+  let one = (1., 1.)
+  let ( + ) (a, b) (c, d) = ((a *. d) +. (c *. b), b *. d)
+  let ( ~- ) (a, b) = (-.a, b)
+  let ( / ) (a, b) (c, d) = (a *. d, b *. c)
+  let ( * ) (a, b) (c, d) = (a *. c, b *. d)
+  let to_string (a, b) = string_of_float a ^ "/" ^ string_of_float b
+  let of_int n = (float_of_int n, 1.)
+end

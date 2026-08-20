@@ -1,4 +1,9 @@
 _build/
+_opam/
+_coverage/
+__pycache__/
+*.coverage
+*.install
 *.cmi
 *.cmo
 *.cmx

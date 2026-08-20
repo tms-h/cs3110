@@ -21,10 +21,15 @@
    Example form: [let rec same_outline a b = match a, b with Tip, Tip -> true | _ -> false]
    Build and run before continuing. *)
 
-(* Task 3 — Report maximum through an exception.
+(* Task 3 — Report maximum through an exception and test it with OUnit.
    Define recursive [list_max_exn xs]. Return the greatest integer for a nonempty
-   list and raise [Failure "empty"] for []. Test a singleton, an all-negative
-   list, and the exact exception for [].
+   list and raise [Failure "empty"] for [].
+
+   Use [OUnit2] to define and run a named [list_max_exn_tests] suite. The two
+   textbook-required cases are: [assert_raises (Failure "empty")] for [] and an
+   [assert_equal] check for the maximum of a nonempty list. Also cover a
+   singleton and an all-negative list. Ordinary [assert] statements do not
+   satisfy this task; the point is to practise the OUnit framework.
    Example form: [let first_exn = function [] -> failwith "missing" | x :: _ -> x]
    Build and run before continuing. *)
 
@@ -45,14 +50,18 @@
 
    Test an empty tree, a valid three-node tree, a duplicate key, and a tree whose
    left subtree contains a key greater than the root.
-   Example form: [let within low high key = low < key && key < high]
+   Example form:
+   [let below upper key =
+      match upper with None -> true | Some high -> key < high]
    Build and run before continuing. *)
 
-(* Task 6 — Locate a BST violation.
+(* Task 6 — Extension: locate a BST violation.
    Define [first_bst_violation tree] using propagated lower and upper bounds.
    Return [None] for a valid tree; otherwise return [Some key] for the first key
    encountered in a root-left-right traversal that violates a bound.
 
-   Test the valid tree and deep violation from Task 5.
+   Test the valid tree and deep violation from Task 5. After every required
+   assertion and written explanation in E07 is present, print exactly
+   [E07 passed].
    Example form: [let visit ~lower ~upper tree = inspect lower upper tree]
    Build and run before continuing. *)

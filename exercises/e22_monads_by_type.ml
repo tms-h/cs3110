@@ -1,73 +1,76 @@
-(** E22 — Monads from their types (85-115 min)
+(** E22 — Monads from their types and laws (85-115 min)
 
     Build: [opam exec -- dune build exercises/e22_monads_by_type.exe] Run:
     [opam exec -- dune exec exercises/e22_monads_by_type.exe] Inspect:
     [opam exec -- ocamlc -i exercises/e22_monads_by_type.ml] *)
 
 (* Task 1 — Define the extended monad interface.
-   Define module type [EXT_MONAD] with type constructor ['a t] and operations:
-   [return : 'a -> 'a t], [bind : 'a t -> ('a -> 'b t) -> 'b t],
-   [fmap : 'a t -> ('a -> 'b) -> 'b t], and [join : 'a t t -> 'a t].
-
-   Run interface inspection and verify each type variable occurs in the intended
-   positions.
-   Example form: [module type BOXED = sig type 'a t val pure : 'a -> 'a t val map : 'a t -> ('a -> 'b) -> 'b t end]
+   Define module type [EXT_MONAD] with type constructor ['a t], [return], infix
+   bind [(>>=)], infix fmap [(>>|)], and [join]. Use these exact types:
+   [return : 'a -> 'a t], [(>>=) : 'a t -> ('a -> 'b t) -> 'b t],
+   [(>>|) : 'a t -> ('a -> 'b) -> 'b t], and [join : 'a t t -> 'a t].
+   Inspect the interface and explain the one type-level difference between bind
+   and fmap.
    Build and run before continuing. *)
 
-(* Task 2 — Implement the maybe monad directly.
-   Define unsealed [Maybe_impl] with ['a t = 'a option], identity [of_option] and
-   [to_option], [return x = Some x], and direct pattern-matching implementations
-   of [bind], [fmap], and [join]. None must propagate without calling a supplied
-   function.
+(* Task 2 — Implement the Maybe monad directly.
+   Define unsealed [Maybe_impl] with ['a t = 'a option], conversion functions to
+   and from [option], [return], and direct pattern-matching implementations of
+   [(>>=)], [(>>|)], and [join]. In the bodies of fmap and join, do not use bind
+   or return. [None] must propagate without calling a supplied function.
 
-   Test every operation with [Some] and [None], including [join (Some None)].
-   Example form: [let value_or fallback = function None -> fallback | Some x -> x]
+   Test every operation on relevant [Some] and [None] partitions, including
+   [join (Some None)].
    Build and run before continuing. *)
 
-(* Task 3 — Seal [Maybe] and add optional integers.
-   Seal [Maybe_impl] as [Maybe], exposing [EXT_MONAD] plus [of_option] and
-   [to_option]. Define [add a b] using only [Maybe.bind] and [Maybe.return], with
-   no direct [Some] or [None] match.
-
-   Test 2 + 3 produces [Some 5], and either missing operand produces [None].
-   Example form: [Box.bind left (fun x -> Box.bind right (fun y -> Box.return (x ^ y)))]
+(* Task 3 — Add optional integers outside the representation.
+   Seal [Maybe_impl] behind [EXT_MONAD] plus the two conversion functions. Define
+   [add : int Maybe.t -> int Maybe.t -> int Maybe.t] outside the module using
+   only bind and return; its body may not mention [Some] or [None]. Test two
+   present operands and each missing-operand position.
    Build and run before continuing. *)
 
-(* Task 4 — Derive [fmap] and [join] from bind.
-   Define functor [Derived] taking a module with ['a t], [return], and [bind]. Its
-   result defines [fmap m f = bind m (fun x -> return (f x))] and
-   [join mm = bind mm (fun m -> m)].
-
-   Instantiate it for [Maybe]. Test derived map on [Some 3] and [None], and
-   derived join on [Some (Some 4)] and [Some None].
-   Example form: [let transform item f = chain item (fun x -> pure (f x))]
+(* Task 4 — Derive fmap and join from bind.
+   Define a functor taking only a type constructor, return, and bind. Derive
+   [(>>|)] and [join] without inspecting the representation. Instantiate it for
+   [Maybe] and test the same partitions as Task 2.
    Build and run before continuing. *)
 
-(* Task 5 — Derive bind from [fmap] and [join].
-   Define module type [FMAP_JOIN] with ['a t], [return], [fmap], and [join].
-   Define functor [Make_bind] with [bind m f = join (fmap m f)].
-
-   Instantiate it for [Maybe]. Test binding [Some 3] to [Some 4] and binding
-   [None] without calling the function.
-   Example form: [let chain item f = flatten (transform item f)]
+(* Task 5 — Derive bind from fmap and join.
+   Define a signature containing a type constructor, return, fmap, and join,
+   then a functor that derives bind. Instantiate it for [Maybe]. Test a present
+   input and prove with a counter that a function is not called for a missing
+   input.
    Build and run before continuing. *)
 
 (* Task 6 — Implement the list monad.
-   Define [List_monad : EXT_MONAD with type 'a t = 'a list]. [return x] is [x],
-   [fmap] preserves list order, [join] concatenates nested lists in order, and
-   [bind] maps then concatenates.
+   Define [ListMonad : EXT_MONAD with type 'a t = 'a list]. [return x] yields the
+   singleton list [x :: []]. Fmap preserves order, join concatenates nested lists
+   in order, and bind maps then concatenates.
 
-   Test empty inputs and test binding [1; 2; 3] with
-   [fun x -> [x; -x]] produces [1; -1; 2; -2; 3; -3].
-   Example form: [let choose_many choices f = List.concat_map f choices]
+   Test empty inputs and all four operations. In particular, binding [1;2;3]
+   with [fun x -> [x; -x]] must produce [1;-1;2;-2;3;-3]. Explain why this
+   denotes multiple results rather than concurrent execution.
    Build and run before continuing. *)
 
-(* Task 7 — Check monad laws on a trivial monad.
+(* Task 7 — Prove the trivial monad laws.
    Define [Trivial] with ['a t = Wrap of 'a], [return x = Wrap x], and
-   [bind (Wrap x) f = f x]. Write runtime assertions for left identity, right
-   identity, and associativity using integer functions.
+   [Wrap x >>= f = f x]. In comments, prove for arbitrary values and functions:
 
-   Add a comment explaining why these examples illustrate but do not prove the
-   polymorphic laws.
-   Example form: [assert (chain (pure sample) f = f sample)]
+   - left identity: [return x >>= f = f x];
+   - right identity: [m >>= return = m];
+   - associativity: [(m >>= f) >>= g = m >>= (fun x -> f x >>= g)].
+
+   For each proof, quantify the variables, unfold the definitions one step at a
+   time, and show both sides reduce to the same expression. Integer examples are
+   not a proof.
    Build and run before continuing. *)
+
+(* Extension — Executable law checks.
+   Add representative runtime assertions for all three laws using at least two
+   different functions. Explain why those checks can catch an implementation
+   regression but cannot establish the polymorphic laws. *)
+
+(* Final task — Completion marker.
+   Only after the three symbolic proofs and every required assertion are
+   present, make the completed program print exactly [E22 passed] once. *)

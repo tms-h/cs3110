@@ -2,7 +2,7 @@
 
     Build: [opam exec -- dune build exercises/e09_folds_pipelines_and_refactors.exe]
     Run: [opam exec -- dune exec exercises/e09_folds_pipelines_and_refactors.exe]
-    Reading: https://ocaml.org/manual/5.4/api/List.html *)
+    Reading: https://ocaml.org/manual/5.3/api/List.html *)
 
 (* Task 1 — Multiply with both folds.
    Define [product_left xs] with [List.fold_left] and [product_right xs] with
@@ -12,7 +12,17 @@
    Example form: [let sum_left xs = List.fold_left ( + ) 0 xs]
    Build and run before continuing. *)
 
-(* Task 2 — Build a map-filter-fold pipeline.
+(* Task 2 — Make both products terse.
+   Define [product_left_terse] in one line by partially applying [List.fold_left];
+   do not explicitly name the input list and do not use [fun].
+
+   Define [product_right_terse xs] in one line with [List.fold_right], again
+   without [fun]. Test that both terse functions agree with Task 1 on [] and
+   [2.0; 3.0; 4.0].
+   Example form: [let sum = List.fold_left ( + ) 0]
+   Build and run before continuing. *)
+
+(* Task 3 — Build a map-filter-fold pipeline.
    Define [sum_cube_odd n] for [n >= 0] as the sum of [x³] for odd integers
    [x] from 0 through [n] inclusive. Use List initialization, filter, map, and
    fold; define no recursive helper. Raise [Invalid_argument] for [n < 0].
@@ -22,18 +32,19 @@
    Example form: [values |> List.filter is_ready |> List.map score |> List.fold_left ( + ) 0]
    Build and run before continuing. *)
 
-(* Task 3 — Compare existence implementations.
+(* Task 4 — Compare existence implementations.
    Define [exists_rec p xs] recursively with short-circuiting, [exists_fold p xs]
    with a fold, and [exists_lib p xs] with [List.exists]. All return true exactly
    when some element satisfies [p].
 
-   Test empty, present, and absent cases for all three. Then use a predicate that
-   increments a reference to test how many elements each version examines when
-   the first element matches.
-   Example form: [let seen = ref 0 in List.exists (fun x -> incr seen; x = target) values]
+   Test empty, present, and absent cases for all three. In a comment, explain
+   which implementations can return without applying [p] to the remaining
+   elements after a match. Do not use references or other side effects for this
+   comparison; mutability is introduced later.
+   Example form: [let any_even xs = List.exists (fun n -> n mod 2 = 0) xs]
    Build and run before continuing. *)
 
-(* Task 4 — Process debits in order.
+(* Task 5 — Process debits in order.
    Define [balance_rec initial debits], [balance_left initial debits], and
    [balance_right initial debits]. Each must compute
    [initial - d1 - d2 - ... - dn] in list order, using recursion,
@@ -43,7 +54,7 @@
    Example form: [let sentence words = List.fold_left (fun text word -> text ^ " " ^ word) "" words]
    Build and run before continuing. *)
 
-(* Task 5 — Choose map or filter.
+(* Task 6 — Choose map or filter.
    Define [long_strings xs] to keep strings whose length is greater than 3,
    preserving order. Define [increment_floats xs] to add 1.0 to every element.
 
@@ -52,19 +63,21 @@
    Example form: [let evens xs = List.filter (fun n -> n mod 2 = 0) xs]
    Build and run before continuing. *)
 
-(* Task 6 — Join strings.
-   Define [join sep xs] to concatenate elements with exactly one [sep] between
-   adjacent elements and none at either end. Return "" for [].
+(* Task 7 — Join strings with a fold.
+   Define [join sep xs] with [List.fold_left] or [List.fold_right]. Concatenate
+   elements with exactly one [sep] between adjacent elements and none at either
+   end. Return "" for [] and return the sole string unchanged for a singleton.
 
    Test [], a singleton, and [join "," ["hi"; "bye"]].
-   Example form: [let combine sep left right = left ^ sep ^ right]
+   Example form: [let combine_nonempty sep first rest = List.fold_left (fun text word -> text ^ sep ^ word) first rest]
    Build and run before continuing. *)
 
-(* Task 7 — Extract unique keys.
+(* Task 8 — Extract unique keys.
    Define [unique_keys bindings] to return the distinct keys in ascending order,
    ignoring values. Use [List.sort_uniq].
 
    Test [] and [(2, "b"); (1, "x"); (2, "c")]. State the asymptotic time
-   complexity in a comment.
+   complexity in a comment. After every required assertion and written
+   explanation in E09 is present, print exactly [E09 passed].
    Example form: [let unique_words words = List.sort_uniq String.compare words]
    Build and run before continuing. *)

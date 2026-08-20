@@ -6,7 +6,6 @@
   e04_tail_recursion_and_shape
   e05_records_options_and_dates
   e06_variants_and_patterns
-  e07_trees_invariants_and_errors
   e08_function_composition
   e09_folds_pipelines_and_refactors
   e10_matrix_pipeline
@@ -23,8 +22,6 @@
   e22_monads_by_type
   e23_specification_game
   e24_abstraction_functions
-  e25_testing_from_contracts
-  e26_property_driven_debugging
   e27_induction_on_programs
   e28_structural_proofs
   e29_equational_specifications
@@ -46,4 +43,20 @@
 (executable
  (name e21_lwt_scheduling)
  (libraries lwt.unix)
+ (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+
+(executable
+ (name e07_trees_invariants_and_errors)
+ (libraries ounit2)
+ (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+
+(executable
+ (name e25_testing_from_contracts)
+ (libraries unix ounit2 qcheck)
+ (instrumentation (backend bisect_ppx))
+ (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+
+(executable
+ (name e26_property_driven_debugging)
+ (libraries unix qcheck)
  (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))

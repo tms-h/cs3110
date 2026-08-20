@@ -1,8 +1,8 @@
-(** E05 — Records, options, and comparison (60-85 min)
+(** E05 — Records, options, variants, and comparison (60-85 min)
 
     Build: [opam exec -- dune build exercises/e05_records_options_and_dates.exe] Run:
     [opam exec -- dune exec exercises/e05_records_options_and_dates.exe] Reading:
-    https://ocaml.org/manual/5.4/api/Option.html *)
+    https://ocaml.org/manual/5.3/api/Option.html *)
 
 (* Task 1 — Define a student record.
    Define type [student] with fields [first_name : string], [last_name : string],
@@ -15,8 +15,9 @@
 
 (* Task 2 — Return options for list access.
    Define [safe_head xs] to return [Some first] or [None] for []. Define
-   [safe_tail xs] to return [Some tail] or [None] for []. Do not catch exceptions
-   from [List.hd] or [List.tl].
+   [safe_tail xs] to return [Some tail] or [None] for []. Implement both with
+   pattern matching. In particular, do not implement them by calling [List.hd]
+   or [List.tl] inside [try ... with].
 
    Example form: [let describe = function None -> "missing" | Some n -> string_of_int n]
    Test both functions on [] and on [1].
@@ -49,12 +50,14 @@
    Example form: [let choose_smaller current candidate = if candidate < current then candidate else current]
    Build and run before continuing. *)
 
-(* Task 6 — Implement a shadowing association list.
-   Define [insert key value bindings] to prepend the binding. Define recursive
+(* Task 6 — Implement and use a shadowing association list.
+   Extension: instead of assuming association-list operations already exist,
+   define [insert key value bindings] to prepend the binding. Define recursive
    [lookup key bindings] to return the value from the first matching pair, or
    [None] when absent.
 
    Insert x=1, then y=2, then x=3. Test that lookup returns 3 for x, 2 for y,
-   and [None] for z.
+   and [None] for z. After every required assertion and written explanation in
+   E05 is present, print exactly [E05 passed].
    Example form: [let labels bindings = List.map fst bindings]
    Build and run before continuing. *)

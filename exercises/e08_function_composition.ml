@@ -10,7 +10,8 @@
    [twice square], without adding a final parameter.
 
    Annotate both [quad] and [fourth] with [int -> int]. Test [quad 3] and
-   [fourth 2].
+   [fourth 2]. In a comment, explain why [quad] is a function even though its
+   definition does not explicitly name the final integer argument.
    Example form: [let apply_once f x = f x]
    Build and run before continuing. *)
 
@@ -22,13 +23,20 @@
    Example form: [let ( @@? ) f x = f x]
    Build and run before continuing. *)
 
-(* Task 3 — Define forward composition.
-   Define [(%>) f g x = g (f x)]. Annotate it with
-   [('a -> 'b) -> ('b -> 'c) -> 'a -> 'c].
+(* Task 3 — Investigate composition operators.
+   First define [(@@) f g x = x |> g |> f], temporarily shadowing OCaml's usual
+   [@@] operator. Before evaluating it, predict the result of
+   [(String.length @@ string_of_int) 1], the same expression applied to 10, and
+   the same expression applied to 100. Check the predictions, record the
+   inferred type, and explain in a comment that the operator composes from right
+   to left. Do not use this temporary [@@] definition after this task.
+
+   Extension: define forward composition [(%>) f g x = g (f x)]. Annotate it
+   with [('a -> 'b) -> ('b -> 'c) -> 'a -> 'c].
 
    Test composing integer increment with [string_of_int] on 9, and composing
    [String.length] with [double] on ["abc"].
-   Example form: [let ( <.> ) left right = left *. right]
+   Example form: [let compose f g x = f (g x)]
    Build and run before continuing. *)
 
 (* Task 4 — Repeat a function [n] times.
@@ -48,7 +56,7 @@
    Example form: [let uncurried_add (a, b) = ( + ) a b]
    Build and run before continuing. *)
 
-(* Task 6 — Partially apply sorting.
+(* Task 6 — Extension: partially apply sorting.
    Define [descending] by partially applying [List.sort] to an integer comparator
    that orders greater values first. Annotate [descending] with
    [int list -> int list]. Test [] and [2; 1; 3; 2].
@@ -60,7 +68,9 @@
    values as [List.map f (List.map g xs)].
 
    Test [map_fused string_of_int (( + ) 1) [1; 2; 3]] and compare it with the
-   two-pass expression. Add a comment stating that effects and exception timing
-   can make the two implementations observably different.
+   two-pass expression. Extension: add a comment stating that effects and
+   exception timing can make the two implementations observably different.
+   After every required assertion and written explanation in E08 is present,
+   print exactly [E08 passed].
    Example form: [let squared xs = List.map (fun x -> x * x) xs]
    Build and run before continuing. *)

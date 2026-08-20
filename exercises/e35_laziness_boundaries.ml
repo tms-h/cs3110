@@ -6,7 +6,8 @@
 (* Task 1 — Delay the whole sequence node.
    Define ['a sequence = Cons of (unit -> 'a * 'a sequence)]. Define [head] and
    [tail] by invoking the stored thunk. Define [naturals_from n] and [map f s].
-   This representation delays both the first value and tail but does not memoize.
+   In comments, explain why delaying the entire node makes this representation
+   lazier than the representation in E33, and why it still does not memoize.
 
    Test natural 10, the next value 11, and mapped value 22. Use a counter to test
    calling [head] twice invokes the same thunk twice.
@@ -15,7 +16,7 @@
 
 (* Task 2 — Observe [Lazy.t] memoization.
    Define [lazy_hello : unit Lazy.t] whose body increments a counter and prints
-   ["hello"]. Force the same value twice. Test the counter equals 1 and both
+   ["Hello lazy world"]. Force the same value twice. Test the counter equals 1 and both
    forces return unit.
 
    Explain why this differs from a plain [unit -> unit] thunk.
@@ -49,14 +50,16 @@
 
    Test the first three even naturals, construction without forcing, and repeated
    forcing of one result node without repeated predicate calls.
-   Example form: [let delayed_check predicate source = lazy (let LCons (x, _) = Lazy.force source in predicate x)]
+   Example node form: [lazy (LCons (value, delayed_tail))]
    Build and run before continuing. *)
 
-(* Task 6 — Zip with precise forcing.
+(* Extension Task 6 — Zip with precise forcing.
    Define [lazy_zip a b] so forcing one output node forces one node from each
    input and returns their value pair plus a delayed zip of both tails.
 
    Use separate counters. Test construction forces neither input, one output
    force increments both once, and a repeated force increments neither again.
-   Example form: [lazy (let LCons (x, _) = Lazy.force left and LCons (y, _) = Lazy.force right in (x, y))]
+   Example output shape: [lazy (LCons ((x, y), delayed_pairs))]
+   After every required forcing explanation and assertion in E35 is present and
+   passing, print the exact line ["E35 passed"] once, and not earlier.
    Build and run before continuing. *)

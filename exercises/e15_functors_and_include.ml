@@ -4,50 +4,54 @@
     [opam exec -- dune exec exercises/e15_functors_and_include.exe] Inspect:
     [opam exec -- ocamlc -i exercises/e15_functors_and_include.ml] *)
 
-(* Task 1 — Define a printing functor.
-   Define module type [TO_STRING] with type [t] and
-   [to_string : t -> string]. Define functor [Print (M : TO_STRING)] whose result
-   exposes only [print : M.t -> unit]. [print x] must print [M.to_string x]
-   followed by a newline.
+(* Task 1 — Define [ToString] and [Print].
+   Define module type [ToString] with abstract type [t] and
+   [to_string : t -> string]. Define functor [Print (M : ToString)]. Its result
+   must expose exactly one value, [print : M.t -> unit]. [print x] prints
+   [M.to_string x] followed by a newline.
 
-   Define one local argument module whose conversion increments a counter. Call
-   its generated printer once and test that the counter equals 1.
-   Example form: [module Show (M : TO_TEXT) = struct let show x = print_endline (M.to_text x) end]
+   Add a local argument module whose conversion increments a counter. Call its
+   generated printer once and assert that the conversion ran exactly once.
+   Before coding, write down the result signature you expect from [Print].
    Build and run before continuing. *)
 
-(* Task 2 — Instantiate the functor.
-   Define [My_int] with [type t = int] and [to_string = string_of_int]. Define
-   [My_string] with [type t = string] and identity conversion. Define
-   [Print_int = Print (My_int)] and [Print_string = Print (My_string)].
+(* Task 2 — Instantiate the functor without losing type sharing.
+   Define [Int] with [type t = int] and [to_string = string_of_int]. Define
+   [MyString] with [type t = string] and identity conversion. Leave those
+   modules unsealed, or ascribe them with [ToString with type t = int] and
+   [ToString with type t = string]. An opaque [Int : ToString] would hide the
+   fact that [Int.t = int] and make [PrintInt.print 3110] ill-typed.
 
-   Test both conversion functions directly on 3110 and ["modules"], then call
-   both generated printers with those values.
-   Example form: [module Show_bool = Show (Bool_text)]
+   Define [PrintInt = Print (Int)] and [PrintString = Print (MyString)]. Test
+   the conversions directly, then call both printers. Add annotations proving
+   [PrintInt.print : int -> unit] and [PrintString.print : string -> unit].
    Build and run before continuing. *)
 
-(* Task 3 — Reuse with [include].
-   Define [String_with_print] by including [String] and [Print (My_string)]. Do
-   not copy either implementation.
-
-   Test [String_with_print.uppercase_ascii "reuse"] equals ["REUSE"], then print
-   that result with [String_with_print.print].
-   Example form: [module Extended = struct include Base include Extra end]
+(* Task 3 — Explain the reuse.
+   In a comment, explain which code is written once, which modules supply the
+   changing behavior, and why applying [Print] twice is code reuse rather than
+   copied implementations. Mention the role of [M.t] in the generated type.
    Build and run before continuing. *)
 
-(* Task 4 — Define a debugging functor.
-   Define module type [DEBUGGABLE] with type [t] and
-   [to_debug_string : t -> string]. Define functor [Debug] exposing only
-   [dump : M.t -> unit], which prints ["DEBUG: " ^ M.to_debug_string x].
+(* Task 4 — Reuse with [include].
+   Define [StringWithPrint] without copying any implementation. It must expose
+   all values from [String] and the [print] operation generated from [MyString].
+   Use two [include] statements.
 
-   Instantiate it for integers, test the underlying conversion on -7, and call
-   [dump] on -7.
-   Example form: [module Trace (M : RENDERABLE) = struct let trace x = print_endline ("TRACE " ^ M.render x) end]
+   Assert [StringWithPrint.uppercase_ascii "reuse" = "REUSE"], then print that
+   result with [StringWithPrint.print]. Inspect the inferred interface and
+   confirm both operations are present.
    Build and run before continuing. *)
 
-(* Task 5 — Inspect generated interfaces.
-   Run the inspection command. Add type annotations proving
-   [Print_int.print : int -> unit] and [Print_string.print : string -> unit].
-   In comments, compare functors with C++ templates and dependency injection,
-   naming one difference from each.
-   Example form: [let _ : bool -> string = string_of_bool]
-   Build and run before continuing. *)
+(* Extension — Generalize the pattern.
+   Define module type [Debuggable] with [to_debug_string], then a [Debug]
+   functor exposing only [dump]. Instantiate it for integers. Unlike Task 1,
+   first write its complete input and output signatures without using the
+   [Print] implementation as a template.
+
+   In comments, compare an OCaml functor with a C++ template and with dependency
+   injection, naming one concrete difference from each. *)
+
+(* Final task — Completion marker.
+   Only after every required assertion and written explanation above is present
+   and passing, make the completed program print exactly [E15 passed] once. *)

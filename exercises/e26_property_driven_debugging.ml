@@ -1,57 +1,68 @@
-(** E26 — Property-driven debugging (85-120 min)
+(** E26 — QCheck-driven debugging (85-120 min)
 
-    Build: [opam exec -- dune build exercises/e26_property_driven_debugging.exe] Run:
-    [opam exec -- dune exec exercises/e26_property_driven_debugging.exe] *)
+    Required opam package: [qcheck]. The dedicated Dune stanza for this
+    executable must link [qcheck].
 
-(* Task 1 — Reproduce a factor bug.
-   Define [least_odd_factor_buggy n] exactly as follows: return 1 for [n <= 2];
-   otherwise search candidates 3, 5, 7, ...; return [candidate] when
-   [candidate * candidate >= n], return it when it divides [n], and otherwise
-   continue.
+    Build: [opam exec -- dune build exercises/e26_property_driven_debugging.exe]
+    Run: [opam exec -- dune exec exercises/e26_property_driven_debugging.exe] *)
 
-   For [n >= 1], the intended result is the least odd divisor at least 3, or 1
-   when no such divisor exists. Define [smallest_bad_factor_input ()] by exhaustive
-   search. Test that it returns 4 and that the buggy result for 4 violates the
-   intended contract.
-   Example form: [let rec first_failure n = if implementation n <> oracle n then n else first_failure (n + 1)]
+(* Task 1 — Test the textbook's buggy odd divisor with QCheck.
+   Define this source function exactly, including the flawed upper-bound branch:
+
+   [let odd_divisor x =]
+   [  if x < 3 then 1 else]
+   [    let rec search y =]
+   [      if y >= x then y]
+   [      else if x mod y = 0 then y]
+   [      else search (y + 2)]
+   [    in]
+   [    search 3]
+
+   Its stated precondition is [x >= 0]. Construct a QCheck arbitrary for small
+   positive integers and test the claimed postcondition: the result is odd and
+   divides the input. Run the property with the QCheck runner and record the
+   reported seed, counterexample, and shrink result. In the final passing suite,
+   retain this known-bug check with [QCheck.Test.make_neg] and rerun it from the
+   recorded seed so success is reproducible.
+
+   Then search upward deterministically only to answer the source question:
+   assert that the smallest positive failing input is 4. Explain exactly which
+   branch returns a non-divisor.
    Build and run before continuing. *)
 
-(* Task 2 — Repair least odd factor.
-   Define [least_odd_factor n] with the intended contract from Task 1 and raise
-   [Invalid_argument "factor"] for [n < 1]. Stop with 1 only after proving no
-   candidate up to the square root divides [n].
+(* Task 2 — Test the textbook's buggy average with an oracle.
+   Define [avg] with the source's tail-recursive pair scan: a final singleton is
+   counted normally; an unequal adjacent pair contributes both values and count
+   2; an equal adjacent pair incorrectly contributes one copy and count 1.
 
-   Test 1, 2, 3, 4, 9, 25, and 49. For every n from 1 through 500, test the result
-   is 1 or an odd divisor, and no smaller odd integer at least 3 divides n.
-   Example form: [let valid_divisor n candidate = n mod candidate = 0]
+   Define an obviously correct [avg_reference] using a sum fold and list length.
+   Both functions require a nonempty integer list. Build a QCheck arbitrary for
+   nonempty, bounded integer lists, include a useful printer and shrinker, and
+   test approximate equality between [avg] and the oracle. Run enough cases to
+   expose the bug and record the minimized counterexample. The property must call
+   the independent reference implementation; do not repeat the optimized scan.
+   Record the failing seed too. Retain the known-bug property with
+   [QCheck.Test.make_neg] and its recorded seed so the final executable treats
+   finding that counterexample as reproducible expected success. Use [run_tests]
+   and assert its return code is zero; [run_tests_main] exits before a completion
+   marker could run.
    Build and run before continuing. *)
 
-(* Task 3 — Define a mean oracle.
-   Define [mean_reference xs] as floating-point sum divided by length, using a
-   fold and [List.length]. Raise [Invalid_argument "mean"] for []. Define
-   [close a b] as absolute difference less than [1e-12].
+(* Extension — Repair odd divisors.
+   Define a corrected [least_odd_divisor] for positive integers. Return the least
+   odd divisor at least 3, or 1 when none exists. State how odd primes, even
+   powers of two, and invalid inputs behave. Test examples and a QCheck property
+   that verifies divisibility and minimality without multiplying candidates in
+   a way that can overflow. *)
 
-   Test [1], [-2; 0; 2], [1; 2; 3; 4], and [].
-   Example form: [let range values = List.fold_left max min_int values - List.fold_left min max_int values]
-   Build and run before continuing. *)
+(* Extension — Repair and stress average.
+   Define [avg_repaired] with the same contract as [avg_reference]. Check the
+   minimized QCheck counterexample, then run a deterministic stress comparison.
+   If you also implement manual deletion shrinking, consider only nonempty
+   deletions, restart at index 0 after each successful deletion, and stop only
+   when no single deletion preserves failure. *)
 
-(* Task 4 — Reproduce and shrink a mean bug.
-   Define [mean_fast_buggy xs] with a tail-recursive pair scan. For equal adjacent
-   [a] and [b], add only [a] and increase count by 1; otherwise add both and
-   increase count by 2; handle a final singleton normally.
-
-   Define [smallest_bad_mean_input ()] by enumerating nonempty lists in increasing
-   length and lexicographic element order over -2 through 2. After the first
-   disagreement, repeatedly delete the leftmost element whose removal preserves
-   disagreement. Test the returned list disagrees with [mean_reference] and no
-   single-element deletion still disagrees.
-   Example form: [let still_fails sample = not (close (candidate sample) (oracle sample))]
-   Build and run before continuing. *)
-
-(* Task 5 — Repair and stress the mean.
-   Define [mean_repaired xs] with the same contract as [mean_reference]. Test the
-   minimized counterexample from Task 4. Then generate 10,000 deterministic
-   nonempty lists of length 1 through 20 and values -100 through 100; assert the
-   repaired result is [close] to the oracle for every list.
-   Example form: [for trial = 1 to 500 do let sample = generate state in assert (candidate sample = oracle sample) done]
-   Build and run before continuing. *)
+(* Final task — Completion marker.
+   Only after both source bugs have failing QCheck properties, recorded minimized
+   counterexamples, and correct explanations, make the program print exactly
+   [E26 passed] once. *)
