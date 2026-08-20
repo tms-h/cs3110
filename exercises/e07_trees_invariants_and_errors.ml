@@ -30,6 +30,11 @@
    [assert_equal] check for the maximum of a nonempty list. Also cover a
    singleton and an all-negative list. Ordinary [assert] statements do not
    satisfy this task; the point is to practise the OUnit framework.
+
+   Later tasks and the completion marker must still execute. Run the suite with
+   [run_test_tt_main ~exit:(fun code -> if code <> 0 then Stdlib.exit code)].
+   The default runner calls [exit 0] even on success, which would silently skip
+   every following top-level check.
    Example form: [let first_exn = function [] -> failwith "missing" | x :: _ -> x]
    Build and run before continuing. *)
 

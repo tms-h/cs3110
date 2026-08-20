@@ -46,9 +46,9 @@ full coverage.
 |  | E33 | Direct + labelled extensions | pow2; more sequences; nth; hd tl; filter; interleave |
 |  | E34 | Direct + labelled extensions | sift; primes; approximately e; better e |
 |  | E35 | Direct + labelled forcing extensions | different sequence rep; lazy hello; lazy and; lazy sequence |
-| [PDF §12.8 / web Interpreters](https://cs3110.github.io/textbook/chapters/interp/exercises.html) | E36 | Direct formal/orientation work + labelled parser extension | parse; simpl ids; times parsing; infer; subexpression types; typing |
+| [PDF §12.8 / web Interpreters](https://cs3110.github.io/textbook/chapters/interp/exercises.html) | E36 | Direct through real SimPL/ocamllex/Menhir stages + labelled recursive-descent extension | parse; simpl ids; times parsing; infer; subexpression types; typing |
 |  | E37 | Direct labelled semantics + implementation extensions | substitution; step expressions; step let expressions; variants; application; omega |
-|  | E38 | Direct formal language extension + implementation extensions | pair parsing; pair type checking; pair evaluation; desugar list; list not empty; generalize patterns |
+|  | E38 | Direct through one cumulative SimPL pair stage + labelled richer-language extensions | pair parsing; pair type checking; pair evaluation; desugar list; list not empty; generalize patterns |
 |  | E39 | Direct derivations and both substitution/environment recursion models | let rec; simple expressions; let and match expressions; closures; lexical scope and shadowing; more evaluation; dynamic scope; more dynamic scope |
 |  | E40 | Direct manual inference work + implementation extensions | constraints; unify; unify more; infer apply; infer double; infer S |
 | [PDF §13.7 / web Curry-Howard](https://cs3110.github.io/textbook/chapters/adv/curry-howard.html#exercises) | E41 | Direct + labelled extensions | propositions as types; programs as proofs; evaluation as simplification |

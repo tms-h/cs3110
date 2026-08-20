@@ -100,11 +100,18 @@ counterpart.
 
 E16 uses four real compilation-unit stages under
 `exercises/e16_interface_stages/`. Follow its stage-specific build and utop
-commands rather than simulating `.mli` behavior with nested modules.
+commands rather than simulating `.mli` behavior with nested modules. The
+completion gate builds all four stages.
 
 E25 and E26 use the textbook's actual testing tools. Their prompts contain the
 OUnit, Bisect, and QCheck commands and state what evidence to inspect. A custom
 random loop does not satisfy a QCheck task.
+
+E36 uses three complete SimPL projects under `exercises/e36_simpl_stages/` to
+make the textbook's actual ocamllex/Menhir associativity and precedence
+experiments reproducible. E38 uses one cumulative learner-edited SimPL project
+under `exercises/e38_pair_stage/work/`; its black-box check must fail before
+pair support and pass only after parsing, typing, and both evaluators agree.
 
 E36-E40 preserve manual parser observations, labelled operational traces,
 typing derivations, constraint collection, and unification work before asking

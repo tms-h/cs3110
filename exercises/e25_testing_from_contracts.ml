@@ -32,7 +32,10 @@
    the Task 1 implementations instead of counting the OUnit/QCheck harness as
    code under test. Do not place the attribute before [ListSet] or [UniqListSet].
 
-   Run the suite with an OUnit runner and preserve the full test output.
+   Run the suite with
+   [run_test_tt_main ~exit:(fun code -> if code <> 0 then Stdlib.exit code)]
+   and preserve the full test output. The default successful exit callback would
+   otherwise skip later Bisect/QCheck work and the completion marker.
    Build and run before continuing. *)
 
 (* Task 3 — Measure glass-box coverage with Bisect.
