@@ -13,31 +13,27 @@
    Test negative, zero, shorter, exact-length, and longer counts.
    Build and run before continuing. *)
 
-
 (* cleaner implementation gpt gave me lol *)
 let rec take n xs =
   if n < 0 then invalid_arg "neg n"
-  else
-    match n, xs with
-    | 0, _ | _, [] -> []
-    | n, x :: rest -> x :: take (n - 1) rest
+  else match (n, xs) with 0, _ | _, [] -> [] | n, x :: rest -> x :: take (n - 1) rest
 
 let rec drop n xs =
   if n < 0 then invalid_arg "neg n"
   else
-    match n, xs with
+    match (n, xs) with
     | 0, rest -> rest
     | _, [] -> []
-    | n, _ :: rest -> drop (n-1) rest
+    | n, _ :: rest -> drop (n - 1) rest
 
 (* im not gonna bother trying -n *)
 let () =
   assert (take 1 [] = []);
-  assert (take 5 [1; 2; 3] = [1; 2; 3]);
-  assert (take 2 [1; 2; 3] = [1; 2]);
+  assert (take 5 [ 1; 2; 3 ] = [ 1; 2; 3 ]);
+  assert (take 2 [ 1; 2; 3 ] = [ 1; 2 ]);
   assert (drop 5 [] = []);
-  assert (drop 5 [1; 2; 3; 4; 5; 6; 7] = [6; 7]);
-  assert (drop 10 [1; 2; 3; 4; 5; 6; 7] = [])
+  assert (drop 5 [ 1; 2; 3; 4; 5; 6; 7 ] = [ 6; 7 ]);
+  assert (drop 10 [ 1; 2; 3; 4; 5; 6; 7 ] = [])
 
 (* Task 2 — Make [take] tail-recursive and inspect [drop].
    Define [take_tr n xs] with the same contract as [take]. Use a reversed-prefix
@@ -52,28 +48,27 @@ let () =
    Example form: [let rec loop reversed = function [] -> List.rev reversed | x :: xs -> loop (x :: reversed) xs]
    Build and run before continuing. *)
 
-let take_tr n xs = 
-  if (n < 0) then invalid_arg "neg n"
+let take_tr n xs =
+  if n < 0 then invalid_arg "neg n"
   else
-    let rec loop remaining acc left = 
-      match remaining, left with
+    let rec loop remaining acc left =
+      match (remaining, left) with
       | _, [] | 0, _ -> acc
       | _, x :: rest -> loop (remaining - 1) (x :: acc) rest
-    in 
+    in
     List.rev (loop n [] xs)
 
 (* we dont need any acc so we dont need this 
    tail recursive because recursive call to drop is final performed lul*)
-let drop_tr n xs =
-  drop n xs
+let drop_tr n xs = drop n xs
 
 let () =
   assert (take_tr 1 [] = []);
-  assert (take_tr 5 [1; 2; 3] = [1; 2; 3]);
-  assert (take_tr 2 [1; 2; 3] = [1; 2]);
+  assert (take_tr 5 [ 1; 2; 3 ] = [ 1; 2; 3 ]);
+  assert (take_tr 2 [ 1; 2; 3 ] = [ 1; 2 ]);
   assert (drop_tr 5 [] = []);
-  assert (drop_tr 5 [1; 2; 3; 4; 5; 6; 7] = [6; 7]);
-  assert (drop_tr 10 [1; 2; 3; 4; 5; 6; 7] = [])
+  assert (drop_tr 5 [ 1; 2; 3; 4; 5; 6; 7 ] = [ 6; 7 ]);
+  assert (drop_tr 10 [ 1; 2; 3; 4; 5; 6; 7 ] = [])
 
 (* Task 3 — Recognize unimodal lists.
    Define [is_unimodal xs] to return true exactly when the list is first
@@ -93,25 +88,20 @@ let is_unimodal xs =
   let rec loop phase last rest =
     match rest with
     | [] -> true
-    | curr :: tail ->
-      match phase with
-      | Rising -> 
-        if (curr >= last) then loop Rising curr tail
-        else loop Falling curr tail
-      | Falling -> 
-        if (curr <= last) then loop Falling curr tail
-        else false
+    | curr :: tail -> (
+        match phase with
+        | Rising ->
+            if curr >= last then loop Rising curr tail else loop Falling curr tail
+        | Falling -> if curr <= last then loop Falling curr tail else false)
   in
-  match xs with 
-  | [] -> true
-  | first :: rest -> loop Rising first rest
+  match xs with [] -> true | first :: rest -> loop Rising first rest
 
-let () = 
-  assert (is_unimodal [0; 1; 2; 3; 4; 5; 4; 3; 2]);
-  assert (is_unimodal [0; 1; 2; 3; 4; 5]);
+let () =
+  assert (is_unimodal [ 0; 1; 2; 3; 4; 5; 4; 3; 2 ]);
+  assert (is_unimodal [ 0; 1; 2; 3; 4; 5 ]);
   assert (is_unimodal []);
-  assert (is_unimodal [5; 4; 3; 2; 1]);
-  assert (not (is_unimodal [5; 4; 3; 2; 1; 2]))
+  assert (is_unimodal [ 5; 4; 3; 2; 1 ]);
+  assert (not (is_unimodal [ 5; 4; 3; 2; 1; 2 ]))
 
 (* Task 4 — Generate a powerset.
    Assume [xs] has no duplicate elements. Define [powerset xs] to return every
@@ -126,16 +116,16 @@ let () =
 
 let rec powerset xs =
   match xs with
-  | [] -> [[]]
-  | x :: tail -> 
-    let tails = powerset tail in
-    let with_x = (List.map (fun subset -> x :: subset) tails) in
-    with_x @ tails
+  | [] -> [ [] ]
+  | x :: tail ->
+      let tails = powerset tail in
+      let with_x = List.map (fun subset -> x :: subset) tails in
+      with_x @ tails
 
-let () = 
-  assert (powerset [] = [[]]);
-  assert (powerset [1; 2] |> List.length = 4);
-  assert (powerset [1; 2; 3] |> List.length = 8)
+let () =
+  assert (powerset [] = [ [] ]);
+  assert (powerset [ 1; 2 ] |> List.length = 4);
+  assert (powerset [ 1; 2; 3 ] |> List.length = 8)
 
 (* Task 5 — Print with two traversal styles.
    Define [print_int_list xs] recursively and [print_int_list_iter xs] with
@@ -149,17 +139,16 @@ let () =
 
 let rec print_int_list = function
   | [] -> ()
-  | x :: rest -> 
-    print_endline (string_of_int x); 
-    print_int_list rest
+  | x :: rest ->
+      print_endline (string_of_int x);
+      print_int_list rest
 
-let print_int_list_iter xs = 
-  List.iter (fun x -> print_endline (string_of_int x)) xs
+let print_int_list_iter xs = List.iter (fun x -> print_endline (string_of_int x)) xs
 
 let () =
-  print_int_list [1; 2; 5; 4; 3];
+  print_int_list [ 1; 2; 5; 4; 3 ];
   print_newline ();
-  print_int_list_iter [1; 2; 5; 4; 3];
+  print_int_list_iter [ 1; 2; 5; 4; 3 ];
   print_newline ()
 
 (* Task 6 — Extension: split into chunks.
@@ -180,38 +169,33 @@ let chunks_of width xs =
       match rest with
       | [] -> acc
       | _ ->
-        let rec loop2 remaining acc2 rest2 =
-          match remaining, rest2 with
-          | 0, _ -> (List.rev acc2, rest2)
-          | _, [] -> (List.rev acc2, rest2)
-          | _, x :: rest3 -> loop2 (remaining - 1) (x :: acc2) (rest3)
-        in 
-        let chunk, remaining = loop2 width [] rest in
-        loop (chunk :: acc) remaining
-      in List.rev (loop [] xs)
+          let rec loop2 remaining acc2 rest2 =
+            match (remaining, rest2) with
+            | 0, _ -> (List.rev acc2, rest2)
+            | _, [] -> (List.rev acc2, rest2)
+            | _, x :: rest3 -> loop2 (remaining - 1) (x :: acc2) rest3
+          in
+          let chunk, remaining = loop2 width [] rest in
+          loop (chunk :: acc) remaining
+    in
+    List.rev (loop [] xs)
 
-let better_chunks_of width xs = 
+let better_chunks_of width xs =
   if width <= 0 then invalid_arg "width <= 0"
   else
     let rec loop remaining current groups rest =
-      match rest with 
-      | [] -> 
-        if current = [] then
-          List.rev groups
-        else
-          List.rev (List.rev current :: groups)
+      match rest with
+      | [] ->
+          if current = [] then List.rev groups else List.rev (List.rev current :: groups)
       | x :: tail ->
-        if remaining = 1 then
-          loop width [] (List.rev (x :: current) :: groups) tail
-        else
-          loop (remaining - 1) (x :: current) groups tail
-    in 
+          if remaining = 1 then loop width [] (List.rev (x :: current) :: groups) tail
+          else loop (remaining - 1) (x :: current) groups tail
+    in
     loop width [] [] xs
 
-
 let () =
-  assert (chunks_of 2 [1; 2; 3; 4; 5; 6; 7] = [[1;2]; [3;4]; [5;6]; [7]]);
-  assert (better_chunks_of 2 [1; 2; 3; 4; 5; 6; 7] = [[1;2]; [3;4]; [5;6]; [7]])
+  assert (chunks_of 2 [ 1; 2; 3; 4; 5; 6; 7 ] = [ [ 1; 2 ]; [ 3; 4 ]; [ 5; 6 ]; [ 7 ] ]);
+  assert (
+    better_chunks_of 2 [ 1; 2; 3; 4; 5; 6; 7 ] = [ [ 1; 2 ]; [ 3; 4 ]; [ 5; 6 ]; [ 7 ] ])
 
-let () =
-  print_endline "all test cases passed !! :)"
+let () = print_endline "all test cases passed !! :)"
