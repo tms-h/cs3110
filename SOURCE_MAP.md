@@ -68,3 +68,30 @@ full coverage.
 | Interpreters | 32 |
 | Curry-Howard | 3 |
 | **Total** | **208** |
+
+## Supplemental practice provenance
+
+These 15 task blocks are not part of the 208-exercise textbook count above.
+They consolidate selected ideas from
+[MassD/99 commit `aa564de`](https://github.com/MassD/99/tree/aa564decb846577e74de4bc91ba8d8f0d6f5960a)
+(MIT) when adjacent upstream steps would otherwise repeat the same traversal.
+The local prompts specify deterministic order, invalid inputs, adversarial
+checks, and completion evidence independently of the upstream implementations.
+
+| Local task | MassD/99 seed | Placement rationale |
+|---|---|---|
+| E06 Task 8 | [P07 nested-list flattening](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L57) | First recursive variant whose children alternate between nodes and lists |
+| E06 Task 9 | [P09-P13 run-length progression](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L75) | One direct codec and round-trip invariant replace five repetitive steps |
+| E09 Task 9 | [P28 length-frequency sorting](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L219) | Histogram, derived sort keys, stability, and a whole-input cost bound |
+| E12 Task 7 | [P50 Huffman coding](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L391) | Priority worklists and their costs contrast with the lab's FIFO queues |
+| E22 Task 7 | [P26-P27 combinations and grouping](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L203) | A real nondeterministic-search client for list-monad bind |
+| E32 Task 7 | [P68 traversal reconstruction](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L639) | Inverts the existing preorder and inorder traversals with explicit ambiguity checks |
+| E32 Task 8 | [P55 completely balanced trees](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L430) | Generates every valid shape instead of auditing a supplied tree |
+| E33 Task 8 | [P49 Gray code](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L374) | Corrected reflected-code layers become a productive sequence with forcing checks |
+| E34 Task 8 | [P35-P36 factorization](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L271) | Consumes the existing prime stream and retains multiplicities |
+| E34 Task 9 | [P34 and P37-P38 totients](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L259) | Compares a definition with a factorization-based algorithm |
+| E34 Task 10 | [P40 Goldbach pairs](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L312) | A deterministic finite client of prime generation |
+| E42 Task 1 | [P80 representation conversion](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L767) and [P87 DFS](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L844) | Establishes one precise graph contract and one-start traversal |
+| E42 Task 2 | [P81 simple paths](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L771) | Contrasts path-local visited state with global traversal state |
+| E42 Task 3 | [P88 connected components](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L848) | Reuses one-start traversal to cover disconnected and isolated vertices |
+| E42 Task 4 | [P89 bipartite graphs](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L852) | Adds deterministic two-colour propagation and odd-cycle conflicts |

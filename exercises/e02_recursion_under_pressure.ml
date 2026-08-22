@@ -16,15 +16,14 @@
    Example form: [let season name = match name with "June" -> Some `Winter | _ -> None]
    Build and run before continuing. *)
 
-let days_in_month month = 
+let days_in_month month =
   match month with
-  | "january" | "march" | "may" | "july"
-  | "august" | "october" | "december" -> Some 31
+  | "january" | "march" | "may" | "july" | "august" | "october" | "december" -> Some 31
   | "april" | "june" | "september" | "november" -> Some 30
   | "february" -> Some 28
   | _ -> None
 
-let valid_date day month = 
+let valid_date day month =
   match days_in_month month with
   | Some max_day -> day >= 1 && day <= max_day
   | None -> false
@@ -43,13 +42,11 @@ let () =
    Build and run before continuing. *)
 
 let rec fib n =
-  if (n < 1) then invalid_arg "bad fib"
-  else if (n <= 2) then 1
+  if n < 1 then invalid_arg "bad fib"
+  else if n <= 2 then 1
   else fib (n - 1) + fib (n - 2)
 
-
-let () =
-  assert (fib 10 = 55)
+let () = assert (fib 10 = 55)
 
 (* Task 3 — Define tail-recursive Fibonacci.
    Define [fib_fast n] with the same contract as [fib]. Use a tail-recursive
@@ -63,19 +60,13 @@ let () =
 
 let fib_fast n =
   let rec loop remaining current next =
-    if remaining = 0 then current
-    else loop (remaining - 1) next (current + next)
+    if remaining = 0 then current else loop (remaining - 1) next (current + next)
   in
-  if n < 0 then invalid_arg "fib: negative input"
-  else loop n 0 1
+  if n < 0 then invalid_arg "fib: negative input" else loop n 0 1
 
-let fact n = 
-  let rec loop acc n =
-    if n = 0 then acc
-    else loop (acc * n) (n - 1)
-  in
-  if n < 0 then invalid_arg "negative fact"
-  else loop 1 n
+let fact n =
+  let rec loop acc n = if n = 0 then acc else loop (acc * n) (n - 1) in
+  if n < 0 then invalid_arg "negative fact" else loop 1 n
 
 let () =
   assert (fib_fast 10 = 55);
@@ -91,10 +82,7 @@ let () =
    Build and run before continuing. *)
 
 let first_nonpositive_fib () =
-  let rec loop n =
-    if fib_fast n <= 0 then n
-    else loop (n + 1)
-  in
+  let rec loop n = if fib_fast n <= 0 then n else loop (n + 1) in
   loop 1
 
 let () =
@@ -116,22 +104,17 @@ let () =
 
 let fib_buggy n =
   let rec loop remaining previous current =
-    if remaining = 1 then previous
-    else loop (remaining - 1) current (previous + current)
+    if remaining = 1 then previous else loop (remaining - 1) current (previous + current)
   in
   loop n 0 1
 
-let first_fib_diff () = 
-  let rec loop n =
-    if (fib_buggy n <> fib_fast n) then n
-    else loop (n+1)
-  in
+let first_fib_diff () =
+  let rec loop n = if fib_buggy n <> fib_fast n then n else loop (n + 1) in
   loop 1
 
 let fib_repaired n =
   let rec loop remaining previous current =
-    if remaining = 1 then previous
-    else loop (remaining - 1) current (previous + current)
+    if remaining = 1 then previous else loop (remaining - 1) current (previous + current)
   in
   loop n 1 1
 
@@ -144,5 +127,4 @@ let () =
     assert (fib_repaired n = fib n && fib n = fib_fast n)
   done
 
-let () =
-  print_endline "all tests passed :)"
+let () = print_endline "all tests passed :)"

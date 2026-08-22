@@ -2,9 +2,11 @@
 
 This is an exercise-first companion to the pinned Fall 2026 edition of
 *OCaml Programming: Correct + Efficient + Beautiful*. It reorganizes the
-textbook's 208 public exercises into 41 cumulative labs while retaining the
-actual activity being taught: prediction, implementation, interface
+textbook's 208 public exercises into 41 cumulative core labs while retaining
+the actual activity being taught: prediction, implementation, interface
 experimentation, specification, testing-tool practice, derivation, or proof.
+Fifteen supplemental practice tasks are woven into the sequence from E06
+onward, including the thematically placed E42 graph lab.
 
 `SOURCE_MAP.md` is an exact inventory of the 208 source exercise names. Its
 status column distinguishes direct coverage, labelled extensions, and the
@@ -88,13 +90,31 @@ is intentionally not strictly numeric in the modules block:
 | 9 | E18-E19 | State, aliasing, and arrays |
 | 10 | E20-E22 | Promises, Lwt scheduling, and monads |
 | 11 | E23-E29 | Specifications, AF/RI, OUnit, Bisect, QCheck, and proofs |
-| 12 | E30-E35 | Hashing, trees, sequences, and laziness |
-| 13 | E36-E40 | Parsing, formal semantics, environments, and inference |
-| 14 | E41 | Curry-Howard synthesis |
+| 12 | E30-E32 | Hashing, probing, and ordered trees |
+| 13 | E42 | Supplemental graph representations and search |
+| 14 | E33-E35 | Productive sequences, numerical streams, and laziness |
+| 15 | E36-E40 | Parsing, formal semantics, environments, and inference |
+| 16 | E41 | Curry-Howard synthesis |
 
 Project-only material is retained where useful and is labelled `Extension`.
 An extension supplements the source exercise; it is not its mapped
 counterpart.
+
+## Supplemental 99 Problems practice
+
+The 15 added task blocks begin at E06; nothing was inserted into E01-E05. They
+were selected only where the existing sequence lacked the same exercise:
+recursive nested data and codecs, global sorting criteria, a priority worklist,
+list-monad search, generative trees, Gray-code layers, arithmetic clients of the
+prime stream, and graph search. E42 is numbered after the core sequence but is
+recommended immediately after E32 so it stays inside the data-structures block.
+
+The ideas are adapted from [MassD/99 at commit
+`aa564de`](https://github.com/MassD/99/tree/aa564decb846577e74de4bc91ba8d8f0d6f5960a),
+which is MIT-licensed. The prompts and edge-case contracts here are newly
+written; `SOURCE_MAP.md` records the exact selections separately from the 208
+textbook exercises. The supplemental tasks are ordinary numbered tasks, so the
+completion gate requires them rather than silently treating them as optional.
 
 ## Special workflows
 
@@ -140,4 +160,5 @@ differ from the older numbers embedded in the public website URLs;
 The textbook is © 2021-2026 Michael R. Clarkson et al. and distributed under
 CC BY-NC-ND 4.0. The exercise prompts here are newly written study material;
 the source names and links are a provenance index, not a claim of verbatim
-reproduction.
+reproduction. The supplemental provenance above is independent of the pinned
+textbook coverage count.

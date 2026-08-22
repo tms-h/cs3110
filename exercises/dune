@@ -36,7 +36,8 @@
   e38_extending_a_language
   e39_environments_and_recursion
   e40_unification_and_inference
-  e41_programs_as_proofs)
+  e41_programs_as_proofs
+  e42_graph_search)
  (libraries unix)
  (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
 

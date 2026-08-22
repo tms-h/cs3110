@@ -150,12 +150,7 @@ let rec lookup key = function
       if head_key = key then Some head_value else lookup key tail
 
 let () =
-  let bindings =
-    []
-    |> insert "x" 1
-    |> insert "y" 2
-    |> insert "x" 3
-  in
+  let bindings = [] |> insert "x" 1 |> insert "y" 2 |> insert "x" 3 in
 
   assert (lookup "x" bindings = Some 3);
   assert (lookup "y" bindings = Some 2);

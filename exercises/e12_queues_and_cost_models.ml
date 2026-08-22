@@ -1,4 +1,4 @@
-(** E12 — Queues and amortized cost (90-125 min)
+(** E12 — Queues, worklists, and amortized cost (135-185 min)
 
     Build: [opam exec -- dune build exercises/e12_queues_and_cost_models.exe] Run:
     [opam exec -- dune exec exercises/e12_queues_and_cost_models.exe] *)
@@ -73,7 +73,32 @@
    reversal costing O(n) still gives amortized O(1) dequeue: each element can be
    moved from [back] to [front] at most once before it is removed.
 
-   Retain the runtime equality tests from Task 5. After every required assertion
-   and written explanation in E12 is present, print exactly [E12 passed].
+   Retain the runtime equality tests from Task 5.
    Example form: [(* stack push: worst-case O(1); stack pop: worst-case O(1). *)]
+   Build and run before continuing. *)
+
+(* Task 7 — Supplemental practice: build a Huffman tree with a priority worklist.
+   Inspired by 99 Problems P50. Define
+   [type 'a huffman = HLeaf of 'a * int | HNode of int * 'a huffman * 'a huffman]
+   and [weight]. Define
+   [huffman_tree : equal:('a -> 'a -> bool) -> ('a * int) list ->
+     ('a huffman, string) result]. Use [equal] to reject duplicate symbols; also
+   reject an empty table and nonpositive frequencies. Otherwise keep a stable
+   worklist ordered by weight, repeatedly remove the two lightest trees, combine
+   them with the first as the left child, and reinsert the result after existing
+   trees of equal weight. The tie rule makes the construction deterministic.
+
+   Define [huffman_codes : 'a huffman -> ('a * string) list], assigning 0 to a
+   left edge and 1 to a right edge; a one-symbol tree receives code ["0"]. Also
+   define [weighted_path_length] as the sum of each frequency times its emitted
+   code length, and a check that no emitted code is a prefix of another. Test the
+   table
+   [[('a',45); ('b',13); ('c',12); ('d',16); ('e',9); ('f',5)]] has total
+   weight 100, weighted path length 224, and prefix-free codes. Cover one symbol
+   and every rejection case.
+
+   Derive the construction cost for a sorted-list worklist with [k] symbols,
+   then contrast it with a binary-heap worklist. After every required assertion
+   and written explanation in E12 is present, print exactly [E12 passed].
+   Example form: [let combined = HNode (weight left + weight right, left, right)]
    Build and run before continuing. *)

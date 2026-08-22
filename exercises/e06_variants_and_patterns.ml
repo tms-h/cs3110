@@ -1,4 +1,4 @@
-(** E06 — Variants and pattern matching (60-85 min)
+(** E06 — Variants and pattern matching (95-130 min)
 
     Build: [opam exec -- dune build exercises/e06_variants_and_patterns.exe] Run:
     [opam exec -- dune exec exercises/e06_variants_and_patterns.exe] *)
@@ -80,7 +80,42 @@
 (* Task 7 — Extension: classify axes without changing [quad].
    Define [classify_axis point] returning [`Origin], [`Axis_x], [`Axis_y], or
    [`Quadrant q] for a value [q : quad]. Test the origin, both axes, and one
-   quadrant. After every required assertion and written explanation in E06 is
-   present, print exactly [E06 passed].
+   quadrant.
    Example form: [let wrap color = `Colored color]
+   Build and run before continuing. *)
+
+(* Task 8 — Supplemental practice: flatten explicitly nested data.
+   Inspired by 99 Problems P07. Define
+   [type 'a nested = Atom of 'a | Group of 'a nested list], then define
+   [flatten : 'a nested list -> 'a list]. Preserve the left-to-right order of
+   atoms at every depth, including across empty groups. Use an accumulator or
+   continuation so the implementation does not repeatedly append growing
+   intermediate lists.
+
+   Test [], a flat list of atoms, empty groups, and at least three levels of
+   nesting. State why the result type is an ordinary homogeneous list even
+   though the input can have different shapes.
+   Example form: [Group [Atom 1; Group [Atom 2]]]
+   Build and run before continuing. *)
+
+(* Task 9 — Supplemental practice: design a run-length codec.
+   Inspired by 99 Problems P09-P13. Define
+   [type 'a run = Single of 'a | Repeat of int * 'a]. Define
+   [encode_runs : equal:('a -> 'a -> bool) -> 'a list -> 'a run list] directly:
+   scan once, use [equal] rather than polymorphic equality, combine only
+   consecutive equal values, emit [Single x] for a run of length one, and emit
+   [Repeat (count, x)] for a longer run. Do not first construct a list of packed
+   sublists.
+
+   Define [decode_runs : 'a run list -> ('a list, string) result]. Its
+   representation invariant is that [Repeat (count, _)] has [count >= 2]; return
+   [Error "invalid run length"] for a violation. Preserve order without repeated
+   append. Test empty and singleton inputs, separated runs of the same value, a
+   mixed round trip
+   [decode_runs (encode_runs ~equal:Char.equal xs) = Ok xs], and malformed
+   counts 0 and 1.
+
+   After every required assertion and written explanation in E06 is present,
+   print exactly [E06 passed].
+   Example form: [[Repeat (3, 'a'); Single 'b'; Repeat (2, 'a')]]
    Build and run before continuing. *)

@@ -1,4 +1,4 @@
-(** E32 — Ordered trees and red-black invariants (100-140 min)
+(** E32 — Ordered trees, generation, and red-black invariants (155-215 min)
 
     Build: [opam exec -- dune build exercises/e32_ordered_trees_and_traversal.exe] Run:
     [opam exec -- dune exec exercises/e32_ordered_trees_and_traversal.exe] Reading:
@@ -95,6 +95,43 @@
    history produced the tree.
    Example audit form: [match audit_rb Char.compare inserted_letters_tree with
    | Ok _ -> () | Error message -> failwith message]
+   Build and run before continuing. *)
+
+(* Task 7 — Supplemental practice: invert preorder and inorder traversals.
+   Inspired by 99 Problems P68. Define
+   [rebuild_pre_in : equal:('a -> 'a -> bool) -> 'a list -> 'a list ->
+     ('a tree, string) result]. Use [equal] for every label comparison. For a
+   successful input, both traversals contain the same distinct labels under that
+   equality and the result's [preorder] and [inorder] exactly reproduce the inputs. Return
+   [Error "duplicate label"] for a duplicate in either traversal,
+   [Error "length mismatch"] for different lengths, and
+   [Error "inconsistent traversals"] when no tree can have both orders.
+   Validate lengths first, then duplicates, then consistency so mixed-invalid
+   inputs have a deterministic error.
+
+   Test the empty tree and reconstruct the Task 3 tree containing 1 through 7
+   with [Int.equal].
+   Cover all three errors, including equal-length traversals with different
+   labels. Explain why distinct labels are necessary for a unique inverse and
+   derive the worst-case cost of repeatedly splitting the inorder list.
+   Example form: [match preorder with root :: rest -> split_at_root root inorder]
+   Build and run before continuing. *)
+
+(* Task 8 — Supplemental practice: enumerate completely balanced shapes.
+   Inspired by 99 Problems P55. Define
+   [completely_balanced : int -> (unit tree list, string) result]. Return
+   [Error "negative node count"] for a negative input. For [n >= 0], enumerate
+   every binary-tree shape with exactly [n] nodes in which the two child node
+   counts at every node differ by at most one. Return each shape exactly once;
+   [n = 0] has the one solution [Leaf].
+
+   Define [node_count] and [is_completely_balanced] as independent checks. Test
+   counts 0 and 1, and assert count 4 produces exactly four distinct valid
+   shapes, each with four nodes. Do not test a large count: the output grows
+   exponentially. Explain why an even number of remaining child nodes needs one
+   size split while an odd number needs both left/right orientations.
+
    After every required construction, explanation, and assertion in E32 is
    present and passing, print the exact line ["E32 passed"] once, and not earlier.
+   Example form: [let smaller = (n - 1) / 2 in let larger = n - 1 - smaller]
    Build and run before continuing. *)

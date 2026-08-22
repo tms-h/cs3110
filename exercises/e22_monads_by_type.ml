@@ -1,4 +1,4 @@
-(** E22 — Monads from their types and laws (85-115 min)
+(** E22 — Monads from their types and laws (120-165 min)
 
     Build: [opam exec -- dune build exercises/e22_monads_by_type.exe] Run:
     [opam exec -- dune exec exercises/e22_monads_by_type.exe] Inspect:
@@ -53,7 +53,30 @@
    denotes multiple results rather than concurrent execution.
    Build and run before continuing. *)
 
-(* Task 7 — Prove the trivial monad laws.
+(* Task 7 — Supplemental practice: use list bind for grouping choices.
+   Inspired by 99 Problems P26-P27. Define
+   [choose_with_remainder k xs], returning every way to select exactly [k]
+   positions from [xs] together with the unselected positions. Each selected
+   list and remainder must preserve input order, and each positional choice must
+   occur once. Return [] when [k < 0] or [k > List.length xs]. The recursive
+   choose/skip branch must combine results with [ListMonad.(>>=)]; do not replace
+   it with [List.concat_map].
+
+   Then define [group_by_sizes sizes xs]. Assume the input values are distinct.
+   Return every assignment to labelled groups of the requested sizes, consuming
+   every input exactly once. Return [] for a negative size or when the sizes do
+   not sum to the input length; [group_by_sizes [] []] is [[[]]]. Reuse
+   [choose_with_remainder] and list bind.
+
+   Test boundary cases, assert [choose_with_remainder 2 ['a';'b';'c';'d']]
+   contains exactly six choices, and assert
+   [group_by_sizes [2;1] ['a';'b';'c']] contains exactly three groupings. Also
+   test that labelled singleton groups produce both assignments for two inputs.
+   Explain how an empty list means failure while a singleton list containing an
+   empty grouping means one successful result.
+   Build and run before continuing. *)
+
+(* Task 8 — Prove the trivial monad laws.
    Define [Trivial] with ['a t = Wrap of 'a], [return x = Wrap x], and
    [Wrap x >>= f = f x]. In comments, prove for arbitrary values and functions:
 

@@ -1,4 +1,4 @@
-(** E09 — Folds and pipelines (70-100 min)
+(** E09 — Folds and pipelines (95-130 min)
 
     Build: [opam exec -- dune build exercises/e09_folds_pipelines_and_refactors.exe]
     Run: [opam exec -- dune exec exercises/e09_folds_pipelines_and_refactors.exe]
@@ -77,7 +77,25 @@
    ignoring values. Use [List.sort_uniq].
 
    Test [] and [(2, "b"); (1, "x"); (2, "c")]. State the asymptotic time
-   complexity in a comment. After every required assertion and written
-   explanation in E09 is present, print exactly [E09 passed].
+   complexity in a comment.
    Example form: [let unique_words words = List.sort_uniq String.compare words]
+   Build and run before continuing. *)
+
+(* Task 9 — Supplemental practice: sort by length frequency.
+   Inspired by 99 Problems P28. Define [length_sort xss] to sort sublists by
+   increasing length while preserving their input order when lengths tie.
+   Define [frequency_sort xss] to put sublists whose length occurs least often
+   first. Break equal-frequency ties by shorter length, then preserve input
+   order. Precompute each sublist's length and the length histogram; do not call
+   [List.length] repeatedly from a sort comparator.
+
+   Test [] and
+   [[[1;2;3]; [4]; [5;6]; [7]; [8;9;10]]]. The exact [length_sort] result is
+   [[[4]; [7]; [5;6]; [1;2;3]; [8;9;10]]]; the exact [frequency_sort] result is
+   [[[5;6]; [4]; [7]; [1;2;3]; [8;9;10]]]. State the time complexity in terms
+   of the outer-list length and total number of elements.
+
+   After every required assertion and written explanation in E09 is present,
+   print exactly [E09 passed].
+   Example form: [List.stable_sort (fun (_, a) (_, b) -> Int.compare a b) tagged]
    Build and run before continuing. *)

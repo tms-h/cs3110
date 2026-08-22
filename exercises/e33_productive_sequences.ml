@@ -1,4 +1,4 @@
-(** E33 — Productive infinite sequences (95-135 min)
+(** E33 — Productive infinite sequences (125-170 min)
 
     Build: [opam exec -- dune build exercises/e33_productive_sequences.exe] Run:
     [opam exec -- dune exec exercises/e33_productive_sequences.exe] *)
@@ -75,6 +75,25 @@
    counter to test that the minimally forcing [take] definition from Task 2 forces
    exactly four source tails while producing those five outputs.
    Example form: [let next_total = combine accumulated (head source)]
+   Build and run before continuing. *)
+
+(* Task 8 — Supplemental practice: stream reflected Gray-code layers.
+   Inspired by 99 Problems P49, with the ordering corrected to actual Gray code.
+   Define [next_gray layer] by prefixing ["0"] to the current layer and ["1"]
+   to its reversal. Define [gray_layers : string list sequence] whose first node
+   is the zero-bit layer [[""]] and whose successive nodes use [next_gray].
+   Define [gray n] by selecting layer [n] with Task 3's [nth]; negative widths
+   therefore raise [Invalid_argument "nth"].
+
+   Test exact layers 0 through 3, including
+   [["000";"001";"011";"010";"110";"111";"101";"100"]]. Define a Hamming-distance
+   helper and, for widths 1 through 6, assert there are [2^n] distinct n-bit
+   words and every adjacent pair—including the last paired with the first—differs
+   in exactly one bit. Factor an instrumentable layer producer or wrap its tail
+   thunks with a counter, then test that taking four layers forces only three
+   tails.
+
    After every required forcing explanation and assertion in E33 is present and
    passing, print the exact line ["E33 passed"] once, and not earlier.
+   Example form: [let left = List.map (fun bits -> "0" ^ bits) layer]
    Build and run before continuing. *)
