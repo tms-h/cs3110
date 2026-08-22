@@ -1,4 +1,0 @@
-(library
- (name e16_stage1_date)
- (wrapped false)
- (modules date))

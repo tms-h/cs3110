@@ -6,58 +6,77 @@
   e04_tail_recursion_and_shape
   e05_records_options_and_dates
   e06_variants_and_patterns
-  e08_function_composition
-  e09_folds_pipelines_and_refactors
-  e10_matrix_pipeline
-  e11_signatures_and_fractions
-  e12_queues_and_cost_models
-  e13_maps_and_bst_abstraction
-  e14_ordered_collections
-  e15_functors_and_include
-  e16_interface_boundaries
-  e17_algebra_refactor
-  e18_refs_aliasing_and_state
-  e19_arrays_and_mutation
-  e20_promises_from_scratch
-  e22_monads_by_type
-  e23_specification_game
-  e24_abstraction_functions
-  e27_induction_on_programs
-  e28_structural_proofs
-  e29_equational_specifications
-  e30_hash_tables_and_invariants
-  e31_linear_probing
-  e32_ordered_trees_and_traversal
-  e33_productive_sequences
-  e34_numerical_streams
-  e35_laziness_boundaries
-  e36_parser_orientation
-  e37_substitution_and_small_step
-  e38_extending_a_language
-  e39_environments_and_recursion
-  e40_unification_and_inference
-  e41_programs_as_proofs
-  e42_graph_search)
+  e07_functions_and_dataflow)
+ (modules
+  e01_semantics_sprint
+  e02_recursion_under_pressure
+  e03_lists_and_library
+  e04_tail_recursion_and_shape
+  e05_records_options_and_dates
+  e06_variants_and_patterns
+  e07_functions_and_dataflow)
  (libraries unix)
  (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
 
 (executable
- (name e21_lwt_scheduling)
- (libraries lwt.unix)
- (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+ (name e08_base_and_ppx)
+ (modules e08_base_and_ppx)
+ (libraries base stdio)
+ (preprocess
+  (pps ppx_jane))
+ (flags (:standard -w +a-4-32-34-37-39-40-42-52-60-66-69-70 -warn-error -A)))
 
 (executable
- (name e07_trees_invariants_and_errors)
- (libraries ounit2)
+ (name e09_modules_and_interfaces)
+ (modules e09_modules_and_interfaces)
+ (libraries base stdio)
  (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
 
-(executable
- (name e25_testing_from_contracts)
- (libraries unix ounit2 qcheck)
- (instrumentation (backend bisect_ppx))
- (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+(executables
+ (names
+  e10_persistent_data_structures
+  e11_hashing_and_graphs
+  e12_specs_errors_and_invariants
+  e14_proofs_and_types
+  e15_mutation_and_performance
+  e16_sequences_and_laziness
+  e18_parsing_and_interpreters
+  e19_type_inference)
+ (modules
+  e10_persistent_data_structures
+  e11_hashing_and_graphs
+  e12_specs_errors_and_invariants
+  e14_proofs_and_types
+  e15_mutation_and_performance
+  e16_sequences_and_laziness
+  e18_parsing_and_interpreters
+  e19_type_inference)
+ (libraries core)
+ (preprocess
+  (pps ppx_jane))
+ (flags (:standard -w +a-4-32-34-37-39-40-42-52-60-66-69-70 -warn-error -A)))
+
+(library
+ (name e13_expect_quickcheck_and_coverage)
+ (modules e13_expect_quickcheck_and_coverage)
+ (libraries core base_quickcheck)
+ (preprocess
+  (pps ppx_jane))
+ (inline_tests)
+ (flags (:standard -w +a-4-32-34-37-39-40-42-52-60-66-69-70 -warn-error -A)))
 
 (executable
- (name e26_property_driven_debugging)
- (libraries unix qcheck)
- (flags (:standard -w +a-32-34-37-39-52-60-69 -warn-error -A)))
+ (name e17_async_and_pipes)
+ (modules e17_async_and_pipes)
+ (libraries async)
+ (preprocess
+  (pps ppx_jane))
+ (flags (:standard -w +a-4-32-34-37-39-40-42-52-60-66-69-70 -warn-error -A)))
+
+(executable
+ (name e20_command_and_io)
+ (modules e20_command_and_io)
+ (libraries async core_unix.command_unix)
+ (preprocess
+  (pps ppx_jane))
+ (flags (:standard -w +a-4-32-34-37-39-40-42-52-60-66-69-70 -warn-error -A)))

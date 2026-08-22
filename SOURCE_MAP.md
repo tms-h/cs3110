@@ -2,14 +2,31 @@
 
 This map inventories all 208 marked exercises in the Fall 2026 CS 3110
 textbook at source commit `92827148583ed72060c4984c6075cf995d1d0a5e`.
-Only exercise names are indexed here; prompts in `exercises/` are original
-syntheses, not modified copies of the source text. `Direct` means the source's
-learning activity is explicitly retained, not that wording or examples are
-verbatim. `Extension` identifies additional project work. E01-E03 are protected
-learner files and their known gaps are recorded rather than silently counted as
-full coverage.
+Only exercise names are indexed here. The detailed table records the legacy
+E01-E41 textbook coverage before consolidation; the extra graph lab E42 is
+mapped in the summary. E01-E06 remain in place, and the required replacement
+sequence is E07-E20. Low-value repetition remains available in the pinned PDF.
 
-| Pinned PDF / web source | Lab | Fidelity status | Source exercise names |
+## Consolidated sequence
+
+| New file | Consolidates legacy material | Compression decision |
+|---|---|---|
+| E07 functions/dataflow | E08-E10 higher-order and fold work | repeated combinators and matrix implementation |
+| E08 Base/PPX | HOP library use plus public Jane Street conventions | duplicate Stdlib implementations |
+| E09 modules/interfaces | E11, E16, E17 | repeated staged modules and algebra refactors |
+| E10 persistent structures | E12-E15, E32 | one queue and BST plus balancing analysis; production clients use Core collections |
+| E11 hashing/graphs | E30-E31, E42 | one probing implementation; retain DFS, BFS, components, bipartite testing |
+| E12 specs/invariants | E07, E23-E24 | one integrated AF/RI and error-boundary case |
+| E13 testing/coverage | E25-E26 | translate OUnit/Bisect/QCheck repetition into expect tests and Base_quickcheck |
+| E14 proofs/types | E27-E29, E41 | consolidate repeated proofs; retain induction, strengthening, laws, Curry-Howard |
+| E15 mutation/performance | E18-E19 and practical E30 work | one measured pure/mutable comparison rather than repeated loops |
+| E16 sequences/laziness | E33-E35 | combine producers, fairness, numerical streams, forcing, and space behavior |
+| E17 Async/Pipe | E20-E22 | target Async directly; omit hand promises and the Lwt detour |
+| E18 interpreter | E36-E39 | one cumulative language instead of multiple generated-parser project stages |
+| E19 inference | E36 and E40 | retain constraints, unification, occurs checks, and inference |
+| E20 Command/I/O | integration of sexps, Async, validation | one real executable instead of a separate capstone tree |
+
+| Pinned PDF / web source | Legacy lab | Legacy fidelity status | Source exercise names |
 |---|---|---|---|
 | [PDF §4.9 / web Basics](https://cs3110.github.io/textbook/chapters/basics/exercises.html) | E01 | Partial, protected: `poly types`, application `associativity`, and `hello world` are absent | values; operators; equality; assert; if; double fun; more fun; RMS; poly types; divide; associativity; average; hello world |
 |  | E02 | Partial, protected: `date fun` is materially adapted and the debugging extension misdiagnoses its bug | date fun; fib; fib fast |
@@ -69,29 +86,8 @@ full coverage.
 | Curry-Howard | 3 |
 | **Total** | **208** |
 
-## Supplemental practice provenance
+## Supplemental practice
 
-These 15 task blocks are not part of the 208-exercise textbook count above.
-They consolidate selected ideas from
-[MassD/99 commit `aa564de`](https://github.com/MassD/99/tree/aa564decb846577e74de4bc91ba8d8f0d6f5960a)
-(MIT) when adjacent upstream steps would otherwise repeat the same traversal.
-The local prompts specify deterministic order, invalid inputs, adversarial
-checks, and completion evidence independently of the upstream implementations.
-
-| Local task | MassD/99 seed | Placement rationale |
-|---|---|---|
-| E06 Task 8 | [P07 nested-list flattening](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L57) | First recursive variant whose children alternate between nodes and lists |
-| E06 Task 9 | [P09-P13 run-length progression](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L75) | One direct codec and round-trip invariant replace five repetitive steps |
-| E09 Task 9 | [P28 length-frequency sorting](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L219) | Histogram, derived sort keys, stability, and a whole-input cost bound |
-| E12 Task 7 | [P50 Huffman coding](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L391) | Priority worklists and their costs contrast with the lab's FIFO queues |
-| E22 Task 7 | [P26-P27 combinations and grouping](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L203) | A real nondeterministic-search client for list-monad bind |
-| E32 Task 7 | [P68 traversal reconstruction](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L639) | Inverts the existing preorder and inorder traversals with explicit ambiguity checks |
-| E32 Task 8 | [P55 completely balanced trees](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L430) | Generates every valid shape instead of auditing a supplied tree |
-| E33 Task 8 | [P49 Gray code](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L374) | Corrected reflected-code layers become a productive sequence with forcing checks |
-| E34 Task 8 | [P35-P36 factorization](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L271) | Consumes the existing prime stream and retains multiplicities |
-| E34 Task 9 | [P34 and P37-P38 totients](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L259) | Compares a definition with a factorization-based algorithm |
-| E34 Task 10 | [P40 Goldbach pairs](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L312) | A deterministic finite client of prime generation |
-| E42 Task 1 | [P80 representation conversion](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L767) and [P87 DFS](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L844) | Establishes one precise graph contract and one-start traversal |
-| E42 Task 2 | [P81 simple paths](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L771) | Contrasts path-local visited state with global traversal state |
-| E42 Task 3 | [P88 connected components](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L848) | Reuses one-start traversal to cover disconnected and isolated vertices |
-| E42 Task 4 | [P89 bipartite graphs](https://github.com/MassD/99/blob/aa564decb846577e74de4bc91ba8d8f0d6f5960a/README.md#L852) | Adds deterministic two-colour propagation and odd-cycle conflicts |
+The former 15-task 99 Problems supplement is not part of the consolidated
+required path. E06 Tasks 8–9 remain only because E06 is protected learner work;
+they are explicitly optional. The other supplemental prompts were removed.
